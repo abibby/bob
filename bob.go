@@ -6,6 +6,7 @@ type SelectBuilder struct {
 	wheres   *Wheres
 	groupBys GroupBys
 	havings  *Havings
+	limit    *Limit
 }
 
 func New() *SelectBuilder {
@@ -23,5 +24,6 @@ func NewEmpty() *SelectBuilder {
 		wheres:   NewWheres(),
 		groupBys: GroupBys{},
 		havings:  NewHavings(),
+		limit:    &Limit{},
 	}
 }

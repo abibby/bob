@@ -47,6 +47,7 @@ func (b *SelectBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
 	r.add(b.wheres.ToSQL(d))
 	r.add(b.groupBys.ToSQL(d))
 	r.add(b.havings.ToSQL(d))
+	r.add(b.limit.ToSQL(d))
 
 	return r.ToSQL(d)
 }
