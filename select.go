@@ -26,7 +26,7 @@ func (s *Selects) ToSQL(d dialects.Dialect) (string, []any, error) {
 	return r.ToSQL(d)
 }
 
-func (b *Builder) Select(columns ...string) *Builder {
+func (b *SelectBuilder) Select(columns ...string) *SelectBuilder {
 	identifiers := make([]ToSQLer, len(columns))
 	for i, c := range columns {
 		if c == "*" {
@@ -39,23 +39,23 @@ func (b *Builder) Select(columns ...string) *Builder {
 	return b
 }
 
-func (b *Builder) AddSelect(columns ...string) *Builder {
+func (b *SelectBuilder) AddSelect(columns ...string) *SelectBuilder {
 	b.selects.list = append(b.selects.list, IdentifierList(columns)...)
 	return b
 }
 
-func (b *Builder) SelectSubquery(sb *Builder) *Builder {
+func (b *SelectBuilder) SelectSubquery(sb *SelectBuilder) *SelectBuilder {
 	b.selects.list = []ToSQLer{NewGroup(sb)}
 
 	return b
 }
-func (b *Builder) AddSelectSubquery(sb *Builder) *Builder {
+func (b *SelectBuilder) AddSelectSubquery(sb *SelectBuilder) *SelectBuilder {
 	b.selects.list = append(b.selects.list, NewGroup(sb))
 
 	return b
 }
 
-func (b *Builder) Distinct() *Builder {
+func (b *SelectBuilder) Distinct() *SelectBuilder {
 	b.selects.distinct = true
 	return b
 }

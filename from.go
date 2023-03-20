@@ -14,7 +14,7 @@ func (f FromTable) ToSQL(d dialects.Dialect) (string, []any, error) {
 	return "FROM " + d.Identifier(string(f)), nil, nil
 }
 
-func (b *Builder) From(table string) *Builder {
+func (b *SelectBuilder) From(table string) *SelectBuilder {
 	b.from = FromTable(table)
 	return b
 }

@@ -9,7 +9,7 @@ import (
 
 type TestCase[T any] struct {
 	name string
-	q    *Builder
+	q    *SelectBuilder
 	sql  string
 	args []any
 }

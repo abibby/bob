@@ -13,12 +13,12 @@ func (g GroupBys) ToSQL(d dialects.Dialect) (string, []any, error) {
 	r.add(ExpressionList(g).ToSQL(d))
 	return r.ToSQL(d)
 }
-func (b *Builder) GroupBy(columns ...string) *Builder {
+func (b *SelectBuilder) GroupBy(columns ...string) *SelectBuilder {
 	b.groupBys = IdentifierList(columns)
 	return b
 }
 
-func (b *Builder) AddGroupBy(columns ...string) *Builder {
+func (b *SelectBuilder) AddGroupBy(columns ...string) *SelectBuilder {
 	b.groupBys = append(b.groupBys, IdentifierList(columns)...)
 	return b
 }

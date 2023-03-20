@@ -40,7 +40,7 @@ func (r *sqlResult) ToSQL(d dialects.Dialect) (string, []any, error) {
 	return r.sql, r.args, r.err
 }
 
-func (b *Builder) ToSQL(d dialects.Dialect) (string, []any, error) {
+func (b *SelectBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
 	r := &sqlResult{}
 	r.add(b.selects.ToSQL(d))
 	r.add(b.from.ToSQL(d))
