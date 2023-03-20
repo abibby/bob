@@ -5,18 +5,18 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func (b *SelectBuilder) Get(v any) error {
+func (b *SelectBuilder) Get(tx *sqlx.Tx, v any) error {
 	q, args, err := b.ToSQL(&mysql.MySQL{})
 	if err != nil {
 		return err
 	}
-	return sqlx.Select(nil, v, q, args...)
+	return tx.Select(v, q, args...)
 }
 
-func (b *SelectBuilder) First(v any) error {
+func (b *SelectBuilder) First(tx *sqlx.Tx, v any) error {
 	q, args, err := b.ToSQL(&mysql.MySQL{})
 	if err != nil {
 		return err
 	}
-	return sqlx.Get(nil, v, q, args...)
+	return tx.Get(v, q, args...)
 }
