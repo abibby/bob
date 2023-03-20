@@ -7,6 +7,7 @@ type SelectBuilder struct {
 	groupBys GroupBys
 	havings  *Havings
 	limit    *Limit
+	orderBys OrderBys
 }
 
 func New() *SelectBuilder {
