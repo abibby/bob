@@ -1,4 +1,4 @@
-package bob
+package selects
 
 import (
 	"github.com/abibby/bob/dialects"
@@ -14,7 +14,7 @@ func (f FromTable) ToSQL(d dialects.Dialect) (string, []any, error) {
 	return "FROM " + d.Identifier(string(f)), nil, nil
 }
 
-func (b *SelectBuilder) From(table string) *SelectBuilder {
+func (b *Builder) From(table string) *Builder {
 	b.from = FromTable(table)
 	return b
 }

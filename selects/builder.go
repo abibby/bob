@@ -1,6 +1,6 @@
-package bob
+package selects
 
-type SelectBuilder struct {
+type Builder struct {
 	selects  *Selects
 	from     FromTable
 	wheres   *Wheres
@@ -10,16 +10,8 @@ type SelectBuilder struct {
 	orderBys OrderBys
 }
 
-func New() *SelectBuilder {
-	return NewEmpty().Select("*")
-}
-
-func From(m any) *SelectBuilder {
-	return New().From(GetTable(m))
-}
-
-func NewEmpty() *SelectBuilder {
-	return &SelectBuilder{
+func New() *Builder {
+	return &Builder{
 		selects:  NewSelects(),
 		from:     "",
 		wheres:   NewWheres(),

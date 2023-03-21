@@ -1,4 +1,4 @@
-package bob
+package builder
 
 import (
 	"reflect"

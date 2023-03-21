@@ -1,4 +1,4 @@
-package bob
+package selects
 
 import "github.com/abibby/bob/dialects"
 
@@ -23,20 +23,20 @@ func (w *Havings) ToSQL(d dialects.Dialect) (string, []any, error) {
 	return r.ToSQL(d)
 }
 
-func (b *SelectBuilder) Having(column, operator string, value any) *SelectBuilder {
+func (b *Builder) Having(column, operator string, value any) *Builder {
 	b.havings.WhereList = b.havings.Where(column, operator, value)
 	return b
 }
-func (b *SelectBuilder) OrHaving(column, operator string, value any) *SelectBuilder {
+func (b *Builder) OrHaving(column, operator string, value any) *Builder {
 	b.havings.WhereList = b.havings.OrWhere(column, operator, value)
 	return b
 }
-func (b *SelectBuilder) HavingAnd(cb func(b *WhereList)) *SelectBuilder {
+func (b *Builder) HavingAnd(cb func(b *WhereList)) *Builder {
 	b.havings.WhereList = b.havings.And(cb)
 	return b
 }
 
-func (b *SelectBuilder) HavingOr(cb func(b *WhereList)) *SelectBuilder {
+func (b *Builder) HavingOr(cb func(b *WhereList)) *Builder {
 	b.havings.WhereList = b.havings.Or(cb)
 	return b
 }

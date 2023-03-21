@@ -1,6 +1,10 @@
-package bob
+package builder
 
 import "github.com/abibby/bob/dialects"
+
+type ToSQLer interface {
+	ToSQL(d dialects.Dialect) (string, []any, error)
+}
 
 type Identifier string
 

@@ -1,6 +1,7 @@
-package bob
+package selects
 
 import (
+	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/dialects"
 )
 
@@ -41,14 +42,14 @@ func (w *WhereList) ToSQL(d dialects.Dialect) (string, []any, error) {
 		if w.Operator != "" {
 			r.addString(w.Operator)
 		}
-		if sb, ok := w.Value.(*SelectBuilder); ok {
-			r.add(NewGroup(sb).ToSQL(d))
+		if sb, ok := w.Value.(*Builder); ok {
+			r.add(builder.NewGroup(sb).ToSQL(d))
 		} else if sb, ok := w.Value.(*WhereList); ok {
-			r.add(NewGroup(sb).ToSQL(d))
-		} else if sb, ok := w.Value.(ToSQLer); ok {
+			r.add(builder.NewGroup(sb).ToSQL(d))
+		} else if sb, ok := w.Value.(builder.ToSQLer); ok {
 			r.add(sb.ToSQL(d))
 		} else {
-			r.add(NewLiteral(w.Value).ToSQL(d))
+			r.add(builder.NewLiteral(w.Value).ToSQL(d))
 		}
 	}
 

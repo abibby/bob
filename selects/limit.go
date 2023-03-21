@@ -1,4 +1,4 @@
-package bob
+package selects
 
 import (
 	"fmt"
@@ -23,11 +23,11 @@ func (l *Limit) ToSQL(d dialects.Dialect) (string, []any, error) {
 	return r.ToSQL(d)
 }
 
-func (b *SelectBuilder) Limit(limit int) *SelectBuilder {
+func (b *Builder) Limit(limit int) *Builder {
 	b.limit.limit = limit
 	return b
 }
-func (b *SelectBuilder) Offset(offset int) *SelectBuilder {
+func (b *Builder) Offset(offset int) *Builder {
 	b.limit.offset = offset
 	return b
 }
