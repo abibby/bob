@@ -6,7 +6,8 @@ import (
 	"testing"
 
 	"github.com/abibby/bob/builder"
-	"github.com/abibby/bob/dialects/mysql"
+	"github.com/abibby/bob/dialects"
+	_ "github.com/abibby/bob/dialects/sqlite"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
@@ -23,7 +24,7 @@ func QueryTest(t *testing.T, testCases []Case) {
 
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
-			q, bindings, err := tc.Builder.ToSQL(&mysql.MySQL{})
+			q, bindings, err := tc.Builder.ToSQL(dialects.DefaultDialect)
 			assert.NoError(t, err)
 
 			assert.Equal(t, tc.ExpectedSQL, q)

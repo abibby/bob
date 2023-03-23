@@ -1,4 +1,4 @@
-package mysql
+package sqlite
 
 import (
 	"strings"
@@ -6,22 +6,22 @@ import (
 	"github.com/abibby/bob/dialects"
 )
 
-type MySQL struct{}
+type SQLite struct{}
 
-var _ dialects.Dialect = &MySQL{}
+var _ dialects.Dialect = &SQLite{}
 
-func (*MySQL) Identifier(s string) string {
+func (*SQLite) Identifier(s string) string {
 	parts := strings.Split(s, ".")
 	for i, p := range parts {
-		parts[i] = "`" + p + "`"
+		parts[i] = "\"" + p + "\""
 	}
 	return strings.Join(parts, ".")
 }
 
-func (*MySQL) DataType(t dialects.DataType) string {
+func (*SQLite) DataType(t dialects.DataType) string {
 	switch t {
 	case dialects.DataTypeString:
-		return "varchar(255)"
+		return "text"
 	case dialects.DataTypeInteger:
 		return "int"
 	case dialects.DataTypeFloat:
@@ -31,5 +31,5 @@ func (*MySQL) DataType(t dialects.DataType) string {
 }
 
 func init() {
-	dialects.DefaultDialect = &MySQL{}
+	dialects.DefaultDialect = &SQLite{}
 }

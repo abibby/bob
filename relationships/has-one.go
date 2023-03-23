@@ -4,7 +4,6 @@ import (
 	"reflect"
 
 	"github.com/abibby/bob/builder"
-	"github.com/abibby/bob/dialects/mysql"
 	"github.com/abibby/bob/selects"
 	"github.com/jmoiron/sqlx"
 )
@@ -66,7 +65,6 @@ func (r *HasOne[T]) Load(tx *sqlx.Tx, relations []Relationship) error {
 		Select("*").
 		From(builder.GetTable(related)).
 		WhereIn(r.foreignKey, localKeys).
-		Dump(&mysql.MySQL{}).
 		Get(tx, &relatedLists)
 	if err != nil {
 		return err

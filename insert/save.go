@@ -2,13 +2,13 @@ package insert
 
 import (
 	"github.com/abibby/bob/builder"
-	"github.com/abibby/bob/dialects/mysql"
+	"github.com/abibby/bob/dialects"
 	scan "github.com/blockloop/scan/v2"
 	"github.com/jmoiron/sqlx"
 )
 
 func Save(tx *sqlx.Tx, v any) error {
-	d := &mysql.MySQL{}
+	d := dialects.DefaultDialect
 	columns, err := scan.Columns(v)
 	if err != nil {
 		return err
