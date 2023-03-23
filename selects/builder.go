@@ -1,13 +1,13 @@
 package selects
 
 type Builder struct {
-	selects  *Selects
-	from     FromTable
+	selects  *selects
+	from     fromTable
 	wheres   *Wheres
-	groupBys GroupBys
-	havings  *Havings
-	limit    *Limit
-	orderBys OrderBys
+	groupBys groupBys
+	havings  *havings
+	limit    *limit
+	orderBys orderBys
 }
 
 func New() *Builder {
@@ -15,8 +15,8 @@ func New() *Builder {
 		selects:  NewSelects(),
 		from:     "",
 		wheres:   NewWheres(),
-		groupBys: GroupBys{},
-		havings:  NewHavings(),
-		limit:    &Limit{},
+		groupBys: groupBys{},
+		havings:  newHavings(),
+		limit:    &limit{},
 	}
 }

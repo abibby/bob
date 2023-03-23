@@ -5,18 +5,18 @@ import (
 	"github.com/abibby/bob/dialects"
 )
 
-type Selects struct {
+type selects struct {
 	distinct bool
-	list     ExpressionList
+	list     []builder.ToSQLer
 }
 
-func NewSelects() *Selects {
-	return &Selects{
-		list: ExpressionList{},
+func NewSelects() *selects {
+	return &selects{
+		list: []builder.ToSQLer{},
 	}
 }
 
-func (s *Selects) ToSQL(d dialects.Dialect) (string, []any, error) {
+func (s *selects) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if len(s.list) == 0 {
 		return "", nil, nil
 	}
@@ -25,7 +25,7 @@ func (s *Selects) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if s.distinct {
 		r.AddString("DISTINCT")
 	}
-	r.Add(s.list.ToSQL(d))
+	r.Add(builder.Join(s.list, ", ").ToSQL(d))
 	return r.ToSQL(d)
 }
 

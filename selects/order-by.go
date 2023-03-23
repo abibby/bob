@@ -5,15 +5,15 @@ import (
 	"github.com/abibby/bob/dialects"
 )
 
-type OrderBys ExpressionList
+type orderBys []builder.ToSQLer
 
-func (g OrderBys) ToSQL(d dialects.Dialect) (string, []any, error) {
+func (g orderBys) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if len(g) == 0 {
 		return "", nil, nil
 	}
 	r := builder.Result()
 	r.AddString("ORDER BY")
-	r.Add(ExpressionList(g).ToSQL(d))
+	r.Add(builder.Join(g, ", ").ToSQL(d))
 	return r.ToSQL(d)
 }
 func (b *Builder) OrderBy(columns ...string) *Builder {

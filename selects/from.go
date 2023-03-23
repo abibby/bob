@@ -4,9 +4,9 @@ import (
 	"github.com/abibby/bob/dialects"
 )
 
-type FromTable string
+type fromTable string
 
-func (f FromTable) ToSQL(d dialects.Dialect) (string, []any, error) {
+func (f fromTable) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if f == "" {
 		return "", nil, nil
 	}
@@ -15,6 +15,6 @@ func (f FromTable) ToSQL(d dialects.Dialect) (string, []any, error) {
 }
 
 func (b *Builder) From(table string) *Builder {
-	b.from = FromTable(table)
+	b.from = fromTable(table)
 	return b
 }

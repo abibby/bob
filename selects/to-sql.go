@@ -6,14 +6,13 @@ import (
 )
 
 func (b *Builder) ToSQL(d dialects.Dialect) (string, []any, error) {
-	r := builder.Result()
-	r.Add(b.selects.ToSQL(d))
-	r.Add(b.from.ToSQL(d))
-	r.Add(b.wheres.ToSQL(d))
-	r.Add(b.groupBys.ToSQL(d))
-	r.Add(b.havings.ToSQL(d))
-	r.Add(b.limit.ToSQL(d))
-	r.Add(b.orderBys.ToSQL(d))
-
-	return r.ToSQL(d)
+	return builder.Result().
+		Add(b.selects.ToSQL(d)).
+		Add(b.from.ToSQL(d)).
+		Add(b.wheres.ToSQL(d)).
+		Add(b.groupBys.ToSQL(d)).
+		Add(b.havings.ToSQL(d)).
+		Add(b.limit.ToSQL(d)).
+		Add(b.orderBys.ToSQL(d)).
+		ToSQL(d)
 }

@@ -34,9 +34,9 @@ func TestHaving(t *testing.T) {
 		},
 		{
 			Name: "and group",
-			Builder: NewTestBuilder().HavingAnd(func(b *WhereList) {
+			Builder: NewTestBuilder().HavingAnd(func(b *whereList) {
 				b.Where("a", "=", "a").OrWhere("b", "=", "b")
-			}).HavingAnd(func(b *WhereList) {
+			}).HavingAnd(func(b *whereList) {
 				b.Where("c", "=", "c").OrWhere("d", "=", "d")
 			}),
 			ExpectedSQL:      "SELECT * FROM `foo` HAVING (`a` = ? OR `b` = ?) AND (`c` = ? OR `d` = ?)",
@@ -44,9 +44,9 @@ func TestHaving(t *testing.T) {
 		},
 		{
 			Name: "or group",
-			Builder: NewTestBuilder().HavingOr(func(b *WhereList) {
+			Builder: NewTestBuilder().HavingOr(func(b *whereList) {
 				b.Where("a", "=", "a").Where("b", "=", "b")
-			}).HavingOr(func(b *WhereList) {
+			}).HavingOr(func(b *whereList) {
 				b.Where("c", "=", "c").Where("d", "=", "d")
 			}),
 			ExpectedSQL:      "SELECT * FROM `foo` HAVING (`a` = ? AND `b` = ?) OR (`c` = ? AND `d` = ?)",

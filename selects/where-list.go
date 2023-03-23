@@ -5,24 +5,24 @@ import (
 	"github.com/abibby/bob/dialects"
 )
 
-type Where struct {
+type where struct {
 	Column   string
 	Operator string
 	Value    any
 	Or       bool
 }
 
-type WhereList struct {
-	list []*Where
+type whereList struct {
+	list []*where
 }
 
-func NewWhereList() *WhereList {
-	return &WhereList{
-		list: []*Where{},
+func newWhereList() *whereList {
+	return &whereList{
+		list: []*where{},
 	}
 }
 
-func (w *WhereList) ToSQL(d dialects.Dialect) (string, []any, error) {
+func (w *whereList) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if len(w.list) == 0 {
 		return "", nil, nil
 	}
@@ -44,7 +44,7 @@ func (w *WhereList) ToSQL(d dialects.Dialect) (string, []any, error) {
 		}
 		if sb, ok := w.Value.(*Builder); ok {
 			r.Add(builder.NewGroup(sb).ToSQL(d))
-		} else if sb, ok := w.Value.(*WhereList); ok {
+		} else if sb, ok := w.Value.(*whereList); ok {
 			r.Add(builder.NewGroup(sb).ToSQL(d))
 		} else if sb, ok := w.Value.(builder.ToSQLer); ok {
 			r.Add(sb.ToSQL(d))
@@ -56,32 +56,28 @@ func (w *WhereList) ToSQL(d dialects.Dialect) (string, []any, error) {
 	return r.ToSQL(d)
 }
 
-func (w *WhereList) Where(column, operator string, value any) *WhereList {
+func (w *whereList) Where(column, operator string, value any) *whereList {
 	return w.where(column, operator, value, false)
 }
 
-func (w *WhereList) OrWhere(column, operator string, value any) *WhereList {
+func (w *whereList) OrWhere(column, operator string, value any) *whereList {
 	return w.where(column, operator, value, true)
 }
 
-func (w *WhereList) WhereIn(column string, values []any) *WhereList {
+func (w *whereList) WhereIn(column string, values []any) *whereList {
 	return w.whereIn(column, values, false)
 }
 
-func (w *WhereList) OrWhereIn(column string, values []any) *WhereList {
+func (w *whereList) OrWhereIn(column string, values []any) *whereList {
 	return w.whereIn(column, values, true)
 }
 
-func (w *WhereList) whereIn(column string, values []any, or bool) *WhereList {
-	exprs := make(ExpressionList, len(values))
-	for i, v := range values {
-		exprs[i] = builder.NewLiteral(v)
-	}
-	return w.where(column, "in", builder.NewGroup(exprs), or)
+func (w *whereList) whereIn(column string, values []any, or bool) *whereList {
+	return w.where(column, "in", builder.NewGroup(builder.Join(builder.LiteralList(values), ", ")), or)
 }
 
-func (w *WhereList) where(column, operator string, value any, or bool) *WhereList {
-	w.list = append(w.list, &Where{
+func (w *whereList) where(column, operator string, value any, or bool) *whereList {
+	w.list = append(w.list, &where{
 		Column:   column,
 		Operator: operator,
 		Value:    value,
@@ -90,16 +86,16 @@ func (w *WhereList) where(column, operator string, value any, or bool) *WhereLis
 	return w
 }
 
-func (w *WhereList) And(cb func(w *WhereList)) *WhereList {
-	subBuilder := NewWhereList()
+func (w *whereList) And(cb func(w *whereList)) *whereList {
+	subBuilder := newWhereList()
 	cb(subBuilder)
-	w.list = append(w.list, &Where{Value: subBuilder})
+	w.list = append(w.list, &where{Value: subBuilder})
 	return w
 }
 
-func (w *WhereList) Or(cb func(w *WhereList)) *WhereList {
-	subBuilder := NewWhereList()
+func (w *whereList) Or(cb func(w *whereList)) *whereList {
+	subBuilder := newWhereList()
 	cb(subBuilder)
-	w.list = append(w.list, &Where{Value: subBuilder, Or: true})
+	w.list = append(w.list, &where{Value: subBuilder, Or: true})
 	return w
 }

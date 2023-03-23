@@ -7,12 +7,12 @@ import (
 	"github.com/abibby/bob/dialects"
 )
 
-type Limit struct {
+type limit struct {
 	limit  int
 	offset int
 }
 
-func (l *Limit) ToSQL(d dialects.Dialect) (string, []any, error) {
+func (l *limit) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if l.limit == 0 && l.offset == 0 {
 		return "", nil, nil
 	}

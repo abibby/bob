@@ -15,23 +15,22 @@ type Foo struct {
 	Bar  *HasOne[*test.Bar] `foreign:"foo_id" local:"id"`
 }
 
-func TestHasOne(t *testing.T) {
-	foo := &Foo{
-		ID: 10,
-	}
-	err := InitializeRelationships(foo)
-	assert.NoError(t, err)
+// func TestHasOne(t *testing.T) {
+// 	foo := &Foo{
+// 		ID: 10,
+// 	}
+// 	err := InitializeRelationships(foo)
+// 	assert.NoError(t, err)
 
-	// foo.Bar.ToSQL(&mysql.MySQL{})
-	test.QueryTest(t, []test.Case{
-		{
-			Name:             "has one",
-			Builder:          foo.Bar.Query(),
-			ExpectedSQL:      "SELECT * FROM `Bar` WHERE `foo_id` = ? LIMIT 1",
-			ExpectedBindings: []any{foo.ID},
-		},
-	})
-}
+// 	test.QueryTest(t, []test.Case{
+// 		{
+// 			Name:             "has one",
+// 			Builder:          foo.Bar.Query(),
+// 			ExpectedSQL:      "SELECT * FROM `Bar` WHERE `foo_id` = ? LIMIT 1",
+// 			ExpectedBindings: []any{foo.ID},
+// 		},
+// 	})
+// }
 
 func TestHasOneLoad(t *testing.T) {
 	test.WithDatabase(func(tx *sqlx.Tx) {

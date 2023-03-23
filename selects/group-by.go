@@ -5,15 +5,15 @@ import (
 	"github.com/abibby/bob/dialects"
 )
 
-type GroupBys ExpressionList
+type groupBys []builder.ToSQLer
 
-func (g GroupBys) ToSQL(d dialects.Dialect) (string, []any, error) {
+func (g groupBys) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if len(g) == 0 {
 		return "", nil, nil
 	}
 	r := builder.Result()
 	r.AddString("GROUP BY")
-	r.Add(ExpressionList(g).ToSQL(d))
+	r.Add(builder.Join(g, ", ").ToSQL(d))
 	return r.ToSQL(d)
 }
 func (b *Builder) GroupBy(columns ...string) *Builder {
