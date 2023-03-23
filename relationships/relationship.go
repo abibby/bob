@@ -4,7 +4,6 @@ import (
 	"reflect"
 
 	"github.com/abibby/bob/builder"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -20,7 +19,6 @@ func getValue(v any, key string) (any, bool) {
 		rv = rv.Elem()
 	}
 	if rv.Kind() != reflect.Struct {
-		spew.Dump("not struct", rv.Kind())
 		return nil, false
 	}
 	rt := rv.Type()

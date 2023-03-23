@@ -4,7 +4,6 @@ import (
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/dialects/mysql"
 	"github.com/abibby/bob/selects"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -60,6 +59,5 @@ func getRelated[T any](tx *sqlx.Tx, r iHasOneOrMany, relations []Relationship) (
 	if err != nil {
 		return nil, err
 	}
-	spew.Dump(relatedLists)
 	return relatedLists, nil
 }

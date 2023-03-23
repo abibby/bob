@@ -30,12 +30,12 @@ func TestHasMany_Load(t *testing.T) {
 			assert.NoError(t, insert.Save(tx, f))
 		}
 		bars := []*Bar{
-			{ID: 4, FooID: 1},
-			{ID: 5, FooID: 1},
-			{ID: 6, FooID: 2},
-			{ID: 7, FooID: 2},
-			{ID: 8, FooID: 3},
-			{ID: 9, FooID: 3},
+			{ID: 2, FooID: 1},
+			{ID: 3, FooID: 1},
+			{ID: 4, FooID: 2},
+			{ID: 5, FooID: 2},
+			{ID: 6, FooID: 3},
+			{ID: 7, FooID: 3},
 		}
 		for _, b := range bars {
 			assert.NoError(t, insert.Save(tx, b))
@@ -47,9 +47,14 @@ func TestHasMany_Load(t *testing.T) {
 		assert.NoError(t, err)
 
 		for _, foo := range foos {
-			assert.Len(t, foo.Bars.value, 2)
 			assert.True(t, foo.Bars.loaded)
-			// assert.Equal(t, &test.Foo{ID: bar.FooID}, bar.Foo.value)
+			assert.Equal(t,
+				[]*Bar{
+					{ID: foo.ID * 2, FooID: foo.ID},
+					{ID: foo.ID*2 + 1, FooID: foo.ID},
+				},
+				foo.Bars.value,
+			)
 		}
 	})
 }
