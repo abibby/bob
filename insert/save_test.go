@@ -17,7 +17,7 @@ func TestSave(t *testing.T) {
 		err := Save(tx, f)
 		assert.NoError(t, err)
 
-		rows, err := tx.Query("select id, name from foo")
+		rows, err := tx.Query("select id, name from foos")
 		assert.NoError(t, err)
 
 		assert.True(t, rows.Next())

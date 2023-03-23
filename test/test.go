@@ -43,13 +43,20 @@ type Bar struct {
 	FooID int `db:"foo_id"`
 }
 
-const createTables = `CREATE TABLE foo (
-	id int,
-	name varchar(255)
+type Baz struct {
+	ID    int `db:"id"`
+	FooID int `db:"foo_id"`
+}
+
+const createTables = `CREATE TABLE foos (
+	id int not null,
+	name varchar(255) not null default '',
+	PRIMARY KEY (id)
 );
-CREATE TABLE bar (
-	id int,
-	foo_id int
+CREATE TABLE bars (
+	id int not null,
+	foo_id int not null,
+	PRIMARY KEY (id)
 );`
 
 func WithDatabase(cb func(tx *sqlx.Tx)) {

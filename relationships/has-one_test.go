@@ -9,10 +9,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type Foo struct {
-	ID   int                `db:"id"`
-	Name string             `db:"name"`
-	Bar  *HasOne[*test.Bar] `foreign:"foo_id" local:"id"`
+func TestHasOne_has_correct_internal_keys(t *testing.T) {
+	f := &Foo{}
+
+	InitializeRelationships(f)
+
+	assert.Equal(t, "foo_id", f.Bar.getRelatedKey())
+	assert.Equal(t, "id", f.Bar.getParentKey())
 }
 
 // func TestHasOne(t *testing.T) {
@@ -52,7 +55,8 @@ func TestHasOneLoad(t *testing.T) {
 		assert.NoError(t, err)
 
 		for _, foo := range foos {
-			assert.Equal(t, &test.Bar{ID: foo.ID + 3, FooID: foo.ID}, foo.Bar.value)
+			assert.Equal(t, &Bar{ID: foo.ID + 3, FooID: foo.ID}, foo.Bar.value)
+			assert.True(t, foo.Bar.loaded)
 		}
 	})
 }

@@ -7,6 +7,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/mattn/go-sqlite3 v1.14.16
+	github.com/stoewer/go-strcase v1.2.1
 	github.com/stretchr/testify v1.8.2
 )
 

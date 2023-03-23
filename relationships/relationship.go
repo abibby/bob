@@ -3,6 +3,7 @@ package relationships
 import (
 	"reflect"
 
+	"github.com/abibby/bob/builder"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/jmoiron/sqlx"
 )
@@ -30,4 +31,20 @@ func getValue(v any, key string) (any, bool) {
 		}
 	}
 	return nil, false
+}
+
+func foreignKeyName(field reflect.StructField, tag string, tableType any) string {
+	t, ok := field.Tag.Lookup(tag)
+	if ok {
+		return t
+	}
+	return builder.GetTableSingular(tableType) + "_id"
+}
+
+func primaryKeyName(field reflect.StructField, tag string) string {
+	t, ok := field.Tag.Lookup(tag)
+	if ok {
+		return t
+	}
+	return "id"
 }
