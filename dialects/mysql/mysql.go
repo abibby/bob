@@ -17,3 +17,15 @@ func (*MySQL) Identifier(s string) string {
 	}
 	return strings.Join(parts, ".")
 }
+
+func (*MySQL) DataType(t dialects.DataType) string {
+	switch t {
+	case dialects.DataTypeString:
+		return "varchar(255)"
+	case dialects.DataTypeInteger:
+		return "int"
+	case dialects.DataTypeFloat:
+		return "float"
+	}
+	return string(t)
+}

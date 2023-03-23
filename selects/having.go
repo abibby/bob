@@ -1,6 +1,9 @@
 package selects
 
-import "github.com/abibby/bob/dialects"
+import (
+	"github.com/abibby/bob/builder"
+	"github.com/abibby/bob/dialects"
+)
 
 type Havings struct {
 	*WhereList
@@ -17,9 +20,9 @@ func (w *Havings) ToSQL(d dialects.Dialect) (string, []any, error) {
 		return "", nil, nil
 	}
 
-	r := &sqlResult{}
-	r.addString("HAVING")
-	r.add(w.WhereList.ToSQL(d))
+	r := builder.Result()
+	r.AddString("HAVING")
+	r.Add(w.WhereList.ToSQL(d))
 	return r.ToSQL(d)
 }
 

@@ -1,9 +1,17 @@
 package builder
 
-import "github.com/abibby/bob/dialects"
+import (
+	"github.com/abibby/bob/dialects"
+)
 
 type ToSQLer interface {
 	ToSQL(d dialects.Dialect) (string, []any, error)
+}
+
+type toSQLFunc func(d dialects.Dialect) (string, []any, error)
+
+func (f toSQLFunc) ToSQL(d dialects.Dialect) (string, []any, error) {
+	return f(d)
 }
 
 type Identifier string
@@ -18,6 +26,25 @@ func IdentifierList(strs []string) []ToSQLer {
 		identifiers[i] = Identifier(s)
 	}
 	return identifiers
+}
+
+func Join(sqlers []ToSQLer, sep string) ToSQLer {
+	return toSQLFunc(func(d dialects.Dialect) (string, []any, error) {
+		sql := ""
+		bindings := []any{}
+		for i, sqler := range sqlers {
+			q, b, err := sqler.ToSQL(d)
+			if err != nil {
+				return "", nil, err
+			}
+			sql += q
+			if i < len(sqlers)-1 {
+				sql += sep
+			}
+			bindings = append(bindings, b...)
+		}
+		return sql, bindings, nil
+	})
 }
 
 type Raw string
@@ -35,8 +62,8 @@ func NewGroup(sqler ToSQLer) ToSQLer {
 }
 
 func (g *Group) ToSQL(d dialects.Dialect) (string, []any, error) {
-	q, args, err := g.sqler.ToSQL(d)
-	return "(" + q + ")", args, err
+	q, bindings, err := g.sqler.ToSQL(d)
+	return "(" + q + ")", bindings, err
 }
 
 type Literal struct{ value any }
@@ -46,4 +73,12 @@ func NewLiteral(v any) ToSQLer {
 }
 func (l Literal) ToSQL(d dialects.Dialect) (string, []any, error) {
 	return "?", []any{l.value}, nil
+}
+
+func LiteralList(values []any) []ToSQLer {
+	literals := make([]ToSQLer, len(values))
+	for i, s := range values {
+		literals[i] = NewLiteral(s)
+	}
+	return literals
 }

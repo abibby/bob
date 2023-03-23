@@ -27,29 +27,29 @@ func (w *WhereList) ToSQL(d dialects.Dialect) (string, []any, error) {
 		return "", nil, nil
 	}
 
-	r := &sqlResult{}
+	r := builder.Result()
 	for i, w := range w.list {
 		if i != 0 {
 			if w.Or == true {
-				r.addString("OR")
+				r.AddString("OR")
 			} else {
-				r.addString("AND")
+				r.AddString("AND")
 			}
 		}
 		if w.Column != "" {
-			r.addString(d.Identifier(w.Column))
+			r.AddString(d.Identifier(w.Column))
 		}
 		if w.Operator != "" {
-			r.addString(w.Operator)
+			r.AddString(w.Operator)
 		}
 		if sb, ok := w.Value.(*Builder); ok {
-			r.add(builder.NewGroup(sb).ToSQL(d))
+			r.Add(builder.NewGroup(sb).ToSQL(d))
 		} else if sb, ok := w.Value.(*WhereList); ok {
-			r.add(builder.NewGroup(sb).ToSQL(d))
+			r.Add(builder.NewGroup(sb).ToSQL(d))
 		} else if sb, ok := w.Value.(builder.ToSQLer); ok {
-			r.add(sb.ToSQL(d))
+			r.Add(sb.ToSQL(d))
 		} else {
-			r.add(builder.NewLiteral(w.Value).ToSQL(d))
+			r.Add(builder.NewLiteral(w.Value).ToSQL(d))
 		}
 	}
 
@@ -62,6 +62,22 @@ func (w *WhereList) Where(column, operator string, value any) *WhereList {
 
 func (w *WhereList) OrWhere(column, operator string, value any) *WhereList {
 	return w.where(column, operator, value, true)
+}
+
+func (w *WhereList) WhereIn(column string, values []any) *WhereList {
+	return w.whereIn(column, values, false)
+}
+
+func (w *WhereList) OrWhereIn(column string, values []any) *WhereList {
+	return w.whereIn(column, values, true)
+}
+
+func (w *WhereList) whereIn(column string, values []any, or bool) *WhereList {
+	exprs := make(ExpressionList, len(values))
+	for i, v := range values {
+		exprs[i] = builder.NewLiteral(v)
+	}
+	return w.where(column, "in", builder.NewGroup(exprs), or)
 }
 
 func (w *WhereList) where(column, operator string, value any, or bool) *WhereList {

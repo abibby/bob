@@ -6,17 +6,22 @@ import (
 )
 
 func (b *Builder) Get(tx *sqlx.Tx, v any) error {
-	q, args, err := b.ToSQL(&mysql.MySQL{})
+	q, bindings, err := b.ToSQL(&mysql.MySQL{})
 	if err != nil {
 		return err
 	}
-	return tx.Select(v, q, args...)
+
+	return tx.Select(v, q, bindings...)
 }
 
 func (b *Builder) First(tx *sqlx.Tx, v any) error {
-	q, args, err := b.ToSQL(&mysql.MySQL{})
+	lastLimit := b.limit
+	q, bindings, err := b.Limit(1).ToSQL(&mysql.MySQL{})
+	b.limit = lastLimit
+
 	if err != nil {
 		return err
 	}
-	return tx.Get(v, q, args...)
+
+	return tx.Get(v, q, bindings...)
 }

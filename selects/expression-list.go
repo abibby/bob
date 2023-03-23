@@ -8,13 +8,13 @@ import (
 type ExpressionList []builder.ToSQLer
 
 func (e ExpressionList) ToSQL(d dialects.Dialect) (string, []any, error) {
-	r := &sqlResult{}
+	r := builder.Result()
 	for i, expr := range e {
-		q, args, err := expr.ToSQL(d)
+		q, bindings, err := expr.ToSQL(d)
 		if i < len(e)-1 {
 			q += ","
 		}
-		r.add(q, args, err)
+		r.Add(q, bindings, err)
 	}
 	return r.ToSQL(d)
 }

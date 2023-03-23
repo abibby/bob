@@ -20,12 +20,12 @@ func (s *Selects) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if len(s.list) == 0 {
 		return "", nil, nil
 	}
-	r := &sqlResult{}
-	r.addString("SELECT")
+	r := builder.Result()
+	r.AddString("SELECT")
 	if s.distinct {
-		r.addString("DISTINCT")
+		r.AddString("DISTINCT")
 	}
-	r.add(s.list.ToSQL(d))
+	r.Add(s.list.ToSQL(d))
 	return r.ToSQL(d)
 }
 

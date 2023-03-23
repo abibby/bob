@@ -11,9 +11,9 @@ func (g OrderBys) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if len(g) == 0 {
 		return "", nil, nil
 	}
-	r := &sqlResult{}
-	r.addString("ORDER BY")
-	r.add(ExpressionList(g).ToSQL(d))
+	r := builder.Result()
+	r.AddString("ORDER BY")
+	r.Add(ExpressionList(g).ToSQL(d))
 	return r.ToSQL(d)
 }
 func (b *Builder) OrderBy(columns ...string) *Builder {

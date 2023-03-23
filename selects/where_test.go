@@ -58,5 +58,11 @@ func TestWhere(t *testing.T) {
 			"SELECT * FROM `foo` WHERE `a` = (SELECT `a` FROM `foo` WHERE `id` = ?)",
 			[]any{1},
 		},
+		{
+			"wherein",
+			NewTestBuilder().WhereIn("a", []any{1, 2, 3}),
+			"SELECT * FROM `foo` WHERE `a` in (?, ?, ?)",
+			[]any{1, 2, 3},
+		},
 	})
 }

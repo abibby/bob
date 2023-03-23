@@ -11,9 +11,9 @@ func (g GroupBys) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if len(g) == 0 {
 		return "", nil, nil
 	}
-	r := &sqlResult{}
-	r.addString("GROUP BY")
-	r.add(ExpressionList(g).ToSQL(d))
+	r := builder.Result()
+	r.AddString("GROUP BY")
+	r.Add(ExpressionList(g).ToSQL(d))
 	return r.ToSQL(d)
 }
 func (b *Builder) GroupBy(columns ...string) *Builder {
