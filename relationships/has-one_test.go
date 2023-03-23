@@ -25,10 +25,10 @@ func TestHasOne(t *testing.T) {
 	// foo.Bar.ToSQL(&mysql.MySQL{})
 	test.QueryTest(t, []test.Case{
 		{
-			"has one",
-			foo.Bar.Query(),
-			"SELECT * FROM `Bar` WHERE `foo_id` = ? LIMIT 1",
-			[]any{foo.ID},
+			Name:             "has one",
+			Builder:          foo.Bar.Query(),
+			ExpectedSQL:      "SELECT * FROM `Bar` WHERE `foo_id` = ? LIMIT 1",
+			ExpectedBindings: []any{foo.ID},
 		},
 	})
 }

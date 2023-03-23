@@ -9,22 +9,22 @@ import (
 func TestGroupBy(t *testing.T) {
 	test.QueryTest(t, []test.Case{
 		{
-			"one group",
-			NewTestBuilder().GroupBy("a"),
-			"SELECT * FROM `foo` GROUP BY `a`",
-			[]any{},
+			Name:             "one group",
+			Builder:          NewTestBuilder().GroupBy("a"),
+			ExpectedSQL:      "SELECT * FROM `foo` GROUP BY `a`",
+			ExpectedBindings: []any{},
 		},
 		{
-			"two groups",
-			NewTestBuilder().GroupBy("a", "b"),
-			"SELECT * FROM `foo` GROUP BY `a`, `b`",
-			[]any{},
+			Name:             "two groups",
+			Builder:          NewTestBuilder().GroupBy("a", "b"),
+			ExpectedSQL:      "SELECT * FROM `foo` GROUP BY `a`, `b`",
+			ExpectedBindings: []any{},
 		},
 		{
-			"different table",
-			NewTestBuilder().GroupBy("a.b"),
-			"SELECT * FROM `foo` GROUP BY `a`.`b`",
-			[]any{},
+			Name:             "different table",
+			Builder:          NewTestBuilder().GroupBy("a.b"),
+			ExpectedSQL:      "SELECT * FROM `foo` GROUP BY `a`.`b`",
+			ExpectedBindings: []any{},
 		},
 	})
 }

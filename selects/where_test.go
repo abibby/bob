@@ -9,60 +9,60 @@ import (
 func TestWhere(t *testing.T) {
 	test.QueryTest(t, []test.Case{
 		{
-			"one where",
-			NewTestBuilder().Where("a", "=", "b"),
-			"SELECT * FROM `foo` WHERE `a` = ?",
-			[]any{"b"},
+			Name:             "one where",
+			Builder:          NewTestBuilder().Where("a", "=", "b"),
+			ExpectedSQL:      "SELECT * FROM `foo` WHERE `a` = ?",
+			ExpectedBindings: []any{"b"},
 		},
 		{
-			"2 wheres",
-			NewTestBuilder().Where("a", "=", "b").Where("c", "=", "d"),
-			"SELECT * FROM `foo` WHERE `a` = ? AND `c` = ?",
-			[]any{"b", "d"},
+			Name:             "2 wheres",
+			Builder:          NewTestBuilder().Where("a", "=", "b").Where("c", "=", "d"),
+			ExpectedSQL:      "SELECT * FROM `foo` WHERE `a` = ? AND `c` = ?",
+			ExpectedBindings: []any{"b", "d"},
 		},
 		{
-			"specified table",
-			NewTestBuilder().Where("foo.a", "=", "b"),
-			"SELECT * FROM `foo` WHERE `foo`.`a` = ?",
-			[]any{"b"},
+			Name:             "specified table",
+			Builder:          NewTestBuilder().Where("foo.a", "=", "b"),
+			ExpectedSQL:      "SELECT * FROM `foo` WHERE `foo`.`a` = ?",
+			ExpectedBindings: []any{"b"},
 		},
 		{
-			"or where",
-			NewTestBuilder().Where("a", "=", "b").OrWhere("c", "=", "d"),
-			"SELECT * FROM `foo` WHERE `a` = ? OR `c` = ?",
-			[]any{"b", "d"},
+			Name:             "or where",
+			Builder:          NewTestBuilder().Where("a", "=", "b").OrWhere("c", "=", "d"),
+			ExpectedSQL:      "SELECT * FROM `foo` WHERE `a` = ? OR `c` = ?",
+			ExpectedBindings: []any{"b", "d"},
 		},
 		{
-			"and group",
-			NewTestBuilder().And(func(b *WhereList) {
+			Name: "and group",
+			Builder: NewTestBuilder().And(func(b *WhereList) {
 				b.Where("a", "=", "a").OrWhere("b", "=", "b")
 			}).And(func(b *WhereList) {
 				b.Where("c", "=", "c").OrWhere("d", "=", "d")
 			}),
-			"SELECT * FROM `foo` WHERE (`a` = ? OR `b` = ?) AND (`c` = ? OR `d` = ?)",
-			[]any{"a", "b", "c", "d"},
+			ExpectedSQL:      "SELECT * FROM `foo` WHERE (`a` = ? OR `b` = ?) AND (`c` = ? OR `d` = ?)",
+			ExpectedBindings: []any{"a", "b", "c", "d"},
 		},
 		{
-			"or group",
-			NewTestBuilder().Or(func(b *WhereList) {
+			Name: "or group",
+			Builder: NewTestBuilder().Or(func(b *WhereList) {
 				b.Where("a", "=", "a").Where("b", "=", "b")
 			}).Or(func(b *WhereList) {
 				b.Where("c", "=", "c").Where("d", "=", "d")
 			}),
-			"SELECT * FROM `foo` WHERE (`a` = ? AND `b` = ?) OR (`c` = ? AND `d` = ?)",
-			[]any{"a", "b", "c", "d"},
+			ExpectedSQL:      "SELECT * FROM `foo` WHERE (`a` = ? AND `b` = ?) OR (`c` = ? AND `d` = ?)",
+			ExpectedBindings: []any{"a", "b", "c", "d"},
 		},
 		{
-			"subquery",
-			NewTestBuilder().Where("a", "=", NewTestBuilder().Select("a").Where("id", "=", 1)),
-			"SELECT * FROM `foo` WHERE `a` = (SELECT `a` FROM `foo` WHERE `id` = ?)",
-			[]any{1},
+			Name:             "subquery",
+			Builder:          NewTestBuilder().Where("a", "=", NewTestBuilder().Select("a").Where("id", "=", 1)),
+			ExpectedSQL:      "SELECT * FROM `foo` WHERE `a` = (SELECT `a` FROM `foo` WHERE `id` = ?)",
+			ExpectedBindings: []any{1},
 		},
 		{
-			"wherein",
-			NewTestBuilder().WhereIn("a", []any{1, 2, 3}),
-			"SELECT * FROM `foo` WHERE `a` in (?, ?, ?)",
-			[]any{1, 2, 3},
+			Name:             "wherein",
+			Builder:          NewTestBuilder().WhereIn("a", []any{1, 2, 3}),
+			ExpectedSQL:      "SELECT * FROM `foo` WHERE `a` in (?, ?, ?)",
+			ExpectedBindings: []any{1, 2, 3},
 		},
 	})
 }

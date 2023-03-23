@@ -9,22 +9,22 @@ import (
 func TestLimit(t *testing.T) {
 	test.QueryTest(t, []test.Case{
 		{
-			"limit",
-			NewTestBuilder().Limit(1),
-			"SELECT * FROM `foo` LIMIT 1",
-			[]any{},
+			Name:             "limit",
+			Builder:          NewTestBuilder().Limit(1),
+			ExpectedSQL:      "SELECT * FROM `foo` LIMIT 1",
+			ExpectedBindings: []any{},
 		},
 		{
-			"offset",
-			NewTestBuilder().Offset(1),
-			"SELECT * FROM `foo` LIMIT 0 OFFSET 1",
-			[]any{},
+			Name:             "offset",
+			Builder:          NewTestBuilder().Offset(1),
+			ExpectedSQL:      "SELECT * FROM `foo` LIMIT 0 OFFSET 1",
+			ExpectedBindings: []any{},
 		},
 		{
-			"limit and offset",
-			NewTestBuilder().Limit(1).Offset(2),
-			"SELECT * FROM `foo` LIMIT 1 OFFSET 2",
-			[]any{},
+			Name:             "limit and offset",
+			Builder:          NewTestBuilder().Limit(1).Offset(2),
+			ExpectedSQL:      "SELECT * FROM `foo` LIMIT 1 OFFSET 2",
+			ExpectedBindings: []any{},
 		},
 	})
 }

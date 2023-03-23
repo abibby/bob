@@ -9,22 +9,22 @@ import (
 func TestOrderBy(t *testing.T) {
 	test.QueryTest(t, []test.Case{
 		{
-			"one group",
-			NewTestBuilder().OrderBy("a"),
-			"SELECT * FROM `foo` ORDER BY `a`",
-			[]any{},
+			Name:             "one group",
+			Builder:          NewTestBuilder().OrderBy("a"),
+			ExpectedSQL:      "SELECT * FROM `foo` ORDER BY `a`",
+			ExpectedBindings: []any{},
 		},
 		{
-			"two groups",
-			NewTestBuilder().OrderBy("a", "b"),
-			"SELECT * FROM `foo` ORDER BY `a`, `b`",
-			[]any{},
+			Name:             "two groups",
+			Builder:          NewTestBuilder().OrderBy("a", "b"),
+			ExpectedSQL:      "SELECT * FROM `foo` ORDER BY `a`, `b`",
+			ExpectedBindings: []any{},
 		},
 		{
-			"different table",
-			NewTestBuilder().OrderBy("a.b"),
-			"SELECT * FROM `foo` ORDER BY `a`.`b`",
-			[]any{},
+			Name:             "different table",
+			Builder:          NewTestBuilder().OrderBy("a.b"),
+			ExpectedSQL:      "SELECT * FROM `foo` ORDER BY `a`.`b`",
+			ExpectedBindings: []any{},
 		},
 	})
 }
