@@ -8,6 +8,7 @@ import (
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/dialects"
 	_ "github.com/abibby/bob/dialects/sqlite"
+	"github.com/abibby/bob/selects"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
@@ -34,18 +35,16 @@ func QueryTest(t *testing.T, testCases []Case) {
 }
 
 type Foo struct {
-	ID   int    `db:"id"`
-	Name string `db:"name"`
+	ID   int                    `db:"id"   json:"id"`
+	Name string                 `db:"name" json:"name"`
+	Bar  *selects.HasOne[*Bar]  `db:"-"    json:"bar"`
+	Bars *selects.HasMany[*Bar] `db:"-"    json:"bars"`
 }
 
 type Bar struct {
-	ID    int `db:"id"`
-	FooID int `db:"foo_id"`
-}
-
-type Baz struct {
-	ID    int `db:"id"`
-	FooID int `db:"foo_id"`
+	ID    int                      `db:"id"     json:"id"`
+	FooID int                      `db:"foo_id" json:"foo_id"`
+	Foo   *selects.BelongsTo[*Foo] `db:"-"      json:"foo"`
 }
 
 const createTables = `CREATE TABLE foos (

@@ -12,7 +12,7 @@ import (
 
 func TestBelongsToLoad(t *testing.T) {
 	test.WithDatabase(func(tx *sqlx.Tx) {
-		foos := []*Foo{
+		foos := []*test.Foo{
 			{ID: 1},
 			{ID: 2},
 			{ID: 3},
@@ -20,7 +20,7 @@ func TestBelongsToLoad(t *testing.T) {
 		for _, f := range foos {
 			assert.NoError(t, insert.Save(tx, f))
 		}
-		bars := []*Bar{
+		bars := []*test.Bar{
 			{ID: 4, FooID: 1},
 			{ID: 5, FooID: 2},
 			{ID: 6, FooID: 3},

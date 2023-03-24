@@ -12,7 +12,7 @@ import (
 
 func TestHasMany_Load(t *testing.T) {
 	test.WithDatabase(func(tx *sqlx.Tx) {
-		foos := []*Foo{
+		foos := []*test.Foo{
 			{ID: 1},
 			{ID: 2},
 			{ID: 3},
@@ -20,7 +20,7 @@ func TestHasMany_Load(t *testing.T) {
 		for _, f := range foos {
 			assert.NoError(t, insert.Save(tx, f))
 		}
-		bars := []*Bar{
+		bars := []*test.Bar{
 			{ID: 2, FooID: 1},
 			{ID: 3, FooID: 1},
 			{ID: 4, FooID: 2},
@@ -35,15 +35,37 @@ func TestHasMany_Load(t *testing.T) {
 		err := selects.Load(tx, foos, "Bars")
 		assert.NoError(t, err)
 
+		assertJsonEqual(t, `[
+			{
+			  "id": 1,
+			  "name": "",
+			  "bar": null,
+			  "bars": [
+				{ "id": 2, "foo_id": 1, "foo": null },
+				{ "id": 3, "foo_id": 1, "foo": null }
+			  ]
+			},
+			{
+			  "id": 2,
+			  "name": "",
+			  "bar": null,
+			  "bars": [
+				{ "id": 4, "foo_id": 2, "foo": null },
+				{ "id": 5, "foo_id": 2, "foo": null }
+			  ]
+			},
+			{
+			  "id": 3,
+			  "name": "",
+			  "bar": null,
+			  "bars": [
+				{ "id": 6, "foo_id": 3, "foo": null },
+				{ "id": 7, "foo_id": 3, "foo": null }
+			  ]
+			}
+		  ]`, foos)
 		for _, foo := range foos {
 			assert.True(t, foo.Bars.Loaded())
-			bars, err := foo.Bars.Value(nil)
-			assert.NoError(t, err)
-			assert.Len(t, bars, 2)
-			assert.Equal(t, foo.ID*2, bars[0].ID)
-			assert.Equal(t, foo.ID, bars[0].FooID)
-			assert.Equal(t, foo.ID*2+1, bars[1].ID)
-			assert.Equal(t, foo.ID, bars[1].FooID)
 		}
 	})
 }

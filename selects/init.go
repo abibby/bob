@@ -16,7 +16,11 @@ func InitializeRelationships(v any) error {
 
 			if ft.Type.Implements(relationType) {
 				fv := rv.Field(i)
-				fv.Set(reflect.New(ft.Type.Elem()))
+				if ft.Type.Kind() == reflect.Ptr {
+					fv.Set(reflect.New(ft.Type.Elem()))
+				} else {
+					fv.Set(reflect.New(ft.Type).Elem())
+				}
 				err := fv.Interface().(Relationship).Initialize(rv.Interface(), ft)
 				if err != nil {
 					return err
@@ -84,7 +88,7 @@ func each(v any, cb func(reflect.Value) error) error {
 		return nil
 	}
 	if rv.Kind() != reflect.Struct {
-		return fmt.Errorf("this is only valid for structs or slices of structs")
+		return fmt.Errorf("only valid for structs or slices of structs")
 	}
 
 	return cb(rv)

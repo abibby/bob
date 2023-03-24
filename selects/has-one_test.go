@@ -12,7 +12,7 @@ import (
 
 func TestHasOneLoad(t *testing.T) {
 	test.WithDatabase(func(tx *sqlx.Tx) {
-		foos := []*Foo{
+		foos := []*test.Foo{
 			{ID: 1},
 			{ID: 2},
 			{ID: 3},
@@ -39,7 +39,7 @@ func TestHasOneLoad(t *testing.T) {
 
 func TestHasOne_json_marshal(t *testing.T) {
 	test.WithDatabase(func(tx *sqlx.Tx) {
-		f := &Foo{ID: 1}
+		f := &test.Foo{ID: 1}
 		MustSave(tx, f)
 		MustSave(tx, &test.Bar{ID: 4, FooID: 1})
 
@@ -48,7 +48,12 @@ func TestHasOne_json_marshal(t *testing.T) {
 
 		b, err := json.Marshal(f)
 		assert.NoError(t, err)
-		assert.Equal(t, `{"ID":1,"Name":"","Bar":{"ID":4,"FooID":1,"Foo":null},"Bars":null}`, string(b))
+		assert.JSONEq(t, `{
+			"id":1,
+			"name":"",
+			"bar":{"id":4,"foo_id":1,"foo":null},
+			"bars":null
+		}`, string(b))
 
 	})
 

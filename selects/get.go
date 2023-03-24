@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/abibby/bob/dialects"
+	"github.com/abibby/bob/hooks"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -20,7 +21,13 @@ func (b *Builder) GetContext(ctx context.Context, tx *sqlx.Tx, v any) error {
 	if err != nil {
 		return err
 	}
-	return InitializeRelationships(v)
+
+	err = InitializeRelationships(v)
+	if err != nil {
+		return err
+	}
+
+	return hooks.AfterLoad(ctx, tx, v)
 }
 
 func (b *Builder) First(tx *sqlx.Tx, v any) error {
@@ -39,5 +46,10 @@ func (b *Builder) FirstContext(ctx context.Context, tx *sqlx.Tx, v any) error {
 	if err != nil {
 		return err
 	}
-	return InitializeRelationships(v)
+	err = InitializeRelationships(v)
+	if err != nil {
+		return err
+	}
+
+	return hooks.AfterLoad(ctx, tx, v)
 }

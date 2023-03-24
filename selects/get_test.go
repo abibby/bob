@@ -1,6 +1,7 @@
 package selects_test
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/abibby/bob/selects"
@@ -17,13 +18,13 @@ func TestGet(t *testing.T) {
 		_, err = tx.Exec(insert, 2, "test2")
 		assert.NoError(t, err)
 
-		foos := []test.Foo{}
+		foos := []*test.Foo{}
 		err = selects.New().Select("*").From("foos").Get(tx, &foos)
 		assert.NoError(t, err)
-		assert.Equal(t, []test.Foo{
-			{ID: 1, Name: "test1"},
-			{ID: 2, Name: "test2"},
-		}, foos)
+		assertJsonEqual(t, `[
+			{"id":1,"name":"test1","bar":null,"bars":null},
+			{"id":2,"name":"test2","bar":null,"bars":null}
+		]`, foos)
 	})
 }
 
@@ -38,6 +39,29 @@ func TestFirst(t *testing.T) {
 		foo := &test.Foo{}
 		err = selects.New().Select("*").From("foos").First(tx, foo)
 		assert.NoError(t, err)
-		assert.Equal(t, &test.Foo{ID: 1, Name: "test1"}, foo)
+		assertJsonEqual(t, `{
+			"id":1,
+			"name":"test1",
+			"bar":null,
+			"bars":null
+		}`, foo)
 	})
+}
+
+func assertJsonEqual(t *testing.T, rawJson string, v any) bool {
+	b, err := json.Marshal(v)
+	if !assert.NoError(t, err) {
+		return false
+	}
+	var data any
+	err = json.Unmarshal([]byte(rawJson), &data)
+	if !assert.NoError(t, err) {
+		return false
+	}
+	formattedJson, err := json.Marshal(data)
+	if !assert.NoError(t, err) {
+		return false
+	}
+
+	return assert.JSONEq(t, string(formattedJson), string(b))
 }
