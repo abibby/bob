@@ -1,4 +1,4 @@
-package relationships
+package selects
 
 import (
 	"reflect"
@@ -8,21 +8,13 @@ import (
 
 type BelongsTo[T any] struct {
 	hasOneOrMany[T]
-	value  T
-	loaded bool
+	relationValue[T]
 }
 
 var _ Relationship = &BelongsTo[any]{}
 
 func (r *BelongsTo[T]) Value(tx *sqlx.Tx) (T, error) {
-	if !r.loaded {
-		err := r.Load(tx, []Relationship{r})
-		if err != nil {
-			var zero T
-			return zero, err
-		}
-	}
-	return r.value, nil
+	return r.relationValue.Value(tx, r)
 }
 
 func (r *BelongsTo[T]) Initialize(parent any, field reflect.StructField) error {

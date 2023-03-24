@@ -1,4 +1,4 @@
-package relationships
+package selects
 
 import (
 	"reflect"
@@ -8,22 +8,18 @@ import (
 
 type HasMany[T any] struct {
 	hasOneOrMany[T]
-	value  []T
-	loaded bool
+	relationValue[[]T]
 }
 
 var _ Relationship = &HasMany[any]{}
 
 func (r *HasMany[T]) Value(tx *sqlx.Tx) ([]T, error) {
-	if !r.loaded {
-		err := r.Load(tx, []Relationship{r})
-		if err != nil {
-			return nil, err
-		}
-	}
-	return r.value, nil
+	return r.relationValue.Value(tx, r)
 }
 
+func (r *HasMany[T]) Loaded() bool {
+	return r.loaded
+}
 func (r *HasMany[T]) Initialize(parent any, field reflect.StructField) error {
 	r.parent = parent
 	r.parentKey = primaryKeyName(field, "local")

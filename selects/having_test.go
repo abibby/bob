@@ -1,8 +1,9 @@
-package selects
+package selects_test
 
 import (
 	"testing"
 
+	"github.com/abibby/bob/selects"
 	"github.com/abibby/bob/test"
 )
 
@@ -34,9 +35,9 @@ func TestHaving(t *testing.T) {
 		},
 		{
 			Name: "and group",
-			Builder: NewTestBuilder().HavingAnd(func(b *whereList) {
+			Builder: NewTestBuilder().HavingAnd(func(b *selects.WhereList) {
 				b.Where("a", "=", "a").OrWhere("b", "=", "b")
-			}).HavingAnd(func(b *whereList) {
+			}).HavingAnd(func(b *selects.WhereList) {
 				b.Where("c", "=", "c").OrWhere("d", "=", "d")
 			}),
 			ExpectedSQL:      "SELECT * FROM \"foo\" HAVING (\"a\" = ? OR \"b\" = ?) AND (\"c\" = ? OR \"d\" = ?)",
@@ -44,9 +45,9 @@ func TestHaving(t *testing.T) {
 		},
 		{
 			Name: "or group",
-			Builder: NewTestBuilder().HavingOr(func(b *whereList) {
+			Builder: NewTestBuilder().HavingOr(func(b *selects.WhereList) {
 				b.Where("a", "=", "a").Where("b", "=", "b")
-			}).HavingOr(func(b *whereList) {
+			}).HavingOr(func(b *selects.WhereList) {
 				b.Where("c", "=", "c").Where("d", "=", "d")
 			}),
 			ExpectedSQL:      "SELECT * FROM \"foo\" HAVING (\"a\" = ? AND \"b\" = ?) OR (\"c\" = ? AND \"d\" = ?)",

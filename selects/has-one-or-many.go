@@ -1,9 +1,7 @@
-package relationships
+package selects
 
 import (
 	"github.com/abibby/bob/builder"
-	"github.com/abibby/bob/dialects/mysql"
-	"github.com/abibby/bob/selects"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -50,11 +48,10 @@ func getRelated[T any](tx *sqlx.Tx, r iHasOneOrMany, relations []Relationship) (
 
 	relatedLists := []T{}
 
-	err := selects.New().
+	err := New().
 		Select("*").
 		From(builder.GetTable(related)).
 		WhereIn(r.getRelatedKey(), localKeys).
-		Dump(&mysql.MySQL{}).
 		Get(tx, &relatedLists)
 	if err != nil {
 		return nil, err

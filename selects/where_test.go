@@ -1,8 +1,9 @@
-package selects
+package selects_test
 
 import (
 	"testing"
 
+	"github.com/abibby/bob/selects"
 	"github.com/abibby/bob/test"
 )
 
@@ -34,9 +35,9 @@ func TestWhere(t *testing.T) {
 		},
 		{
 			Name: "and group",
-			Builder: NewTestBuilder().And(func(b *whereList) {
+			Builder: NewTestBuilder().And(func(b *selects.WhereList) {
 				b.Where("a", "=", "a").OrWhere("b", "=", "b")
-			}).And(func(b *whereList) {
+			}).And(func(b *selects.WhereList) {
 				b.Where("c", "=", "c").OrWhere("d", "=", "d")
 			}),
 			ExpectedSQL:      "SELECT * FROM \"foo\" WHERE (\"a\" = ? OR \"b\" = ?) AND (\"c\" = ? OR \"d\" = ?)",
@@ -44,9 +45,9 @@ func TestWhere(t *testing.T) {
 		},
 		{
 			Name: "or group",
-			Builder: NewTestBuilder().Or(func(b *whereList) {
+			Builder: NewTestBuilder().Or(func(b *selects.WhereList) {
 				b.Where("a", "=", "a").Where("b", "=", "b")
-			}).Or(func(b *whereList) {
+			}).Or(func(b *selects.WhereList) {
 				b.Where("c", "=", "c").Where("d", "=", "d")
 			}),
 			ExpectedSQL:      "SELECT * FROM \"foo\" WHERE (\"a\" = ? AND \"b\" = ?) OR (\"c\" = ? AND \"d\" = ?)",

@@ -1,6 +1,7 @@
-package relationships
+package selects
 
 import (
+	"encoding/json"
 	"reflect"
 
 	"github.com/abibby/bob/builder"
@@ -11,6 +12,33 @@ type Relationship interface {
 	// Query() *selects.Builder
 	Initialize(self any, field reflect.StructField) error
 	Load(tx *sqlx.Tx, relations []Relationship) error
+	Loaded() bool
+}
+
+type relationValue[T any] struct {
+	loaded bool
+	value  T
+}
+
+func (v *relationValue[T]) Value(tx *sqlx.Tx, r Relationship) (T, error) {
+	if !v.loaded {
+		err := r.Load(tx, []Relationship{r})
+		if err != nil {
+			var zero T
+			return zero, err
+		}
+	}
+	return v.value, nil
+}
+func (v *relationValue[T]) Loaded() bool {
+	return v.loaded
+}
+
+func (v *relationValue[T]) MarshalJSON() ([]byte, error) {
+	if !v.loaded {
+		return json.Marshal(nil)
+	}
+	return json.Marshal(v.value)
 }
 
 func getValue(v any, key string) (any, bool) {

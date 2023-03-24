@@ -1,4 +1,4 @@
-package relationships
+package selects
 
 import (
 	"fmt"

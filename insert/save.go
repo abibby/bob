@@ -3,6 +3,7 @@ package insert
 import (
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/dialects"
+	"github.com/abibby/bob/selects"
 	scan "github.com/blockloop/scan/v2"
 	"github.com/jmoiron/sqlx"
 )
@@ -46,6 +47,5 @@ func Save(tx *sqlx.Tx, v any) error {
 	if err != nil {
 		return err
 	}
-
-	return nil
+	return selects.InitializeRelationships(v)
 }

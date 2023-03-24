@@ -1,8 +1,9 @@
-package selects
+package selects_test
 
 import (
 	"testing"
 
+	"github.com/abibby/bob/selects"
 	"github.com/abibby/bob/test"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
@@ -17,7 +18,7 @@ func TestGet(t *testing.T) {
 		assert.NoError(t, err)
 
 		foos := []test.Foo{}
-		err = New().Select("*").From("foos").Get(tx, &foos)
+		err = selects.New().Select("*").From("foos").Get(tx, &foos)
 		assert.NoError(t, err)
 		assert.Equal(t, []test.Foo{
 			{ID: 1, Name: "test1"},
@@ -35,7 +36,7 @@ func TestFirst(t *testing.T) {
 		assert.NoError(t, err)
 
 		foo := &test.Foo{}
-		err = New().Select("*").From("foos").First(tx, foo)
+		err = selects.New().Select("*").From("foos").First(tx, foo)
 		assert.NoError(t, err)
 		assert.Equal(t, &test.Foo{ID: 1, Name: "test1"}, foo)
 	})

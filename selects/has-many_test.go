@@ -1,23 +1,14 @@
-package relationships
+package selects_test
 
 import (
 	"testing"
 
 	"github.com/abibby/bob/insert"
+	"github.com/abibby/bob/selects"
 	"github.com/abibby/bob/test"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 )
-
-func TestHasMany_has_correct_internal_keys(t *testing.T) {
-
-	f := &Foo{}
-
-	InitializeRelationships(f)
-
-	assert.Equal(t, "id", f.Bars.getParentKey())
-	assert.Equal(t, "foo_id", f.Bars.getRelatedKey())
-}
 
 func TestHasMany_Load(t *testing.T) {
 	test.WithDatabase(func(tx *sqlx.Tx) {
@@ -41,20 +32,18 @@ func TestHasMany_Load(t *testing.T) {
 			assert.NoError(t, insert.Save(tx, b))
 		}
 
-		err := InitializeRelationships(foos)
-
-		err = Load(tx, foos, "Bars")
+		err := selects.Load(tx, foos, "Bars")
 		assert.NoError(t, err)
 
 		for _, foo := range foos {
-			assert.True(t, foo.Bars.loaded)
-			assert.Equal(t,
-				[]*Bar{
-					{ID: foo.ID * 2, FooID: foo.ID},
-					{ID: foo.ID*2 + 1, FooID: foo.ID},
-				},
-				foo.Bars.value,
-			)
+			assert.True(t, foo.Bars.Loaded())
+			bars, err := foo.Bars.Value(nil)
+			assert.NoError(t, err)
+			assert.Len(t, bars, 2)
+			assert.Equal(t, foo.ID*2, bars[0].ID)
+			assert.Equal(t, foo.ID, bars[0].FooID)
+			assert.Equal(t, foo.ID*2+1, bars[1].ID)
+			assert.Equal(t, foo.ID, bars[1].FooID)
 		}
 	})
 }

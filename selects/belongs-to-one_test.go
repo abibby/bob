@@ -1,23 +1,14 @@
-package relationships
+package selects_test
 
 import (
 	"testing"
 
 	"github.com/abibby/bob/insert"
+	"github.com/abibby/bob/selects"
 	"github.com/abibby/bob/test"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 )
-
-func TestBelongsTo_has_correct_internal_keys(t *testing.T) {
-
-	b := &Bar{}
-
-	InitializeRelationships(b)
-
-	assert.Equal(t, "foo_id", b.Foo.getParentKey())
-	assert.Equal(t, "id", b.Foo.getRelatedKey())
-}
 
 func TestBelongsToLoad(t *testing.T) {
 	test.WithDatabase(func(tx *sqlx.Tx) {
@@ -38,16 +29,16 @@ func TestBelongsToLoad(t *testing.T) {
 			assert.NoError(t, insert.Save(tx, b))
 		}
 
-		err := InitializeRelationships(bars)
-
-		err = Load(tx, bars, "Foo")
+		err := selects.Load(tx, bars, "Foo")
 		if !assert.NoError(t, err) {
 			return
 		}
 
 		for _, bar := range bars {
-			assert.Equal(t, &Foo{ID: bar.FooID}, bar.Foo.value)
-			assert.True(t, bar.Foo.loaded)
+			assert.True(t, bar.Foo.Loaded())
+			foo, err := bar.Foo.Value(nil)
+			assert.NoError(t, err)
+			assert.Equal(t, bar.FooID, foo.ID)
 		}
 	})
 }

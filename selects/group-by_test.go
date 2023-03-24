@@ -1,4 +1,4 @@
-package selects
+package selects_test
 
 import (
 	"testing"

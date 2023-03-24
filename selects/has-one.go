@@ -1,4 +1,4 @@
-package relationships
+package selects
 
 import (
 	"reflect"
@@ -8,21 +8,13 @@ import (
 
 type HasOne[T any] struct {
 	hasOneOrMany[T]
-	value  T
-	loaded bool
+	relationValue[T]
 }
 
 var _ Relationship = &HasOne[any]{}
 
 func (r *HasOne[T]) Value(tx *sqlx.Tx) (T, error) {
-	if !r.loaded {
-		err := r.Load(tx, []Relationship{r})
-		if err != nil {
-			var zero T
-			return zero, err
-		}
-	}
-	return r.value, nil
+	return r.relationValue.Value(tx, r)
 }
 
 //	func (r *HasOne[T]) Query() *selects.Builder {
@@ -37,6 +29,9 @@ func (r *HasOne[T]) Value(tx *sqlx.Tx) (T, error) {
 //			Where(r.foreignKey, "=", local).
 //			Limit(1)
 //	}
+func (r *HasOne[T]) Loaded() bool {
+	return r.loaded
+}
 func (r *HasOne[T]) Initialize(parent any, field reflect.StructField) error {
 	r.parent = parent
 	r.parentKey = primaryKeyName(field, "local")
