@@ -47,15 +47,9 @@ func getRelated[T models.Model](tx *sqlx.Tx, r iHasOneOrMany, relations []Relati
 		localKeys = append(localKeys, local)
 	}
 
-	relatedLists := []T{}
-
-	err := New[T]().
+	return New[T]().
 		Select("*").
 		From(builder.GetTable(related)).
 		WhereIn(r.getRelatedKey(), localKeys).
-		Get(tx, &relatedLists)
-	if err != nil {
-		return nil, err
-	}
-	return relatedLists, nil
+		Get(tx)
 }
