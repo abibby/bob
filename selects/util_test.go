@@ -9,7 +9,7 @@ import (
 )
 
 func NewTestBuilder() *selects.Builder[*test.Foo] {
-	return selects.New[*test.Foo]().Select("*").From("foo")
+	return selects.From[*test.Foo]()
 }
 
 func MustSave(tx *sqlx.Tx, v models.Model) {

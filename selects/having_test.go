@@ -12,25 +12,25 @@ func TestHaving(t *testing.T) {
 		{
 			Name:             "one where",
 			Builder:          NewTestBuilder().Having("a", "=", "b"),
-			ExpectedSQL:      "SELECT * FROM \"foo\" HAVING \"a\" = ?",
+			ExpectedSQL:      "SELECT * FROM \"foos\" HAVING \"a\" = ?",
 			ExpectedBindings: []any{"b"},
 		},
 		{
 			Name:             "2 wheres",
 			Builder:          NewTestBuilder().Having("a", "=", "b").Having("c", "=", "d"),
-			ExpectedSQL:      "SELECT * FROM \"foo\" HAVING \"a\" = ? AND \"c\" = ?",
+			ExpectedSQL:      "SELECT * FROM \"foos\" HAVING \"a\" = ? AND \"c\" = ?",
 			ExpectedBindings: []any{"b", "d"},
 		},
 		{
 			Name:             "specified table",
 			Builder:          NewTestBuilder().Having("foo.a", "=", "b"),
-			ExpectedSQL:      "SELECT * FROM \"foo\" HAVING \"foo\".\"a\" = ?",
+			ExpectedSQL:      "SELECT * FROM \"foos\" HAVING \"foo\".\"a\" = ?",
 			ExpectedBindings: []any{"b"},
 		},
 		{
 			Name:             "or where",
 			Builder:          NewTestBuilder().Having("a", "=", "b").OrHaving("c", "=", "d"),
-			ExpectedSQL:      "SELECT * FROM \"foo\" HAVING \"a\" = ? OR \"c\" = ?",
+			ExpectedSQL:      "SELECT * FROM \"foos\" HAVING \"a\" = ? OR \"c\" = ?",
 			ExpectedBindings: []any{"b", "d"},
 		},
 		{
@@ -40,7 +40,7 @@ func TestHaving(t *testing.T) {
 			}).HavingAnd(func(b *selects.WhereList) {
 				b.Where("c", "=", "c").OrWhere("d", "=", "d")
 			}),
-			ExpectedSQL:      "SELECT * FROM \"foo\" HAVING (\"a\" = ? OR \"b\" = ?) AND (\"c\" = ? OR \"d\" = ?)",
+			ExpectedSQL:      "SELECT * FROM \"foos\" HAVING (\"a\" = ? OR \"b\" = ?) AND (\"c\" = ? OR \"d\" = ?)",
 			ExpectedBindings: []any{"a", "b", "c", "d"},
 		},
 		{
@@ -50,13 +50,13 @@ func TestHaving(t *testing.T) {
 			}).HavingOr(func(b *selects.WhereList) {
 				b.Where("c", "=", "c").Where("d", "=", "d")
 			}),
-			ExpectedSQL:      "SELECT * FROM \"foo\" HAVING (\"a\" = ? AND \"b\" = ?) OR (\"c\" = ? AND \"d\" = ?)",
+			ExpectedSQL:      "SELECT * FROM \"foos\" HAVING (\"a\" = ? AND \"b\" = ?) OR (\"c\" = ? AND \"d\" = ?)",
 			ExpectedBindings: []any{"a", "b", "c", "d"},
 		},
 		{
 			Name:             "subquery",
 			Builder:          NewTestBuilder().Having("a", "=", NewTestBuilder().Select("a").Having("id", "=", 1)),
-			ExpectedSQL:      "SELECT * FROM \"foo\" HAVING \"a\" = (SELECT \"a\" FROM \"foo\" HAVING \"id\" = ?)",
+			ExpectedSQL:      "SELECT * FROM \"foos\" HAVING \"a\" = (SELECT \"a\" FROM \"foos\" HAVING \"id\" = ?)",
 			ExpectedBindings: []any{1},
 		},
 	})

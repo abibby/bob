@@ -1,19 +1,18 @@
 package bob
 
 import (
-	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/models"
 	"github.com/abibby/bob/selects"
 )
 
 func New[T models.Model]() *selects.Builder[T] {
-	return selects.New[T]().Select("*")
+	return selects.New[T]()
 }
 
-func From[T models.Model](m T) *selects.Builder[T] {
-	return selects.New[T]().Select("*").From(builder.GetTable(m))
+func From[T models.Model]() *selects.Builder[T] {
+	return selects.From[T]()
 }
 
 func NewEmpty[T models.Model]() *selects.Builder[T] {
-	return selects.New[T]()
+	return selects.NewEmpty[T]()
 }

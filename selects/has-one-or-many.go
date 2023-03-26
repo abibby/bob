@@ -37,7 +37,6 @@ func (r hasOneOrMany[T]) getRelatedKey() string {
 }
 
 func getRelated[T models.Model](tx *sqlx.Tx, r iHasOneOrMany, relations []Relationship) ([]T, error) {
-	var related T
 	localKeys := make([]any, 0, len(relations))
 	for _, r := range relations {
 		local, ok := r.(iHasOneOrMany).parentKeyValue()
@@ -47,9 +46,7 @@ func getRelated[T models.Model](tx *sqlx.Tx, r iHasOneOrMany, relations []Relati
 		localKeys = append(localKeys, local)
 	}
 
-	return New[T]().
-		Select("*").
-		From(builder.GetTable(related)).
+	return From[T]().
 		WhereIn(r.getRelatedKey(), localKeys).
 		Get(tx)
 }
