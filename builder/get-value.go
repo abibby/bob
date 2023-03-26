@@ -1,6 +1,9 @@
 package builder
 
-import "reflect"
+import (
+	"reflect"
+	"strings"
+)
 
 func GetValue(v any, key string) (any, bool) {
 	rv := reflect.ValueOf(v)
@@ -20,9 +23,12 @@ func GetValue(v any, key string) (any, bool) {
 }
 
 func FieldName(f reflect.StructField) string {
+	return DBTag(f)[0]
+}
+func DBTag(f reflect.StructField) []string {
 	dbTag, ok := f.Tag.Lookup("db")
 	if ok {
-		return dbTag
+		return strings.Split(dbTag, ",")
 	}
-	return f.Name
+	return []string{f.Name}
 }

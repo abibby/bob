@@ -37,17 +37,17 @@ func QueryTest(t *testing.T, testCases []Case) {
 
 type Foo struct {
 	models.BaseModel
-	ID   int                    `db:"id"   json:"id"`
-	Name string                 `db:"name" json:"name"`
-	Bar  *selects.HasOne[*Bar]  `db:"-"    json:"bar"`
-	Bars *selects.HasMany[*Bar] `db:"-"    json:"bars"`
+	ID   int                    `db:"id,primary" json:"id"`
+	Name string                 `db:"name"       json:"name"`
+	Bar  *selects.HasOne[*Bar]  `db:"-"          json:"bar"`
+	Bars *selects.HasMany[*Bar] `db:"-"          json:"bars"`
 }
 
 type Bar struct {
 	models.BaseModel
-	ID    int                      `db:"id"     json:"id"`
-	FooID int                      `db:"foo_id" json:"foo_id"`
-	Foo   *selects.BelongsTo[*Foo] `db:"-"      json:"foo"`
+	ID    int                      `db:"id,primary" json:"id"`
+	FooID int                      `db:"foo_id"     json:"foo_id"`
+	Foo   *selects.BelongsTo[*Foo] `db:"-"          json:"foo"`
 }
 
 const createTables = `CREATE TABLE foos (

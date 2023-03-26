@@ -10,6 +10,7 @@ import (
 	"github.com/abibby/bob/hooks"
 	"github.com/abibby/bob/models"
 	"github.com/abibby/bob/selects"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -38,7 +39,6 @@ func columnsAndValues(v reflect.Value) ([]string, []any) {
 			values = append(values, v.Field(i).Interface())
 		}
 	}
-
 	return columns, values
 }
 
@@ -53,6 +53,7 @@ func SaveContext(ctx context.Context, tx *sqlx.Tx, v models.Model) error {
 
 	d := dialects.DefaultDialect
 	columns, values := columnsAndValues(reflect.ValueOf(v).Elem())
+	spew.Dump(columns, values)
 
 	if v.InDatabase() {
 		err = update(ctx, tx, d, v, columns, values)
@@ -109,10 +110,6 @@ func insert(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns
 
 func update(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns []string, values []any) error {
 	pKey := builder.PrimaryKey(v)
-	pKeyValue, ok := builder.GetValue(v, pKey)
-	if !ok {
-		return fmt.Errorf("no primary key found")
-	}
 	r := builder.Result().
 		AddString("UPDATE").
 		Add(builder.Identifier(builder.GetTable(v)).ToSQL(d)).
@@ -127,10 +124,22 @@ func update(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns
 		r.Add(builder.NewLiteral(values[i]).ToSQL(d))
 	}
 
-	r.AddString("WHERE").
-		Add(builder.Identifier(pKey).ToSQL(d)).
-		AddString("=").
-		Add(builder.NewLiteral(pKeyValue).ToSQL(d))
+	r.AddString("WHERE")
+
+	for i, k := range pKey {
+		pKeyValue, ok := builder.GetValue(v, k)
+		if !ok {
+			return fmt.Errorf("no primary key found")
+		}
+
+		if i != 0 {
+			r.AddString("AND")
+		}
+
+		r.Add(builder.Identifier(k).ToSQL(d)).
+			AddString("=").
+			Add(builder.NewLiteral(pKeyValue).ToSQL(d))
+	}
 
 	q, bindings, err := r.ToSQL(d)
 	if err != nil {
