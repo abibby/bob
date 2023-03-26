@@ -2,37 +2,68 @@ package insert
 
 import (
 	"context"
+	"fmt"
+	"reflect"
 
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/dialects"
 	"github.com/abibby/bob/hooks"
+	"github.com/abibby/bob/models"
 	"github.com/abibby/bob/selects"
-	scan "github.com/blockloop/scan/v2"
 	"github.com/jmoiron/sqlx"
 )
 
-func Save(tx *sqlx.Tx, v any) error {
+func columnsAndValues(v reflect.Value) ([]string, []any) {
+	t := v.Type()
+	numFields := t.NumField()
+	columns := make([]string, 0, numFields)
+	values := make([]any, 0, numFields)
+
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		if !field.IsExported() {
+			continue
+		}
+
+		if field.Anonymous {
+			subColumns, subValues := columnsAndValues(v.Field(i))
+			columns = append(columns, subColumns...)
+			values = append(values, subValues...)
+		} else {
+			name := builder.FieldName(field)
+			if name == "-" {
+				continue
+			}
+			columns = append(columns, name)
+			values = append(values, v.Field(i).Interface())
+		}
+	}
+
+	return columns, values
+}
+
+func Save(tx *sqlx.Tx, v models.Model) error {
 	return SaveContext(context.Background(), tx, v)
 }
-func SaveContext(ctx context.Context, tx *sqlx.Tx, v any) error {
+func SaveContext(ctx context.Context, tx *sqlx.Tx, v models.Model) error {
 	err := hooks.BeforeSave(ctx, tx, v)
 	if err != nil {
 		return err
 	}
 
 	d := dialects.DefaultDialect
-	columns, err := scan.Columns(v)
-	if err != nil {
-		return err
-	}
-	values, err := scan.Values(columns, v)
-	if err != nil {
-		return err
-	}
+	columns, values := columnsAndValues(reflect.ValueOf(v).Elem())
 
-	err = insert(ctx, tx, d, v, columns, values)
-	if err != nil {
-		return err
+	if v.InDatabase() {
+		err = update(ctx, tx, d, v, columns, values)
+		if err != nil {
+			return err
+		}
+	} else {
+		err = insert(ctx, tx, d, v, columns, values)
+		if err != nil {
+			return err
+		}
 	}
 
 	err = selects.InitializeRelationships(v)
@@ -43,7 +74,6 @@ func SaveContext(ctx context.Context, tx *sqlx.Tx, v any) error {
 }
 
 func insert(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns []string, values []any) error {
-
 	r := builder.Result().
 		AddString("INSERT INTO").
 		Add(builder.Identifier(builder.GetTable(v)).ToSQL(d)).
@@ -69,6 +99,44 @@ func insert(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns
 	if err != nil {
 		return err
 	}
+
+	_, err = tx.ExecContext(ctx, q, bindings...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func update(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns []string, values []any) error {
+	pKey := builder.PrimaryKey(v)
+	pKeyValue, ok := builder.GetValue(v, pKey)
+	if !ok {
+		return fmt.Errorf("no primary key found")
+	}
+	r := builder.Result().
+		AddString("UPDATE").
+		Add(builder.Identifier(builder.GetTable(v)).ToSQL(d)).
+		AddString("SET")
+
+	for i, column := range columns {
+		if i != 0 {
+			r.AddString(",")
+		}
+		r.Add(builder.Identifier(column).ToSQL(d))
+		r.AddString("=")
+		r.Add(builder.NewLiteral(values[i]).ToSQL(d))
+	}
+
+	r.AddString("WHERE").
+		Add(builder.Identifier(pKey).ToSQL(d)).
+		AddString("=").
+		Add(builder.NewLiteral(pKeyValue).ToSQL(d))
+
+	q, bindings, err := r.ToSQL(d)
+	if err != nil {
+		return err
+	}
+
 	_, err = tx.ExecContext(ctx, q, bindings...)
 	if err != nil {
 		return err

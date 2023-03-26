@@ -3,15 +3,17 @@ package selects
 import (
 	"reflect"
 
+	"github.com/abibby/bob/builder"
+	"github.com/abibby/bob/models"
 	"github.com/jmoiron/sqlx"
 )
 
-type BelongsTo[T any] struct {
+type BelongsTo[T models.Model] struct {
 	hasOneOrMany[T]
 	relationValue[T]
 }
 
-var _ Relationship = &BelongsTo[any]{}
+var _ Relationship = &BelongsTo[models.Model]{}
 
 func (r *BelongsTo[T]) Value(tx *sqlx.Tx) (T, error) {
 	return r.relationValue.Value(tx, r)
@@ -38,7 +40,7 @@ func (r *BelongsTo[T]) Load(tx *sqlx.Tx, relations []Relationship) error {
 	for _, relation := range ofType[*BelongsTo[T]](relations) {
 		for _, related := range relatedLists {
 			local, localOk := relation.parentKeyValue()
-			foreign, foreignOk := getValue(related, r.getRelatedKey())
+			foreign, foreignOk := builder.GetValue(related, r.getRelatedKey())
 			if localOk && foreignOk && local == foreign {
 				relation.value = related
 			}

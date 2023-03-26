@@ -16,12 +16,12 @@ func (g groupBys) ToSQL(d dialects.Dialect) (string, []any, error) {
 	r.Add(builder.Join(g, ", ").ToSQL(d))
 	return r.ToSQL(d)
 }
-func (b *Builder) GroupBy(columns ...string) *Builder {
+func (b *Builder[T]) GroupBy(columns ...string) *Builder[T] {
 	b.groupBys = builder.IdentifierList(columns)
 	return b
 }
 
-func (b *Builder) AddGroupBy(columns ...string) *Builder {
+func (b *Builder[T]) AddGroupBy(columns ...string) *Builder[T] {
 	b.groupBys = append(b.groupBys, builder.IdentifierList(columns)...)
 	return b
 }

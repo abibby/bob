@@ -8,8 +8,6 @@ import (
 
 type SQLite struct{}
 
-var _ dialects.Dialect = &SQLite{}
-
 func (*SQLite) Identifier(s string) string {
 	parts := strings.Split(s, ".")
 	for i, p := range parts {
@@ -28,6 +26,11 @@ func (*SQLite) DataType(t dialects.DataType) string {
 		return "float"
 	}
 	return string(t)
+}
+
+func (d *SQLite) InsertOrUpdate(table, primaryKey string, columns []string, values []any) (string, []any) {
+
+	return "", nil
 }
 
 func init() {

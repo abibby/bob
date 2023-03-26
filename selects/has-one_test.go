@@ -1,7 +1,6 @@
 package selects_test
 
 import (
-	"encoding/json"
 	"testing"
 
 	"github.com/abibby/bob/selects"
@@ -46,14 +45,12 @@ func TestHasOne_json_marshal(t *testing.T) {
 		err := selects.Load(tx, f, "Bar")
 		assert.NoError(t, err)
 
-		b, err := json.Marshal(f)
-		assert.NoError(t, err)
-		assert.JSONEq(t, `{
+		assertJsonEqual(t, `{
 			"id":1,
 			"name":"",
 			"bar":{"id":4,"foo_id":1,"foo":null},
 			"bars":null
-		}`, string(b))
+		}`, f)
 
 	})
 

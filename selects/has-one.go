@@ -3,15 +3,17 @@ package selects
 import (
 	"reflect"
 
+	"github.com/abibby/bob/builder"
+	"github.com/abibby/bob/models"
 	"github.com/jmoiron/sqlx"
 )
 
-type HasOne[T any] struct {
+type HasOne[T models.Model] struct {
 	hasOneOrMany[T]
 	relationValue[T]
 }
 
-var _ Relationship = &HasOne[any]{}
+var _ Relationship = &HasOne[models.Model]{}
 
 func (r *HasOne[T]) Value(tx *sqlx.Tx) (T, error) {
 	return r.relationValue.Value(tx, r)
@@ -19,7 +21,7 @@ func (r *HasOne[T]) Value(tx *sqlx.Tx) (T, error) {
 
 //	func (r *HasOne[T]) Query() *selects.Builder {
 //		var related T
-//		local, ok := getValue(r.parent, r.localKey)
+//		local, ok := builder.GetValue(r.parent, r.localKey)
 //		if !ok {
 //			panic(fmt.Errorf("no local key %s", r.localKey))
 //		}
@@ -51,7 +53,7 @@ func (r *HasOne[T]) Load(tx *sqlx.Tx, relations []Relationship) error {
 	for _, relation := range ofType[*HasOne[T]](relations) {
 		for _, related := range relatedLists {
 			local, localOk := relation.parentKeyValue()
-			foreign, foreignOk := getValue(related, r.getRelatedKey())
+			foreign, foreignOk := builder.GetValue(related, r.getRelatedKey())
 			if localOk && foreignOk && local == foreign {
 				relation.value = related
 			}

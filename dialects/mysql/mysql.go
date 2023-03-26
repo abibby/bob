@@ -8,8 +8,6 @@ import (
 
 type MySQL struct{}
 
-var _ dialects.Dialect = &MySQL{}
-
 func (*MySQL) Identifier(s string) string {
 	parts := strings.Split(s, ".")
 	for i, p := range parts {
@@ -28,6 +26,10 @@ func (*MySQL) DataType(t dialects.DataType) string {
 		return "float"
 	}
 	return string(t)
+}
+
+func (d *MySQL) InsertOrUpdate(table, primaryKey string, columns []string, values []any) (string, []any) {
+	return "", nil
 }
 
 func init() {

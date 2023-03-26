@@ -1,6 +1,15 @@
 package selects
 
-type Builder struct {
+import (
+	"github.com/abibby/bob/builder"
+	"github.com/abibby/bob/models"
+)
+
+type iBuilder interface {
+	builder.ToSQLer
+	imALittleQueryBuilderShortAndStout()
+}
+type Builder[T models.Model] struct {
 	selects  *selects
 	from     fromTable
 	wheres   *Wheres
@@ -10,8 +19,8 @@ type Builder struct {
 	orderBys orderBys
 }
 
-func New() *Builder {
-	return &Builder{
+func New[T models.Model]() *Builder[T] {
+	return &Builder[T]{
 		selects:  NewSelects(),
 		from:     "",
 		wheres:   NewWheres(),
@@ -20,3 +29,5 @@ func New() *Builder {
 		limit:    &limit{},
 	}
 }
+
+func (*Builder[T]) imALittleQueryBuilderShortAndStout() {}

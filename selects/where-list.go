@@ -42,7 +42,7 @@ func (w *WhereList) ToSQL(d dialects.Dialect) (string, []any, error) {
 		if w.Operator != "" {
 			r.AddString(w.Operator)
 		}
-		if sb, ok := w.Value.(*Builder); ok {
+		if sb, ok := w.Value.(iBuilder); ok {
 			r.Add(builder.NewGroup(sb).ToSQL(d))
 		} else if sb, ok := w.Value.(*WhereList); ok {
 			r.Add(builder.NewGroup(sb).ToSQL(d))

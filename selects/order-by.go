@@ -16,12 +16,12 @@ func (g orderBys) ToSQL(d dialects.Dialect) (string, []any, error) {
 	r.Add(builder.Join(g, ", ").ToSQL(d))
 	return r.ToSQL(d)
 }
-func (b *Builder) OrderBy(columns ...string) *Builder {
+func (b *Builder[T]) OrderBy(columns ...string) *Builder[T] {
 	b.orderBys = builder.IdentifierList(columns)
 	return b
 }
 
-func (b *Builder) AddOrderBy(columns ...string) *Builder {
+func (b *Builder[T]) AddOrderBy(columns ...string) *Builder[T] {
 	b.orderBys = append(b.orderBys, builder.IdentifierList(columns)...)
 	return b
 }

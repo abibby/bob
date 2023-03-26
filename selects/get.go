@@ -8,10 +8,10 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func (b *Builder) Get(tx *sqlx.Tx, v any) error {
+func (b *Builder[T]) Get(tx *sqlx.Tx, v *[]T) error {
 	return b.GetContext(context.Background(), tx, v)
 }
-func (b *Builder) GetContext(ctx context.Context, tx *sqlx.Tx, v any) error {
+func (b *Builder[T]) GetContext(ctx context.Context, tx *sqlx.Tx, v *[]T) error {
 	q, bindings, err := b.ToSQL(dialects.DefaultDialect)
 	if err != nil {
 		return err
@@ -30,10 +30,10 @@ func (b *Builder) GetContext(ctx context.Context, tx *sqlx.Tx, v any) error {
 	return hooks.AfterLoad(ctx, tx, v)
 }
 
-func (b *Builder) First(tx *sqlx.Tx, v any) error {
+func (b *Builder[T]) First(tx *sqlx.Tx, v T) error {
 	return b.FirstContext(context.Background(), tx, v)
 }
-func (b *Builder) FirstContext(ctx context.Context, tx *sqlx.Tx, v any) error {
+func (b *Builder[T]) FirstContext(ctx context.Context, tx *sqlx.Tx, v T) error {
 	lastLimit := b.limit
 	q, bindings, err := b.Limit(1).ToSQL(dialects.DefaultDialect)
 	b.limit = lastLimit

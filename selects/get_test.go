@@ -19,7 +19,7 @@ func TestGet(t *testing.T) {
 		assert.NoError(t, err)
 
 		foos := []*test.Foo{}
-		err = selects.New().Select("*").From("foos").Get(tx, &foos)
+		err = selects.New[*test.Foo]().Select("*").From("foos").Get(tx, &foos)
 		assert.NoError(t, err)
 		assertJsonEqual(t, `[
 			{"id":1,"name":"test1","bar":null,"bars":null},
@@ -37,7 +37,7 @@ func TestFirst(t *testing.T) {
 		assert.NoError(t, err)
 
 		foo := &test.Foo{}
-		err = selects.New().Select("*").From("foos").First(tx, foo)
+		err = selects.New[*test.Foo]().Select("*").From("foos").First(tx, foo)
 		assert.NoError(t, err)
 		assertJsonEqual(t, `{
 			"id":1,

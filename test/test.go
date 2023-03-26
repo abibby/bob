@@ -8,6 +8,7 @@ import (
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/dialects"
 	_ "github.com/abibby/bob/dialects/sqlite"
+	"github.com/abibby/bob/models"
 	"github.com/abibby/bob/selects"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
@@ -35,6 +36,7 @@ func QueryTest(t *testing.T, testCases []Case) {
 }
 
 type Foo struct {
+	models.BaseModel
 	ID   int                    `db:"id"   json:"id"`
 	Name string                 `db:"name" json:"name"`
 	Bar  *selects.HasOne[*Bar]  `db:"-"    json:"bar"`
@@ -42,6 +44,7 @@ type Foo struct {
 }
 
 type Bar struct {
+	models.BaseModel
 	ID    int                      `db:"id"     json:"id"`
 	FooID int                      `db:"foo_id" json:"foo_id"`
 	Foo   *selects.BelongsTo[*Foo] `db:"-"      json:"foo"`
@@ -58,8 +61,12 @@ CREATE TABLE bars (
 	PRIMARY KEY (id)
 );`
 
-func WithDatabase(cb func(tx *sqlx.Tx)) {
-	db, err := sqlx.Open("sqlite3", ":memory:")
+var db *sqlx.DB
+
+func init() {
+	var err error
+	db, err = sqlx.Open("sqlite3", ":memory:")
+	// db, err = sqlx.Open("sqlite3", "./test.db")
 	if err != nil {
 		panic(fmt.Errorf("failed to open database: %w", err))
 	}
@@ -67,6 +74,9 @@ func WithDatabase(cb func(tx *sqlx.Tx)) {
 	if err != nil {
 		panic(fmt.Errorf("failed to create tables: %w", err))
 	}
+}
+
+func WithDatabase(cb func(tx *sqlx.Tx)) {
 	tx, err := db.BeginTxx(context.Background(), nil)
 	if err != nil {
 		panic(fmt.Errorf("failed to begin transaction: %w", err))
@@ -74,6 +84,7 @@ func WithDatabase(cb func(tx *sqlx.Tx)) {
 
 	cb(tx)
 
+	// err = tx.Commit()
 	err = tx.Rollback()
 	if err != nil {
 		panic(fmt.Errorf("failed to rollback transaction: %w", err))
