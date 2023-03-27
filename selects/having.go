@@ -15,6 +15,11 @@ func newHavings() *havings {
 	}
 }
 
+func (w *havings) Clone() *havings {
+	return &havings{
+		WhereList: w.WhereList.Clone(),
+	}
+}
 func (w *havings) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if len(w.list) == 0 {
 		return "", nil, nil

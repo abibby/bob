@@ -5,17 +5,22 @@ import (
 	"github.com/abibby/bob/dialects"
 )
 
-type Wheres struct {
+type wheres struct {
 	*WhereList
 }
 
-func NewWheres() *Wheres {
-	return &Wheres{
+func NewWheres() *wheres {
+	return &wheres{
 		WhereList: NewWhereList(),
 	}
 }
 
-func (w *Wheres) ToSQL(d dialects.Dialect) (string, []any, error) {
+func (w *wheres) Clone() *wheres {
+	return &wheres{
+		WhereList: w.WhereList.Clone(),
+	}
+}
+func (w *wheres) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if len(w.list) == 0 {
 		return "", nil, nil
 	}

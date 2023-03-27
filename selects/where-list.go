@@ -24,6 +24,11 @@ func NewWhereList() *WhereList {
 	}
 }
 
+func (w *WhereList) Clone() *WhereList {
+	return &WhereList{
+		list: cloneSlice(w.list),
+	}
+}
 func (w *WhereList) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if len(w.list) == 0 {
 		return "", nil, nil

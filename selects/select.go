@@ -16,6 +16,12 @@ func NewSelects() *selects {
 	}
 }
 
+func (s *selects) Clone() *selects {
+	return &selects{
+		distinct: s.distinct,
+		list:     cloneSlice(s.list),
+	}
+}
 func (s *selects) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if len(s.list) == 0 {
 		return "", nil, nil

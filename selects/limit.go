@@ -12,6 +12,12 @@ type limit struct {
 	offset int
 }
 
+func (l *limit) Clone() *limit {
+	return &limit{
+		limit:  l.limit,
+		offset: l.offset,
+	}
+}
 func (l *limit) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if l.limit == 0 && l.offset == 0 {
 		return "", nil, nil

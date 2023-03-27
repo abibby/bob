@@ -7,6 +7,9 @@ import (
 
 type groupBys []builder.ToSQLer
 
+func (g groupBys) Clone() groupBys {
+	return cloneSlice(g)
+}
 func (g groupBys) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if len(g) == 0 {
 		return "", nil, nil

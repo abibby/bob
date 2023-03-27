@@ -12,7 +12,7 @@ type iBuilder interface {
 type Builder[T models.Model] struct {
 	selects  *selects
 	from     fromTable
-	wheres   *Wheres
+	wheres   *wheres
 	groupBys groupBys
 	havings  *havings
 	limit    *limit

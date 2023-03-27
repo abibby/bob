@@ -6,6 +6,9 @@ import (
 
 type fromTable string
 
+func (f fromTable) Clone() fromTable {
+	return f
+}
 func (f fromTable) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if f == "" {
 		return "", nil, nil
