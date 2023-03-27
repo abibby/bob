@@ -16,7 +16,7 @@ func TestOrderBy(t *testing.T) {
 		},
 		{
 			Name:             "two groups",
-			Builder:          NewTestBuilder().OrderBy("a", "b"),
+			Builder:          NewTestBuilder().OrderBy("a").OrderBy("b"),
 			ExpectedSQL:      "SELECT * FROM \"foos\" ORDER BY \"a\", \"b\"",
 			ExpectedBindings: []any{},
 		},
@@ -24,6 +24,12 @@ func TestOrderBy(t *testing.T) {
 			Name:             "different table",
 			Builder:          NewTestBuilder().OrderBy("a.b"),
 			ExpectedSQL:      "SELECT * FROM \"foos\" ORDER BY \"a\".\"b\"",
+			ExpectedBindings: []any{},
+		},
+		{
+			Name:             "descending",
+			Builder:          NewTestBuilder().OrderByDesc("a"),
+			ExpectedSQL:      "SELECT * FROM \"foos\" ORDER BY \"a\" DESC",
 			ExpectedBindings: []any{},
 		},
 	})

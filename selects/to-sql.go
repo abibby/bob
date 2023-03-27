@@ -12,7 +12,7 @@ func (b *Builder[T]) ToSQL(d dialects.Dialect) (string, []any, error) {
 		Add(b.wheres.ToSQL(d)).
 		Add(b.groupBys.ToSQL(d)).
 		Add(b.havings.ToSQL(d)).
-		Add(b.limit.ToSQL(d)).
 		Add(b.orderBys.ToSQL(d)).
+		Add(b.limit.ToSQL(d)).
 		ToSQL(d)
 }

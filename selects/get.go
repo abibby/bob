@@ -33,20 +33,17 @@ func (b *Builder[T]) FirstContext(ctx context.Context, tx *sqlx.Tx) (T, error) {
 	return v, err
 }
 
-func (b *Builder[T]) Find(tx *sqlx.Tx, primaryKeyValues ...any) (T, error) {
-	return b.FindContext(context.Background(), tx)
+func (b *Builder[T]) Find(tx *sqlx.Tx, primaryKeyValue any) (T, error) {
+	return b.FindContext(context.Background(), tx, primaryKeyValue)
 }
 
-func (b *Builder[T]) FindContext(ctx context.Context, tx *sqlx.Tx, primaryKeyValues ...any) (T, error) {
+func (b *Builder[T]) FindContext(ctx context.Context, tx *sqlx.Tx, primaryKeyValue any) (T, error) {
 	var m T
 	pKeys := builder.PrimaryKey(m)
-	if len(pKeys) != len(primaryKeyValues) {
-		return m, fmt.Errorf("")
+	if len(pKeys) != 1 {
+		return m, fmt.Errorf("Find only supports tables with 1 primary key")
 	}
-	for i, pKey := range pKeys {
-		b.Where(pKey, "=", primaryKeyValues[i])
-	}
-	return b.FirstContext(ctx, tx)
+	return b.Clone().Where(pKeys[0], "=", primaryKeyValue).FirstContext(ctx, tx)
 }
 
 func (b *Builder[T]) Load(tx *sqlx.Tx, v any) error {
