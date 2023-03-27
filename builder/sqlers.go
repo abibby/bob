@@ -8,9 +8,9 @@ type ToSQLer interface {
 	ToSQL(d dialects.Dialect) (string, []any, error)
 }
 
-type toSQLFunc func(d dialects.Dialect) (string, []any, error)
+type ToSQLFunc func(d dialects.Dialect) (string, []any, error)
 
-func (f toSQLFunc) ToSQL(d dialects.Dialect) (string, []any, error) {
+func (f ToSQLFunc) ToSQL(d dialects.Dialect) (string, []any, error) {
 	return f(d)
 }
 
@@ -29,7 +29,7 @@ func IdentifierList(strs []string) []ToSQLer {
 }
 
 func Join(sqlers []ToSQLer, sep string) ToSQLer {
-	return toSQLFunc(func(d dialects.Dialect) (string, []any, error) {
+	return ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
 		sql := ""
 		bindings := []any{}
 		for i, sqler := range sqlers {

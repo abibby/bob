@@ -1,6 +1,8 @@
 package selects
 
 import (
+	"fmt"
+
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/dialects"
 )
@@ -60,6 +62,23 @@ func (b *Builder[T]) SelectSubquery(sb *Builder[T]) *Builder[T] {
 }
 func (b *Builder[T]) AddSelectSubquery(sb *Builder[T]) *Builder[T] {
 	b.selects.list = append(b.selects.list, builder.NewGroup(sb))
+
+	return b
+}
+func (b *Builder[T]) SelectFunction(function, column string) *Builder[T] {
+	b.selects.list = append(b.selects.list, builder.ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
+		var c builder.ToSQLer
+		if column == "*" {
+			c = builder.Raw("*")
+		} else {
+			c = builder.Identifier(column)
+		}
+		q, bindings, err := c.ToSQL(d)
+		if err != nil {
+			return "", nil, err
+		}
+		return fmt.Sprintf("%s(%s)", function, q), bindings, nil
+	}))
 
 	return b
 }

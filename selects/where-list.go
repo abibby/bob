@@ -78,7 +78,6 @@ func (w *WhereList) ToSQL(d dialects.Dialect) (string, []any, error) {
 func (w *WhereList) Where(column, operator string, value any) *WhereList {
 	return w.where(column, operator, value, false)
 }
-
 func (w *WhereList) OrWhere(column, operator string, value any) *WhereList {
 	return w.where(column, operator, value, true)
 }
@@ -86,7 +85,6 @@ func (w *WhereList) OrWhere(column, operator string, value any) *WhereList {
 func (w *WhereList) WhereColumn(column, operator string, valueColumn string) *WhereList {
 	return w.where(column, operator, builder.Identifier(valueColumn), false)
 }
-
 func (w *WhereList) OrWhereColumn(column, operator string, valueColumn string) *WhereList {
 	return w.where(column, operator, builder.Identifier(valueColumn), true)
 }
@@ -94,13 +92,23 @@ func (w *WhereList) OrWhereColumn(column, operator string, valueColumn string) *
 func (w *WhereList) WhereIn(column string, values []any) *WhereList {
 	return w.whereIn(column, values, false)
 }
-
 func (w *WhereList) OrWhereIn(column string, values []any) *WhereList {
 	return w.whereIn(column, values, true)
 }
-
 func (w *WhereList) whereIn(column string, values []any, or bool) *WhereList {
 	return w.where(column, "in", builder.NewGroup(builder.Join(builder.LiteralList(values), ", ")), or)
+}
+
+func (w *WhereList) WhereExists(query iBuilder) *WhereList {
+	return w.whereExists(query, false)
+}
+func (w *WhereList) OrWhereExists(query iBuilder) *WhereList {
+	return w.whereExists(query, true)
+}
+func (w *WhereList) whereExists(query iBuilder, or bool) *WhereList {
+	return w.where("", "", builder.ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
+		return builder.Result().AddString("EXISTS").Add(query.ToSQL(d)).ToSQL(d)
+	}), or)
 }
 
 func (w *WhereList) where(column, operator string, value any, or bool) *WhereList {

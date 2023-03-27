@@ -39,6 +39,30 @@ func (b *Builder[T]) OrHaving(column, operator string, value any) *Builder[T] {
 	b.havings.WhereList = b.havings.OrWhere(column, operator, value)
 	return b
 }
+func (b *Builder[T]) HavingColumn(column, operator string, valueColumn string) *Builder[T] {
+	b.havings.WhereList = b.havings.WhereColumn(column, operator, valueColumn)
+	return b
+}
+func (b *Builder[T]) OrHavingColumn(column, operator string, valueColumn string) *Builder[T] {
+	b.havings.WhereList = b.havings.OrWhereColumn(column, operator, valueColumn)
+	return b
+}
+func (b *Builder[T]) HavingIn(column string, values []any) *Builder[T] {
+	b.havings.WhereList = b.havings.WhereIn(column, values)
+	return b
+}
+func (b *Builder[T]) OrHavingIn(column string, values []any) *Builder[T] {
+	b.havings.WhereList = b.havings.OrWhereIn(column, values)
+	return b
+}
+func (b *Builder[T]) HavingExists(query iBuilder) *Builder[T] {
+	b.havings.WhereList = b.havings.WhereExists(query)
+	return b
+}
+func (b *Builder[T]) OrHavingExists(query iBuilder) *Builder[T] {
+	b.havings.WhereList = b.havings.OrWhereExists(query)
+	return b
+}
 func (b *Builder[T]) HavingAnd(cb func(b *WhereList)) *Builder[T] {
 	b.havings.WhereList = b.havings.And(cb)
 	return b
