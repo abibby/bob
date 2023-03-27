@@ -5,7 +5,7 @@ import (
 	"github.com/abibby/bob/models"
 )
 
-type iBuilder interface {
+type QueryBuilder interface {
 	builder.ToSQLer
 	imALittleQueryBuilderShortAndStout()
 }

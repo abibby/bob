@@ -54,11 +54,11 @@ func (b *Builder[T]) OrWhereIn(column string, values []any) *Builder[T] {
 	b.wheres.WhereList = b.wheres.OrWhereIn(column, values)
 	return b
 }
-func (b *Builder[T]) WhereExists(query iBuilder) *Builder[T] {
+func (b *Builder[T]) WhereExists(query QueryBuilder) *Builder[T] {
 	b.wheres.WhereList = b.wheres.WhereExists(query)
 	return b
 }
-func (b *Builder[T]) OrWhereExists(query iBuilder) *Builder[T] {
+func (b *Builder[T]) OrWhereExists(query QueryBuilder) *Builder[T] {
 	b.wheres.WhereList = b.wheres.OrWhereExists(query)
 	return b
 }

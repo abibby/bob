@@ -47,10 +47,20 @@ func Join(sqlers []ToSQLer, sep string) ToSQLer {
 	})
 }
 
-type Raw string
+type RawQuery struct {
+	sql      string
+	bindings []any
+}
 
-func (r Raw) ToSQL(d dialects.Dialect) (string, []any, error) {
-	return string(r), nil, nil
+func Raw(sql string, bindings ...any) *RawQuery {
+	return &RawQuery{
+		sql:      sql,
+		bindings: bindings,
+	}
+}
+
+func (r *RawQuery) ToSQL(d dialects.Dialect) (string, []any, error) {
+	return r.sql, r.bindings, nil
 }
 
 type Group struct {

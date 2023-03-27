@@ -55,11 +55,11 @@ func (b *Builder[T]) OrHavingIn(column string, values []any) *Builder[T] {
 	b.havings.WhereList = b.havings.OrWhereIn(column, values)
 	return b
 }
-func (b *Builder[T]) HavingExists(query iBuilder) *Builder[T] {
+func (b *Builder[T]) HavingExists(query QueryBuilder) *Builder[T] {
 	b.havings.WhereList = b.havings.WhereExists(query)
 	return b
 }
-func (b *Builder[T]) OrHavingExists(query iBuilder) *Builder[T] {
+func (b *Builder[T]) OrHavingExists(query QueryBuilder) *Builder[T] {
 	b.havings.WhereList = b.havings.OrWhereExists(query)
 	return b
 }

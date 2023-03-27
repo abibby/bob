@@ -60,7 +60,7 @@ func (w *WhereList) ToSQL(d dialects.Dialect) (string, []any, error) {
 			if w.Operator != "" {
 				r.AddString(w.Operator)
 			}
-			if sb, ok := w.Value.(iBuilder); ok {
+			if sb, ok := w.Value.(QueryBuilder); ok {
 				r.Add(builder.NewGroup(sb).ToSQL(d))
 			} else if sb, ok := w.Value.(*WhereList); ok {
 				r.Add(builder.NewGroup(sb).ToSQL(d))
@@ -99,13 +99,13 @@ func (w *WhereList) whereIn(column string, values []any, or bool) *WhereList {
 	return w.where(column, "in", builder.NewGroup(builder.Join(builder.LiteralList(values), ", ")), or)
 }
 
-func (w *WhereList) WhereExists(query iBuilder) *WhereList {
+func (w *WhereList) WhereExists(query QueryBuilder) *WhereList {
 	return w.whereExists(query, false)
 }
-func (w *WhereList) OrWhereExists(query iBuilder) *WhereList {
+func (w *WhereList) OrWhereExists(query QueryBuilder) *WhereList {
 	return w.whereExists(query, true)
 }
-func (w *WhereList) whereExists(query iBuilder, or bool) *WhereList {
+func (w *WhereList) whereExists(query QueryBuilder, or bool) *WhereList {
 	return w.where("", "", builder.ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
 		return builder.Result().AddString("EXISTS").Add(query.ToSQL(d)).ToSQL(d)
 	}), or)

@@ -55,17 +55,20 @@ func (b *Builder[T]) AddSelect(columns ...string) *Builder[T] {
 	return b
 }
 
-func (b *Builder[T]) SelectSubquery(sb *Builder[T]) *Builder[T] {
+func (b *Builder[T]) SelectSubquery(sb QueryBuilder) *Builder[T] {
 	b.selects.list = []builder.ToSQLer{builder.NewGroup(sb)}
 
 	return b
 }
-func (b *Builder[T]) AddSelectSubquery(sb *Builder[T]) *Builder[T] {
+func (b *Builder[T]) AddSelectSubquery(sb QueryBuilder) *Builder[T] {
 	b.selects.list = append(b.selects.list, builder.NewGroup(sb))
 
 	return b
 }
 func (b *Builder[T]) SelectFunction(function, column string) *Builder[T] {
+	return b.Select().AddSelectFunction(function, column)
+}
+func (b *Builder[T]) AddSelectFunction(function, column string) *Builder[T] {
 	b.selects.list = append(b.selects.list, builder.ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
 		var c builder.ToSQLer
 		if column == "*" {
