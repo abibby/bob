@@ -10,7 +10,6 @@ import (
 	"github.com/abibby/bob/hooks"
 	"github.com/abibby/bob/models"
 	"github.com/abibby/bob/selects"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -53,7 +52,6 @@ func SaveContext(ctx context.Context, tx *sqlx.Tx, v models.Model) error {
 
 	d := dialects.DefaultDialect
 	columns, values := columnsAndValues(reflect.ValueOf(v).Elem())
-	spew.Dump(columns, values)
 
 	if v.InDatabase() {
 		err = update(ctx, tx, d, v, columns, values)
