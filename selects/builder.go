@@ -17,6 +17,8 @@ type Builder[T models.Model] struct {
 	havings  *havings
 	limit    *limit
 	orderBys orderBys
+
+	withs []string
 }
 
 func New[T models.Model]() *Builder[T] {

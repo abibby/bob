@@ -3,7 +3,6 @@ package selects
 import (
 	"context"
 	"fmt"
-	"reflect"
 
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/dialects"
@@ -17,20 +16,34 @@ func (b *Builder[T]) Get(tx *sqlx.Tx) ([]T, error) {
 func (b *Builder[T]) GetContext(ctx context.Context, tx *sqlx.Tx) ([]T, error) {
 	v := []T{}
 	err := b.LoadContext(ctx, tx, &v)
-	return v, err
+	if err != nil {
+		return nil, err
+	}
+
+	for _, with := range b.withs {
+		err = Load(tx, v, with)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return v, nil
 }
 
 func (b *Builder[T]) First(tx *sqlx.Tx) (T, error) {
 	return b.FirstContext(context.Background(), tx)
 }
 func (b *Builder[T]) FirstContext(ctx context.Context, tx *sqlx.Tx) (T, error) {
-	var v T
-	t := reflect.TypeOf(v)
-	if t.Kind() == reflect.Ptr {
-		v = reflect.New(t.Elem()).Interface().(T)
+	v, err := b.Clone().Limit(1).GetContext(ctx, tx)
+	if err != nil {
+		var zero T
+		return zero, err
 	}
-	err := b.LoadOneContext(ctx, tx, v)
-	return v, err
+	if len(v) < 1 {
+		var zero T
+		return zero, nil
+	}
+	return v[0], err
 }
 
 func (b *Builder[T]) Find(tx *sqlx.Tx, primaryKeyValue any) (T, error) {

@@ -9,6 +9,8 @@ func (b *Builder[T]) Clone() *Builder[T] {
 		havings:  b.havings.Clone(),
 		limit:    b.limit.Clone(),
 		orderBys: b.orderBys.Clone(),
+
+		withs: cloneSlice(b.withs),
 	}
 }
 
