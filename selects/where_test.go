@@ -22,6 +22,18 @@ func TestWhere(t *testing.T) {
 			ExpectedBindings: []any{"b", "d"},
 		},
 		{
+			Name:             "null",
+			Builder:          NewTestBuilder().Where("a", "=", nil),
+			ExpectedSQL:      "SELECT * FROM \"foos\" WHERE \"a\" IS NULL",
+			ExpectedBindings: []any{},
+		},
+		{
+			Name:             "not null",
+			Builder:          NewTestBuilder().Where("a", "!=", nil),
+			ExpectedSQL:      "SELECT * FROM \"foos\" WHERE \"a\" IS NOT NULL",
+			ExpectedBindings: []any{},
+		},
+		{
 			Name:             "specified table",
 			Builder:          NewTestBuilder().Where("foo.a", "=", "b"),
 			ExpectedSQL:      "SELECT * FROM \"foos\" WHERE \"foo\".\"a\" = ?",

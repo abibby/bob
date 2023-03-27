@@ -11,7 +11,7 @@ type havings struct {
 
 func newHavings() *havings {
 	return &havings{
-		WhereList: newWhereList(),
+		WhereList: NewWhereList(),
 	}
 }
 

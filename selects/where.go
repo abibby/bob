@@ -11,7 +11,7 @@ type Wheres struct {
 
 func NewWheres() *Wheres {
 	return &Wheres{
-		WhereList: newWhereList(),
+		WhereList: NewWhereList(),
 	}
 }
 
@@ -31,6 +31,14 @@ func (b *Builder[T]) Where(column, operator string, value any) *Builder[T] {
 }
 func (b *Builder[T]) OrWhere(column, operator string, value any) *Builder[T] {
 	b.wheres.WhereList = b.wheres.OrWhere(column, operator, value)
+	return b
+}
+func (b *Builder[T]) WhereColumn(column, operator string, valueColumn string) *Builder[T] {
+	b.wheres.WhereList = b.wheres.WhereColumn(column, operator, valueColumn)
+	return b
+}
+func (b *Builder[T]) OrWhereColumn(column, operator string, valueColumn string) *Builder[T] {
+	b.wheres.WhereList = b.wheres.OrWhereColumn(column, operator, valueColumn)
 	return b
 }
 func (b *Builder[T]) WhereIn(column string, values []any) *Builder[T] {
