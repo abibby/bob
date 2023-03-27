@@ -2,6 +2,7 @@ package selects
 
 import (
 	"encoding/json"
+	"fmt"
 	"reflect"
 
 	"github.com/abibby/bob/builder"
@@ -41,18 +42,27 @@ func (v *relationValue[T]) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func foreignKeyName(field reflect.StructField, tag string, tableType any) string {
+func foreignKeyName(field reflect.StructField, tag string, tableType any) (string, error) {
 	t, ok := field.Tag.Lookup(tag)
 	if ok {
-		return t
+		return t, nil
 	}
-	return builder.GetTableSingular(tableType) + "_id"
+
+	pKeys := builder.PrimaryKey(tableType)
+	if len(pKeys) != 1 {
+		return "", fmt.Errorf("you must specify keys for relationships with compound primary keys")
+	}
+	return builder.GetTableSingular(tableType) + "_" + pKeys[0], nil
 }
 
-func primaryKeyName(field reflect.StructField, tag string) string {
+func primaryKeyName(field reflect.StructField, tag string, tableType any) (string, error) {
 	t, ok := field.Tag.Lookup(tag)
 	if ok {
-		return t
+		return t, nil
 	}
-	return "id"
+	pKeys := builder.PrimaryKey(tableType)
+	if len(pKeys) != 1 {
+		return "", fmt.Errorf("you must specify keys for relationships with compound primary keys")
+	}
+	return pKeys[0], nil
 }

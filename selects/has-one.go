@@ -36,8 +36,17 @@ func (r *HasOne[T]) Loaded() bool {
 }
 func (r *HasOne[T]) Initialize(parent any, field reflect.StructField) error {
 	r.parent = parent
-	r.parentKey = primaryKeyName(field, "local")
-	r.relatedKey = foreignKeyName(field, "foreign", parent)
+	parentKey, err := primaryKeyName(field, "local", parent)
+	if err != nil {
+		return err
+	}
+	relatedKey, err := foreignKeyName(field, "foreign", parent)
+	if err != nil {
+		return err
+	}
+
+	r.parentKey = parentKey
+	r.relatedKey = relatedKey
 	return nil
 }
 func (r *HasOne[T]) Load(tx *sqlx.Tx, relations []Relationship) error {

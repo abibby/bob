@@ -22,8 +22,18 @@ func (r *BelongsTo[T]) Value(tx *sqlx.Tx) (T, error) {
 func (r *BelongsTo[T]) Initialize(parent any, field reflect.StructField) error {
 	var related T
 	r.parent = parent
-	r.parentKey = foreignKeyName(field, "foreign", related)
-	r.relatedKey = primaryKeyName(field, "owner")
+	parentKey, err := foreignKeyName(field, "foreign", related)
+	if err != nil {
+		return err
+	}
+	relatedKey, err := primaryKeyName(field, "owner", related)
+	if err != nil {
+		return err
+	}
+
+	r.parentKey = parentKey
+	r.relatedKey = relatedKey
+
 	return nil
 }
 
