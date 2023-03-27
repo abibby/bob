@@ -1,7 +1,6 @@
 package selects
 
 import (
-	"fmt"
 	"reflect"
 
 	"github.com/jmoiron/sqlx"
@@ -88,7 +87,7 @@ func each(v any, cb func(reflect.Value) error) error {
 		return nil
 	}
 	if rv.Kind() != reflect.Struct {
-		return fmt.Errorf("only valid for structs or slices of structs")
+		return nil
 	}
 
 	return cb(rv)
