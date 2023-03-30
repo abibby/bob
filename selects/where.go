@@ -62,6 +62,14 @@ func (b *Builder[T]) OrWhereExists(query QueryBuilder) *Builder[T] {
 	b.wheres.WhereList = b.wheres.OrWhereExists(query)
 	return b
 }
+func (b *Builder[T]) WhereSubquery(subquery QueryBuilder, operator string, value any) *Builder[T] {
+	b.wheres.WhereList = b.wheres.WhereSubquery(subquery, operator, value)
+	return b
+}
+func (b *Builder[T]) OrWhereSubquery(subquery QueryBuilder, operator string, value any) *Builder[T] {
+	b.wheres.WhereList = b.wheres.OrWhereSubquery(subquery, operator, value)
+	return b
+}
 func (b *Builder[T]) And(cb func(b *WhereList)) *Builder[T] {
 	b.wheres.WhereList = b.wheres.And(cb)
 	return b

@@ -77,5 +77,11 @@ func TestWhere(t *testing.T) {
 			ExpectedSQL:      "SELECT * FROM \"foos\" WHERE \"a\" in (?, ?, ?)",
 			ExpectedBindings: []any{1, 2, 3},
 		},
+		{
+			Name:             "where subquery",
+			Builder:          NewTestBuilder().WhereSubquery(NewTestBuilder().Select("a").Where("id", "=", 1), "=", "a"),
+			ExpectedSQL:      `SELECT * FROM "foos" WHERE (SELECT "a" FROM "foos" WHERE "id" = ?) = ?`,
+			ExpectedBindings: []any{1, "a"},
+		},
 	})
 }

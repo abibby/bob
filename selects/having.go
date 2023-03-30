@@ -63,11 +63,18 @@ func (b *Builder[T]) OrHavingExists(query QueryBuilder) *Builder[T] {
 	b.havings.WhereList = b.havings.OrWhereExists(query)
 	return b
 }
+func (b *Builder[T]) HavingSubquery(subquery QueryBuilder, operator string, value any) *Builder[T] {
+	b.havings.WhereList = b.havings.WhereSubquery(subquery, operator, value)
+	return b
+}
+func (b *Builder[T]) OrHavingSubquery(subquery QueryBuilder, operator string, value any) *Builder[T] {
+	b.havings.WhereList = b.havings.OrWhereSubquery(subquery, operator, value)
+	return b
+}
 func (b *Builder[T]) HavingAnd(cb func(b *WhereList)) *Builder[T] {
 	b.havings.WhereList = b.havings.And(cb)
 	return b
 }
-
 func (b *Builder[T]) HavingOr(cb func(b *WhereList)) *Builder[T] {
 	b.havings.WhereList = b.havings.Or(cb)
 	return b

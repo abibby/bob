@@ -8,7 +8,7 @@ import (
 )
 
 type where struct {
-	Column   string
+	Column   builder.ToSQLer
 	Operator string
 	Value    any
 	Or       bool
@@ -43,8 +43,12 @@ func (w *WhereList) ToSQL(d dialects.Dialect) (string, []any, error) {
 				r.AddString("AND")
 			}
 		}
-		if w.Column != "" {
-			r.AddString(d.Identifier(w.Column))
+		if w.Column != nil {
+			r.Add(w.Column.ToSQL(d))
+
+			if w.Operator == "" {
+				return "", nil, fmt.Errorf("the operator must be set when the column is set")
+			}
 		}
 
 		if w.Value == nil {
@@ -106,18 +110,38 @@ func (w *WhereList) OrWhereExists(query QueryBuilder) *WhereList {
 	return w.whereExists(query, true)
 }
 func (w *WhereList) whereExists(query QueryBuilder, or bool) *WhereList {
-	return w.where("", "", builder.ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
-		return builder.Result().AddString("EXISTS").Add(query.ToSQL(d)).ToSQL(d)
-	}), or)
+	return w.addWhere(&where{
+		Value: builder.ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
+			return builder.Result().AddString("EXISTS").Add(query.ToSQL(d)).ToSQL(d)
+		}),
+		Or: or,
+	})
 }
-
-func (w *WhereList) where(column, operator string, value any, or bool) *WhereList {
-	w.list = append(w.list, &where{
-		Column:   column,
+func (w *WhereList) WhereSubquery(subquery QueryBuilder, operator string, value any) *WhereList {
+	return w.whereSubquery(subquery, operator, value, false)
+}
+func (w *WhereList) OrWhereSubquery(subquery QueryBuilder, operator string, value any) *WhereList {
+	return w.whereSubquery(subquery, operator, value, true)
+}
+func (w *WhereList) whereSubquery(subquery QueryBuilder, operator string, value any, or bool) *WhereList {
+	return w.addWhere(&where{
+		Column:   builder.NewGroup(subquery),
 		Operator: operator,
 		Value:    value,
 		Or:       or,
 	})
+}
+
+func (w *WhereList) where(column, operator string, value any, or bool) *WhereList {
+	return w.addWhere(&where{
+		Column:   builder.Identifier(column),
+		Operator: operator,
+		Value:    value,
+		Or:       or,
+	})
+}
+func (w *WhereList) addWhere(wh *where) *WhereList {
+	w.list = append(w.list, wh)
 	return w
 }
 
