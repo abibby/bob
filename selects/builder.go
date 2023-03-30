@@ -9,12 +9,14 @@ type QueryBuilder interface {
 	builder.ToSQLer
 	imALittleQueryBuilderShortAndStout()
 }
+
+//go:generate go run ../build/build.go
 type Builder[T models.Model] struct {
 	selects  *selects
 	from     fromTable
-	wheres   *wheres
+	wheres   *WhereList
 	groupBys groupBys
-	havings  *havings
+	havings  *WhereList
 	limit    *limit
 	orderBys orderBys
 
@@ -34,9 +36,9 @@ func NewEmpty[T models.Model]() *Builder[T] {
 	return &Builder[T]{
 		selects:  NewSelects(),
 		from:     "",
-		wheres:   NewWheres(),
+		wheres:   NewWhereList().withPrefix("WHERE"),
 		groupBys: groupBys{},
-		havings:  newHavings(),
+		havings:  NewWhereList().withPrefix("HAVING"),
 		limit:    &limit{},
 	}
 }

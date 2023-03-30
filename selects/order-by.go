@@ -20,11 +20,9 @@ func (o orderBys) ToSQL(d dialects.Dialect) (string, []any, error) {
 	return r.ToSQL(d)
 }
 
-func (b *Builder[T]) OrderBy(column string) *Builder[T] {
-	b.orderBys = append(b.orderBys, builder.Identifier(column))
-	return b
+func (o orderBys) OrderBy(column string) orderBys {
+	return append(o, builder.Identifier(column))
 }
-func (b *Builder[T]) OrderByDesc(column string) *Builder[T] {
-	b.orderBys = append(b.orderBys, builder.Join([]builder.ToSQLer{builder.Identifier(column), builder.Raw("DESC")}, " "))
-	return b
+func (o orderBys) OrderByDesc(column string) orderBys {
+	return append(o, builder.Join([]builder.ToSQLer{builder.Identifier(column), builder.Raw("DESC")}, " "))
 }

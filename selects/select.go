@@ -37,7 +37,7 @@ func (s *selects) ToSQL(d dialects.Dialect) (string, []any, error) {
 	return r.ToSQL(d)
 }
 
-func (b *Builder[T]) Select(columns ...string) *Builder[T] {
+func (s *selects) Select(columns ...string) *selects {
 	identifiers := make([]builder.ToSQLer, len(columns))
 	for i, c := range columns {
 		if c == "*" {
@@ -46,30 +46,30 @@ func (b *Builder[T]) Select(columns ...string) *Builder[T] {
 			identifiers[i] = builder.Identifier(c)
 		}
 	}
-	b.selects.list = identifiers
-	return b
+	s.list = identifiers
+	return s
 }
 
-func (b *Builder[T]) AddSelect(columns ...string) *Builder[T] {
-	b.selects.list = append(b.selects.list, builder.IdentifierList(columns)...)
-	return b
+func (s *selects) AddSelect(columns ...string) *selects {
+	s.list = append(s.list, builder.IdentifierList(columns)...)
+	return s
 }
 
-func (b *Builder[T]) SelectSubquery(sb QueryBuilder) *Builder[T] {
-	b.selects.list = []builder.ToSQLer{builder.NewGroup(sb)}
+func (s *selects) SelectSubquery(sb QueryBuilder) *selects {
+	s.list = []builder.ToSQLer{builder.NewGroup(sb)}
 
-	return b
+	return s
 }
-func (b *Builder[T]) AddSelectSubquery(sb QueryBuilder) *Builder[T] {
-	b.selects.list = append(b.selects.list, builder.NewGroup(sb))
+func (s *selects) AddSelectSubquery(sb QueryBuilder) *selects {
+	s.list = append(s.list, builder.NewGroup(sb))
 
-	return b
+	return s
 }
-func (b *Builder[T]) SelectFunction(function, column string) *Builder[T] {
-	return b.Select().AddSelectFunction(function, column)
+func (s *selects) SelectFunction(function, column string) *selects {
+	return s.Select().AddSelectFunction(function, column)
 }
-func (b *Builder[T]) AddSelectFunction(function, column string) *Builder[T] {
-	b.selects.list = append(b.selects.list, builder.ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
+func (s *selects) AddSelectFunction(function, column string) *selects {
+	s.list = append(s.list, builder.ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
 		var c builder.ToSQLer
 		if column == "*" {
 			c = builder.Raw("*")
@@ -83,10 +83,10 @@ func (b *Builder[T]) AddSelectFunction(function, column string) *Builder[T] {
 		return fmt.Sprintf("%s(%s)", function, q), bindings, nil
 	}))
 
-	return b
+	return s
 }
 
-func (b *Builder[T]) Distinct() *Builder[T] {
-	b.selects.distinct = true
-	return b
+func (s *selects) Distinct() *selects {
+	s.distinct = true
+	return s
 }

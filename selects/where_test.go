@@ -47,21 +47,21 @@ func TestWhere(t *testing.T) {
 		},
 		{
 			Name: "and group",
-			Builder: NewTestBuilder().And(func(b *selects.WhereList) {
-				b.Where("a", "=", "a").OrWhere("b", "=", "b")
-			}).And(func(b *selects.WhereList) {
-				b.Where("c", "=", "c").OrWhere("d", "=", "d")
-			}),
+			Builder: NewTestBuilder().And(
+				selects.NewWhereList().Where("a", "=", "a").OrWhere("b", "=", "b"),
+			).And(
+				selects.NewWhereList().Where("c", "=", "c").OrWhere("d", "=", "d"),
+			),
 			ExpectedSQL:      "SELECT * FROM \"foos\" WHERE (\"a\" = ? OR \"b\" = ?) AND (\"c\" = ? OR \"d\" = ?)",
 			ExpectedBindings: []any{"a", "b", "c", "d"},
 		},
 		{
 			Name: "or group",
-			Builder: NewTestBuilder().Or(func(b *selects.WhereList) {
-				b.Where("a", "=", "a").Where("b", "=", "b")
-			}).Or(func(b *selects.WhereList) {
-				b.Where("c", "=", "c").Where("d", "=", "d")
-			}),
+			Builder: NewTestBuilder().Or(
+				selects.NewWhereList().Where("a", "=", "a").Where("b", "=", "b"),
+			).Or(
+				selects.NewWhereList().Where("c", "=", "c").Where("d", "=", "d"),
+			),
 			ExpectedSQL:      "SELECT * FROM \"foos\" WHERE (\"a\" = ? AND \"b\" = ?) OR (\"c\" = ? AND \"d\" = ?)",
 			ExpectedBindings: []any{"a", "b", "c", "d"},
 		},

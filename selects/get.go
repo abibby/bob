@@ -56,7 +56,9 @@ func (b *Builder[T]) FindContext(ctx context.Context, tx *sqlx.Tx, primaryKeyVal
 	if len(pKeys) != 1 {
 		return m, fmt.Errorf("Find only supports tables with 1 primary key")
 	}
-	return b.Clone().Where(pKeys[0], "=", primaryKeyValue).FirstContext(ctx, tx)
+	return b.Clone().
+		Where(pKeys[0], "=", primaryKeyValue).
+		FirstContext(ctx, tx)
 }
 
 func (b *Builder[T]) Load(tx *sqlx.Tx, v any) error {

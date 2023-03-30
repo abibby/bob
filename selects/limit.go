@@ -30,11 +30,11 @@ func (l *limit) ToSQL(d dialects.Dialect) (string, []any, error) {
 	return r.ToSQL(d)
 }
 
-func (b *Builder[T]) Limit(limit int) *Builder[T] {
-	b.limit.limit = limit
-	return b
+func (l *limit) Limit(limit int) *limit {
+	l.limit = limit
+	return l
 }
-func (b *Builder[T]) Offset(offset int) *Builder[T] {
-	b.limit.offset = offset
-	return b
+func (l *limit) Offset(offset int) *limit {
+	l.offset = offset
+	return l
 }

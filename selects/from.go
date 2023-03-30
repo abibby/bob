@@ -17,7 +17,6 @@ func (f fromTable) ToSQL(d dialects.Dialect) (string, []any, error) {
 	return "FROM " + d.Identifier(string(f)), nil, nil
 }
 
-func (b *Builder[T]) From(table string) *Builder[T] {
-	b.from = fromTable(table)
-	return b
+func (f fromTable) From(table string) fromTable {
+	return fromTable(table)
 }

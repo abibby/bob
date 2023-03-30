@@ -5,6 +5,7 @@ import (
 
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/dialects"
+	"github.com/davecgh/go-spew/spew"
 )
 
 type where struct {
@@ -15,7 +16,8 @@ type where struct {
 }
 
 type WhereList struct {
-	list []*where
+	prefix string
+	list   []*where
 }
 
 func NewWhereList() *WhereList {
@@ -24,9 +26,14 @@ func NewWhereList() *WhereList {
 	}
 }
 
+func (w *WhereList) withPrefix(prefix string) *WhereList {
+	w.prefix = prefix
+	return w
+}
 func (w *WhereList) Clone() *WhereList {
 	return &WhereList{
-		list: cloneSlice(w.list),
+		prefix: w.prefix,
+		list:   cloneSlice(w.list),
 	}
 }
 func (w *WhereList) ToSQL(d dialects.Dialect) (string, []any, error) {
@@ -35,6 +42,10 @@ func (w *WhereList) ToSQL(d dialects.Dialect) (string, []any, error) {
 	}
 
 	r := builder.Result()
+	if w.prefix != "" {
+		r.AddString(w.prefix)
+	}
+	spew.Dump(w)
 	for i, w := range w.list {
 		if i != 0 {
 			if w.Or == true {
@@ -140,21 +151,19 @@ func (w *WhereList) where(column, operator string, value any, or bool) *WhereLis
 		Or:       or,
 	})
 }
+
+// func (w *WhereList) whereHas(relation string, builder QueryBuilder) *WhereList {
+// 	return w.whereSubquery()
+// }
+
+func (w *WhereList) And(wl *WhereList) *WhereList {
+	return w.addWhere(&where{Value: wl})
+}
+
+func (w *WhereList) Or(wl *WhereList) *WhereList {
+	return w.addWhere(&where{Value: wl, Or: true})
+}
 func (w *WhereList) addWhere(wh *where) *WhereList {
 	w.list = append(w.list, wh)
-	return w
-}
-
-func (w *WhereList) And(cb func(w *WhereList)) *WhereList {
-	subBuilder := NewWhereList()
-	cb(subBuilder)
-	w.list = append(w.list, &where{Value: subBuilder})
-	return w
-}
-
-func (w *WhereList) Or(cb func(w *WhereList)) *WhereList {
-	subBuilder := NewWhereList()
-	cb(subBuilder)
-	w.list = append(w.list, &where{Value: subBuilder, Or: true})
 	return w
 }

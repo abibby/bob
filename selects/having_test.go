@@ -35,21 +35,21 @@ func TestHaving(t *testing.T) {
 		},
 		{
 			Name: "and group",
-			Builder: NewTestBuilder().HavingAnd(func(b *selects.WhereList) {
-				b.Where("a", "=", "a").OrWhere("b", "=", "b")
-			}).HavingAnd(func(b *selects.WhereList) {
-				b.Where("c", "=", "c").OrWhere("d", "=", "d")
-			}),
+			Builder: NewTestBuilder().HavingAnd(
+				selects.NewWhereList().Where("a", "=", "a").OrWhere("b", "=", "b"),
+			).HavingAnd(
+				selects.NewWhereList().Where("c", "=", "c").OrWhere("d", "=", "d"),
+			),
 			ExpectedSQL:      "SELECT * FROM \"foos\" HAVING (\"a\" = ? OR \"b\" = ?) AND (\"c\" = ? OR \"d\" = ?)",
 			ExpectedBindings: []any{"a", "b", "c", "d"},
 		},
 		{
 			Name: "or group",
-			Builder: NewTestBuilder().HavingOr(func(b *selects.WhereList) {
-				b.Where("a", "=", "a").Where("b", "=", "b")
-			}).HavingOr(func(b *selects.WhereList) {
-				b.Where("c", "=", "c").Where("d", "=", "d")
-			}),
+			Builder: NewTestBuilder().HavingOr(
+				selects.NewWhereList().Where("a", "=", "a").Where("b", "=", "b"),
+			).HavingOr(
+				selects.NewWhereList().Where("c", "=", "c").Where("d", "=", "d"),
+			),
 			ExpectedSQL:      "SELECT * FROM \"foos\" HAVING (\"a\" = ? AND \"b\" = ?) OR (\"c\" = ? AND \"d\" = ?)",
 			ExpectedBindings: []any{"a", "b", "c", "d"},
 		},
