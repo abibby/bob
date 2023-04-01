@@ -172,6 +172,19 @@ func (w *WhereList) whereHas(relation string, cb func(q *SubBuilder) *SubBuilder
 	return w.whereExists(cb(r.Subquery()), or)
 }
 
+func (w *WhereList) WhereRaw(rawSql string, bindings ...any) *WhereList {
+	return w.whereRaw(rawSql, bindings, false)
+}
+func (w *WhereList) OrWhereRaw(rawSql string, bindings ...any) *WhereList {
+	return w.whereRaw(rawSql, bindings, true)
+}
+func (w *WhereList) whereRaw(rawSql string, bindings []any, or bool) *WhereList {
+	return w.addWhere(&where{
+		Value: builder.Raw(rawSql, bindings...),
+		Or:    or,
+	})
+}
+
 func (w *WhereList) And(cb func(wl *WhereList)) *WhereList {
 	return w.group(cb, false)
 }

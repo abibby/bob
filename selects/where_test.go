@@ -113,5 +113,11 @@ func TestWhere(t *testing.T) {
 			ExpectedSQL:      `SELECT * FROM "bars" WHERE EXISTS (SELECT * FROM "foos" WHERE "id" = "bars"."foo_id" AND "id" = ?)`,
 			ExpectedBindings: []any{"b"},
 		},
+		{
+			Name:             "whereRaw",
+			Builder:          NewTestBuilder().WhereRaw("function(a) = ?", "b"),
+			ExpectedSQL:      `SELECT * FROM "foos" WHERE function(a) = ?`,
+			ExpectedBindings: []any{"b"},
+		},
 	})
 }

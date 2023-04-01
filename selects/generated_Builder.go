@@ -190,6 +190,26 @@ func (b *Builder[T]) OrHavingHas(relation string, cb func(q *SubBuilder) *SubBui
 	b.subBuilder = b.subBuilder.OrHavingHas(relation, cb)
 	return b
 }
+func (b *Builder[T]) WhereRaw(rawSql string, bindings ...any) *Builder[T] {
+	b = b.Clone()
+	b.subBuilder = b.subBuilder.WhereRaw(rawSql, bindings...)
+	return b
+}
+func (b *Builder[T]) HavingRaw(rawSql string, bindings ...any) *Builder[T] {
+	b = b.Clone()
+	b.subBuilder = b.subBuilder.HavingRaw(rawSql, bindings...)
+	return b
+}
+func (b *Builder[T]) OrWhereRaw(rawSql string, bindings ...any) *Builder[T] {
+	b = b.Clone()
+	b.subBuilder = b.subBuilder.OrWhereRaw(rawSql, bindings...)
+	return b
+}
+func (b *Builder[T]) OrHavingRaw(rawSql string, bindings ...any) *Builder[T] {
+	b = b.Clone()
+	b.subBuilder = b.subBuilder.OrHavingRaw(rawSql, bindings...)
+	return b
+}
 func (b *Builder[T]) And(cb func(wl *WhereList)) *Builder[T] {
 	b = b.Clone()
 	b.subBuilder = b.subBuilder.And(cb)
