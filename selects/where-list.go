@@ -172,13 +172,19 @@ func (w *WhereList) whereHas(relation string, cb func(q *SubBuilder) *SubBuilder
 	return w.whereExists(cb(r.Subquery()), or)
 }
 
-func (w *WhereList) And(wl *WhereList) *WhereList {
-	return w.addWhere(&where{Value: wl})
+func (w *WhereList) And(cb func(wl *WhereList)) *WhereList {
+	return w.group(cb, false)
+}
+func (w *WhereList) Or(cb func(wl *WhereList)) *WhereList {
+	return w.group(cb, true)
 }
 
-func (w *WhereList) Or(wl *WhereList) *WhereList {
-	return w.addWhere(&where{Value: wl, Or: true})
+func (w *WhereList) group(cb func(wl *WhereList), or bool) *WhereList {
+	wl := NewWhereList().withParent(w.parent)
+	cb(wl)
+	return w.addWhere(&where{Value: wl, Or: or})
 }
+
 func (w *WhereList) addWhere(wh *where) *WhereList {
 	w.list = append(w.list, wh)
 	return w

@@ -190,23 +190,23 @@ func (b *SubBuilder) OrHavingHas(relation string, cb func(q *SubBuilder) *SubBui
 	b.havings = b.havings.OrWhereHas(relation, cb)
 	return b
 }
-func (b *SubBuilder) And(wl *WhereList) *SubBuilder {
+func (b *SubBuilder) And(cb func(wl *WhereList)) *SubBuilder {
 	b = b.Clone()
-	b.wheres = b.wheres.And(wl)
+	b.wheres = b.wheres.And(cb)
 	return b
 }
-func (b *SubBuilder) HavingAnd(wl *WhereList) *SubBuilder {
+func (b *SubBuilder) HavingAnd(cb func(wl *WhereList)) *SubBuilder {
 	b = b.Clone()
-	b.havings = b.havings.And(wl)
+	b.havings = b.havings.And(cb)
 	return b
 }
-func (b *SubBuilder) Or(wl *WhereList) *SubBuilder {
+func (b *SubBuilder) Or(cb func(wl *WhereList)) *SubBuilder {
 	b = b.Clone()
-	b.wheres = b.wheres.Or(wl)
+	b.wheres = b.wheres.Or(cb)
 	return b
 }
-func (b *SubBuilder) HavingOr(wl *WhereList) *SubBuilder {
+func (b *SubBuilder) HavingOr(cb func(wl *WhereList)) *SubBuilder {
 	b = b.Clone()
-	b.havings = b.havings.Or(wl)
+	b.havings = b.havings.Or(cb)
 	return b
 }

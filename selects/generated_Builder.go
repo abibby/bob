@@ -190,24 +190,24 @@ func (b *Builder[T]) OrHavingHas(relation string, cb func(q *SubBuilder) *SubBui
 	b.subBuilder = b.subBuilder.OrHavingHas(relation, cb)
 	return b
 }
-func (b *Builder[T]) And(wl *WhereList) *Builder[T] {
+func (b *Builder[T]) And(cb func(wl *WhereList)) *Builder[T] {
 	b = b.Clone()
-	b.subBuilder = b.subBuilder.And(wl)
+	b.subBuilder = b.subBuilder.And(cb)
 	return b
 }
-func (b *Builder[T]) HavingAnd(wl *WhereList) *Builder[T] {
+func (b *Builder[T]) HavingAnd(cb func(wl *WhereList)) *Builder[T] {
 	b = b.Clone()
-	b.subBuilder = b.subBuilder.HavingAnd(wl)
+	b.subBuilder = b.subBuilder.HavingAnd(cb)
 	return b
 }
-func (b *Builder[T]) Or(wl *WhereList) *Builder[T] {
+func (b *Builder[T]) Or(cb func(wl *WhereList)) *Builder[T] {
 	b = b.Clone()
-	b.subBuilder = b.subBuilder.Or(wl)
+	b.subBuilder = b.subBuilder.Or(cb)
 	return b
 }
-func (b *Builder[T]) HavingOr(wl *WhereList) *Builder[T] {
+func (b *Builder[T]) HavingOr(cb func(wl *WhereList)) *Builder[T] {
 	b = b.Clone()
-	b.subBuilder = b.subBuilder.HavingOr(wl)
+	b.subBuilder = b.subBuilder.HavingOr(cb)
 	return b
 }
 func (b *Builder[T]) Dump() *Builder[T] {
