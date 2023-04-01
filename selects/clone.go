@@ -2,6 +2,12 @@ package selects
 
 func (b *Builder[T]) Clone() *Builder[T] {
 	return &Builder[T]{
+		subBuilder: b.subBuilder.Clone(),
+		withs:      cloneSlice(b.withs),
+	}
+}
+func (b *SubBuilder) Clone() *SubBuilder {
+	return &SubBuilder{
 		selects:  b.selects.Clone(),
 		from:     b.from.Clone(),
 		wheres:   b.wheres.Clone(),
@@ -9,8 +15,6 @@ func (b *Builder[T]) Clone() *Builder[T] {
 		havings:  b.havings.Clone(),
 		limit:    b.limit.Clone(),
 		orderBys: b.orderBys.Clone(),
-
-		withs: cloneSlice(b.withs),
 	}
 }
 

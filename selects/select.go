@@ -56,12 +56,12 @@ func (s *selects) AddSelect(columns ...string) *selects {
 }
 
 func (s *selects) SelectSubquery(sb QueryBuilder) *selects {
-	s.list = []builder.ToSQLer{builder.NewGroup(sb)}
+	s.list = []builder.ToSQLer{builder.Group(sb)}
 
 	return s
 }
 func (s *selects) AddSelectSubquery(sb QueryBuilder) *selects {
-	s.list = append(s.list, builder.NewGroup(sb))
+	s.list = append(s.list, builder.Group(sb))
 
 	return s
 }

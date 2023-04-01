@@ -11,7 +11,7 @@ type QueryBuilder interface {
 }
 
 //go:generate go run ../build/build.go
-type Builder[T models.Model] struct {
+type SubBuilder struct {
 	selects  *selects
 	from     fromTable
 	wheres   *WhereList
@@ -19,8 +19,12 @@ type Builder[T models.Model] struct {
 	havings  *WhereList
 	limit    *limit
 	orderBys orderBys
+}
 
-	withs []string
+//go:generate go run ../build/build.go
+type Builder[T models.Model] struct {
+	subBuilder *SubBuilder
+	withs      []string
 }
 
 func New[T models.Model]() *Builder[T] {
@@ -33,7 +37,17 @@ func From[T models.Model]() *Builder[T] {
 }
 
 func NewEmpty[T models.Model]() *Builder[T] {
+	var m T
+	sb := NewSubBuilder()
+	sb.wheres.withParent(m)
+	sb.havings.withParent(m)
 	return &Builder[T]{
+		subBuilder: sb,
+		withs:      []string{},
+	}
+}
+func NewSubBuilder() *SubBuilder {
+	return &SubBuilder{
 		selects:  NewSelects(),
 		from:     "",
 		wheres:   NewWhereList().withPrefix("WHERE"),
@@ -44,3 +58,4 @@ func NewEmpty[T models.Model]() *Builder[T] {
 }
 
 func (*Builder[T]) imALittleQueryBuilderShortAndStout() {}
+func (*SubBuilder) imALittleQueryBuilderShortAndStout() {}

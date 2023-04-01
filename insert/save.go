@@ -77,7 +77,7 @@ func insert(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns
 		AddString("INSERT INTO").
 		Add(builder.Identifier(builder.GetTable(v)).ToSQL(d)).
 		Add(
-			builder.NewGroup(
+			builder.Group(
 				builder.Join(
 					builder.IdentifierList(columns),
 					", ",
@@ -86,7 +86,7 @@ func insert(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns
 		).
 		AddString("VALUES").
 		Add(
-			builder.NewGroup(
+			builder.Group(
 				builder.Join(
 					builder.LiteralList(values),
 					", ",
@@ -119,7 +119,7 @@ func update(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns
 		}
 		r.Add(builder.Identifier(column).ToSQL(d))
 		r.AddString("=")
-		r.Add(builder.NewLiteral(values[i]).ToSQL(d))
+		r.Add(builder.Literal(values[i]).ToSQL(d))
 	}
 
 	r.AddString("WHERE")
@@ -136,7 +136,7 @@ func update(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns
 
 		r.Add(builder.Identifier(k).ToSQL(d)).
 			AddString("=").
-			Add(builder.NewLiteral(pKeyValue).ToSQL(d))
+			Add(builder.Literal(pKeyValue).ToSQL(d))
 	}
 
 	q, bindings, err := r.ToSQL(d)

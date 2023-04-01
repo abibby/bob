@@ -6,6 +6,9 @@ import (
 )
 
 func (b *Builder[T]) ToSQL(d dialects.Dialect) (string, []any, error) {
+	return b.subBuilder.ToSQL(d)
+}
+func (b *SubBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
 	return builder.Result().
 		Add(b.selects.ToSQL(d)).
 		Add(b.from.ToSQL(d)).

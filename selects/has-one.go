@@ -19,21 +19,6 @@ func (r *HasOne[T]) Value(tx *sqlx.Tx) (T, error) {
 	return r.relationValue.Value(tx, r)
 }
 
-//	func (r *HasOne[T]) Query() *selects.Builder {
-//		var related T
-//		local, ok := builder.GetValue(r.parent, r.localKey)
-//		if !ok {
-//			panic(fmt.Errorf("no local key %s", r.localKey))
-//		}
-//		return selects.New().
-//			Select("*").
-//			From(builder.GetTable(related)).
-//			Where(r.foreignKey, "=", local).
-//			Limit(1)
-//	}
-func (r *HasOne[T]) Loaded() bool {
-	return r.loaded
-}
 func (r *HasOne[T]) Initialize(parent any, field reflect.StructField) error {
 	r.parent = parent
 	parentKey, err := primaryKeyName(field, "local", parent)

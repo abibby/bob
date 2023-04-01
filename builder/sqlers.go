@@ -14,10 +14,10 @@ func (f ToSQLFunc) ToSQL(d dialects.Dialect) (string, []any, error) {
 	return f(d)
 }
 
-type Identifier string
-
-func (i Identifier) ToSQL(d dialects.Dialect) (string, []any, error) {
-	return d.Identifier(string(i)), nil, nil
+func Identifier(i string) ToSQLer {
+	return ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
+		return d.Identifier(i), nil, nil
+	})
 }
 
 func IdentifierList(strs []string) []ToSQLer {
@@ -47,48 +47,29 @@ func Join(sqlers []ToSQLer, sep string) ToSQLer {
 	})
 }
 
-type RawQuery struct {
-	sql      string
-	bindings []any
+func Raw(sql string, bindings ...any) ToSQLer {
+	return ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
+		return sql, bindings, nil
+	})
 }
 
-func Raw(sql string, bindings ...any) *RawQuery {
-	return &RawQuery{
-		sql:      sql,
-		bindings: bindings,
-	}
+func Group(sqler ToSQLer) ToSQLer {
+	return ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
+		q, bindings, err := sqler.ToSQL(d)
+		return "(" + q + ")", bindings, err
+	})
 }
 
-func (r *RawQuery) ToSQL(d dialects.Dialect) (string, []any, error) {
-	return r.sql, r.bindings, nil
-}
-
-type Group struct {
-	sqler ToSQLer
-}
-
-func NewGroup(sqler ToSQLer) ToSQLer {
-	return &Group{sqler: sqler}
-}
-
-func (g *Group) ToSQL(d dialects.Dialect) (string, []any, error) {
-	q, bindings, err := g.sqler.ToSQL(d)
-	return "(" + q + ")", bindings, err
-}
-
-type Literal struct{ value any }
-
-func NewLiteral(v any) ToSQLer {
-	return &Literal{value: v}
-}
-func (l Literal) ToSQL(d dialects.Dialect) (string, []any, error) {
-	return "?", []any{l.value}, nil
+func Literal(v any) ToSQLer {
+	return ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
+		return "?", []any{v}, nil
+	})
 }
 
 func LiteralList(values []any) []ToSQLer {
 	literals := make([]ToSQLer, len(values))
 	for i, s := range values {
-		literals[i] = NewLiteral(s)
+		literals[i] = Literal(s)
 	}
 	return literals
 }

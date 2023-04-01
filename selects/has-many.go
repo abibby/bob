@@ -19,9 +19,6 @@ func (r *HasMany[T]) Value(tx *sqlx.Tx) ([]T, error) {
 	return r.relationValue.Value(tx, r)
 }
 
-func (r *HasMany[T]) Loaded() bool {
-	return r.loaded
-}
 func (r *HasMany[T]) Initialize(parent any, field reflect.StructField) error {
 	r.parent = parent
 	parentKey, err := primaryKeyName(field, "local", parent)

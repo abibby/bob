@@ -34,7 +34,9 @@ func (b *Builder[T]) First(tx *sqlx.Tx) (T, error) {
 	return b.FirstContext(context.Background(), tx)
 }
 func (b *Builder[T]) FirstContext(ctx context.Context, tx *sqlx.Tx) (T, error) {
-	v, err := b.Clone().Limit(1).GetContext(ctx, tx)
+	v, err := b.Clone().
+		Limit(1).
+		GetContext(ctx, tx)
 	if err != nil {
 		var zero T
 		return zero, err
@@ -91,7 +93,9 @@ func (b *Builder[T]) LoadOne(tx *sqlx.Tx, v any) error {
 	return b.LoadOneContext(context.Background(), tx, v)
 }
 func (b *Builder[T]) LoadOneContext(ctx context.Context, tx *sqlx.Tx, v any) error {
-	q, bindings, err := b.Clone().Limit(1).ToSQL(dialects.DefaultDialect)
+	q, bindings, err := b.Clone().
+		Limit(1).
+		ToSQL(dialects.DefaultDialect)
 
 	if err != nil {
 		return err

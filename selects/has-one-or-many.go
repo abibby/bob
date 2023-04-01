@@ -21,6 +21,12 @@ type hasOneOrMany[T models.Model] struct {
 
 var _ iHasOneOrMany = hasOneOrMany[models.Model]{}
 
+func (r hasOneOrMany[T]) Subquery() *SubBuilder {
+	return From[T]().
+		WhereColumn(r.relatedKey, "=", builder.GetTable(r.parent)+"."+r.parentKey).
+		subBuilder
+}
+
 func (r hasOneOrMany[T]) parentKeyValue() (any, bool) {
 	return builder.GetValue(r.parent, r.parentKey)
 }

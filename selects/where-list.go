@@ -5,7 +5,6 @@ import (
 
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/dialects"
-	"github.com/davecgh/go-spew/spew"
 )
 
 type where struct {
@@ -16,6 +15,7 @@ type where struct {
 }
 
 type WhereList struct {
+	parent any
 	prefix string
 	list   []*where
 }
@@ -30,8 +30,13 @@ func (w *WhereList) withPrefix(prefix string) *WhereList {
 	w.prefix = prefix
 	return w
 }
+func (w *WhereList) withParent(parent any) *WhereList {
+	w.parent = parent
+	return w
+}
 func (w *WhereList) Clone() *WhereList {
 	return &WhereList{
+		parent: w.parent,
 		prefix: w.prefix,
 		list:   cloneSlice(w.list),
 	}
@@ -45,7 +50,6 @@ func (w *WhereList) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if w.prefix != "" {
 		r.AddString(w.prefix)
 	}
-	spew.Dump(w)
 	for i, w := range w.list {
 		if i != 0 {
 			if w.Or == true {
@@ -76,13 +80,13 @@ func (w *WhereList) ToSQL(d dialects.Dialect) (string, []any, error) {
 				r.AddString(w.Operator)
 			}
 			if sb, ok := w.Value.(QueryBuilder); ok {
-				r.Add(builder.NewGroup(sb).ToSQL(d))
+				r.Add(builder.Group(sb).ToSQL(d))
 			} else if sb, ok := w.Value.(*WhereList); ok {
-				r.Add(builder.NewGroup(sb).ToSQL(d))
+				r.Add(builder.Group(sb).ToSQL(d))
 			} else if sb, ok := w.Value.(builder.ToSQLer); ok {
 				r.Add(sb.ToSQL(d))
 			} else {
-				r.Add(builder.NewLiteral(w.Value).ToSQL(d))
+				r.Add(builder.Literal(w.Value).ToSQL(d))
 			}
 		}
 	}
@@ -111,7 +115,7 @@ func (w *WhereList) OrWhereIn(column string, values []any) *WhereList {
 	return w.whereIn(column, values, true)
 }
 func (w *WhereList) whereIn(column string, values []any, or bool) *WhereList {
-	return w.where(column, "in", builder.NewGroup(builder.Join(builder.LiteralList(values), ", ")), or)
+	return w.where(column, "in", builder.Group(builder.Join(builder.LiteralList(values), ", ")), or)
 }
 
 func (w *WhereList) WhereExists(query QueryBuilder) *WhereList {
@@ -122,9 +126,10 @@ func (w *WhereList) OrWhereExists(query QueryBuilder) *WhereList {
 }
 func (w *WhereList) whereExists(query QueryBuilder, or bool) *WhereList {
 	return w.addWhere(&where{
-		Value: builder.ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
-			return builder.Result().AddString("EXISTS").Add(query.ToSQL(d)).ToSQL(d)
-		}),
+		Value: builder.Join([]builder.ToSQLer{
+			builder.Raw("EXISTS"),
+			builder.Group(query),
+		}, " "),
 		Or: or,
 	})
 }
@@ -136,7 +141,7 @@ func (w *WhereList) OrWhereSubquery(subquery QueryBuilder, operator string, valu
 }
 func (w *WhereList) whereSubquery(subquery QueryBuilder, operator string, value any, or bool) *WhereList {
 	return w.addWhere(&where{
-		Column:   builder.NewGroup(subquery),
+		Column:   builder.Group(subquery),
 		Operator: operator,
 		Value:    value,
 		Or:       or,
@@ -152,9 +157,20 @@ func (w *WhereList) where(column, operator string, value any, or bool) *WhereLis
 	})
 }
 
-// func (w *WhereList) whereHas(relation string, builder QueryBuilder) *WhereList {
-// 	return w.whereSubquery()
-// }
+func (w *WhereList) WhereHas(relation string, cb func(q *SubBuilder) *SubBuilder) *WhereList {
+	return w.whereHas(relation, cb, false)
+}
+func (w *WhereList) OrWhereHas(relation string, cb func(q *SubBuilder) *SubBuilder) *WhereList {
+	return w.whereHas(relation, cb, true)
+}
+func (w *WhereList) whereHas(relation string, cb func(q *SubBuilder) *SubBuilder, or bool) *WhereList {
+	r, ok := getRelation(w.parent, relation)
+	if !ok {
+		return w
+	}
+
+	return w.whereExists(cb(r.Subquery()), or)
+}
 
 func (w *WhereList) And(wl *WhereList) *WhereList {
 	return w.addWhere(&where{Value: wl})

@@ -34,21 +34,12 @@ func InitializeRelationships(v any) error {
 func Load(tx *sqlx.Tx, v any, relation string) error {
 	relations := []Relationship{}
 	err := each(v, func(v reflect.Value) error {
-		t := v.Type()
-		for i := 0; i < v.NumField(); i++ {
-			ft := t.Field(i)
-
-			if ft.Name != relation {
-				continue
-			}
-
-			relation, ok := v.Field(i).Interface().(Relationship)
-			if !ok {
-				continue
-			}
-
-			relations = append(relations, relation)
+		relation, ok := getRelation(v.Interface(), relation)
+		if !ok {
+			return nil
 		}
+
+		relations = append(relations, relation)
 		return nil
 	})
 	if err != nil {

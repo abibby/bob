@@ -10,7 +10,7 @@ import (
 )
 
 type Relationship interface {
-	// Query() *selects.Builder
+	Subquery() *SubBuilder
 	Initialize(self any, field reflect.StructField) error
 	Load(tx *sqlx.Tx, relations []Relationship) error
 	Loaded() bool
@@ -65,4 +65,33 @@ func primaryKeyName(field reflect.StructField, tag string, tableType any) (strin
 		return "", fmt.Errorf("you must specify keys for relationships with compound primary keys")
 	}
 	return pKeys[0], nil
+}
+
+func getRelation(v any, relation string) (Relationship, bool) {
+	rv := reflect.ValueOf(v)
+	if rv.Kind() == reflect.Ptr {
+		if rv.IsZero() {
+			rv = reflect.New(rv.Type().Elem())
+			err := InitializeRelationships(rv.Interface())
+			if err != nil {
+				panic(err)
+			}
+		}
+		rv = rv.Elem()
+	}
+	t := rv.Type()
+	for i := 0; i < rv.NumField(); i++ {
+		ft := t.Field(i)
+
+		if ft.Name != relation {
+			continue
+		}
+
+		relation, ok := rv.Field(i).Interface().(Relationship)
+		if !ok {
+			continue
+		}
+		return relation, true
+	}
+	return nil, false
 }
