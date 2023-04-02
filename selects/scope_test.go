@@ -16,6 +16,11 @@ func (f *ScopeFoo) Scopes() []*selects.Scope {
 	}
 }
 
+type ScopeBar struct {
+	test.Bar
+	ScopeFoo *selects.BelongsTo[*ScopeFoo] `db:"-" json:"foo"`
+}
+
 func TestScope(t *testing.T) {
 	scopeA := &selects.Scope{
 		Name: "with-a",
@@ -44,15 +49,17 @@ func TestScope(t *testing.T) {
 			ExpectedBindings: []any{},
 		},
 		{
-			Name:             "global scope",
+			Name:             "without global scope",
 			Builder:          selects.From[*ScopeFoo]().WithoutGlobalScope(bob.SoftDeletes),
 			ExpectedSQL:      "SELECT * FROM \"scope_foos\"",
 			ExpectedBindings: []any{},
 		},
 		{
-			Name:             "global scope",
-			Builder:          selects.From[*ScopeFoo]().WithoutGlobalScope(bob.SoftDeletes),
-			ExpectedSQL:      "SELECT * FROM \"scope_foos\"",
+			Name: "global scope whereHas",
+			Builder: selects.From[*ScopeBar]().WhereHas("ScopeFoo", func(q *selects.SubBuilder) *selects.SubBuilder {
+				return q
+			}),
+			ExpectedSQL:      `SELECT * FROM "scope_bars" WHERE EXISTS (SELECT * FROM "scope_foos" WHERE "id" = "scope_bars"."scope_foo_id" AND "deleted_at" IS NULL)`,
 			ExpectedBindings: []any{},
 		},
 	})

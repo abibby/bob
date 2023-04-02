@@ -6,21 +6,11 @@ import (
 )
 
 func (b *Builder[T]) ToSQL(d dialects.Dialect) (string, []any, error) {
-	var m T
-	var s any = m
-	b = b.Clone()
-	if scoper, ok := s.(Scoper); ok {
-		for _, scope := range scoper.Scopes() {
-			if !b.withoutScopes.Has(scope.Name) {
-				b.subBuilder = scope.Apply(b.subBuilder)
-			}
-		}
-	}
 	return b.subBuilder.ToSQL(d)
 }
 func (b *SubBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
 	b = b.Clone()
-	for _, scope := range b.scopes {
+	for _, scope := range b.scopes.allScopes() {
 		b = scope.Apply(b)
 	}
 	return builder.Result().

@@ -45,6 +45,11 @@ func (b *SubBuilder) WithoutScope(scope *Scope) *SubBuilder {
 	b.scopes = b.scopes.WithoutScope(scope)
 	return b
 }
+func (b *SubBuilder) WithoutGlobalScope(scope *Scope) *SubBuilder {
+	b = b.Clone()
+	b.scopes = b.scopes.WithoutGlobalScope(scope)
+	return b
+}
 func (b *SubBuilder) Select(columns ...string) *SubBuilder {
 	b = b.Clone()
 	b.selects = b.selects.Select(columns...)
