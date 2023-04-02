@@ -19,6 +19,7 @@ type SubBuilder struct {
 	havings  *WhereList
 	limit    *limit
 	orderBys orderBys
+	scopes   scopes
 }
 
 //go:generate go run ../build/build.go
@@ -54,6 +55,7 @@ func NewSubBuilder() *SubBuilder {
 		groupBys: groupBys{},
 		havings:  NewWhereList().withPrefix("HAVING"),
 		limit:    &limit{},
+		scopes:   scopes{},
 	}
 }
 

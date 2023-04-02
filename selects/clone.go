@@ -15,6 +15,7 @@ func (b *SubBuilder) Clone() *SubBuilder {
 		havings:  b.havings.Clone(),
 		limit:    b.limit.Clone(),
 		orderBys: b.orderBys.Clone(),
+		scopes:   b.scopes.Clone(),
 	}
 }
 

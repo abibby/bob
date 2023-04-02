@@ -35,6 +35,16 @@ func (b *SubBuilder) OrderByDesc(column string) *SubBuilder {
 	b.orderBys = b.orderBys.OrderByDesc(column)
 	return b
 }
+func (b *SubBuilder) WithScope(scope *Scope) *SubBuilder {
+	b = b.Clone()
+	b.scopes = b.scopes.WithScope(scope)
+	return b
+}
+func (b *SubBuilder) WithoutScope(scope *Scope) *SubBuilder {
+	b = b.Clone()
+	b.scopes = b.scopes.WithoutScope(scope)
+	return b
+}
 func (b *SubBuilder) Select(columns ...string) *SubBuilder {
 	b = b.Clone()
 	b.selects = b.selects.Select(columns...)

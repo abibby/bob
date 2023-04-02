@@ -26,7 +26,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	matches := regexp.MustCompile(fmt.Sprintf(`func \((\w+ +)?([^)]+)\) ([\w)]+)\((.*)\) \*?\w+ {`)).FindAllStringSubmatch(goSrc, -1)
+	matches := regexp.MustCompile(fmt.Sprintf(`func \((\w+ +)?([^)]+)\) ([\w)]+)\((.*)\) \*?\w+(:?\[.+\])? {`)).FindAllStringSubmatch(goSrc, -1)
 	src := "package selects\n\n"
 
 	for _, match := range matches {

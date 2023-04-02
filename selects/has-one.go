@@ -8,6 +8,8 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// HasOne
+// tags `local` `foreign`
 type HasOne[T models.Model] struct {
 	hasOneOrMany[T]
 	relationValue[T]
