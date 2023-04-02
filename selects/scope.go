@@ -1,6 +1,10 @@
 package selects
 
-import "github.com/abibby/bob/set"
+import (
+	"context"
+
+	"github.com/abibby/bob/set"
+)
 
 type Scoper interface {
 	Scopes() []*Scope
@@ -10,7 +14,7 @@ type Scope struct {
 	Name  string
 	Apply ScopeFunc
 }
-type ScopeFunc func(b *SubBuilder) *SubBuilder
+type ScopeFunc func(ctx context.Context, b *SubBuilder) *SubBuilder
 type scopes struct {
 	parent              any
 	scopes              []*Scope

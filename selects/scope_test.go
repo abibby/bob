@@ -1,6 +1,7 @@
 package selects_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/abibby/bob"
@@ -24,7 +25,7 @@ type ScopeBar struct {
 func TestScope(t *testing.T) {
 	scopeA := &selects.Scope{
 		Name: "with-a",
-		Apply: func(b *selects.SubBuilder) *selects.SubBuilder {
+		Apply: func(ctx context.Context, b *selects.SubBuilder) *selects.SubBuilder {
 			return b.Where("a", "=", "b")
 		},
 	}

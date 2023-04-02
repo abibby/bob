@@ -1,6 +1,7 @@
 package selects
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/abibby/bob/builder"
@@ -24,7 +25,7 @@ func (s *selects) Clone() *selects {
 		list:     cloneSlice(s.list),
 	}
 }
-func (s *selects) ToSQL(d dialects.Dialect) (string, []any, error) {
+func (s *selects) ToSQL(ctx context.Context, d dialects.Dialect) (string, []any, error) {
 	if len(s.list) == 0 {
 		return "", nil, nil
 	}
@@ -33,8 +34,8 @@ func (s *selects) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if s.distinct {
 		r.AddString("DISTINCT")
 	}
-	r.Add(builder.Join(s.list, ", ").ToSQL(d))
-	return r.ToSQL(d)
+	r.Add(builder.Join(s.list, ", ").ToSQL(ctx, d))
+	return r.ToSQL(ctx, d)
 }
 
 func (s *selects) Select(columns ...string) *selects {
@@ -69,14 +70,14 @@ func (s *selects) SelectFunction(function, column string) *selects {
 	return s.Select().AddSelectFunction(function, column)
 }
 func (s *selects) AddSelectFunction(function, column string) *selects {
-	s.list = append(s.list, builder.ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
+	s.list = append(s.list, builder.ToSQLFunc(func(ctx context.Context, d dialects.Dialect) (string, []any, error) {
 		var c builder.ToSQLer
 		if column == "*" {
 			c = builder.Raw("*")
 		} else {
 			c = builder.Identifier(column)
 		}
-		q, bindings, err := c.ToSQL(d)
+		q, bindings, err := c.ToSQL(ctx, d)
 		if err != nil {
 			return "", nil, err
 		}

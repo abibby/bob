@@ -1,21 +1,23 @@
 package builder
 
 import (
+	"context"
+
 	"github.com/abibby/bob/dialects"
 )
 
 type ToSQLer interface {
-	ToSQL(d dialects.Dialect) (string, []any, error)
+	ToSQL(ctx context.Context, d dialects.Dialect) (string, []any, error)
 }
 
-type ToSQLFunc func(d dialects.Dialect) (string, []any, error)
+type ToSQLFunc func(ctx context.Context, d dialects.Dialect) (string, []any, error)
 
-func (f ToSQLFunc) ToSQL(d dialects.Dialect) (string, []any, error) {
-	return f(d)
+func (f ToSQLFunc) ToSQL(ctx context.Context, d dialects.Dialect) (string, []any, error) {
+	return f(ctx, d)
 }
 
 func Identifier(i string) ToSQLer {
-	return ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
+	return ToSQLFunc(func(ctx context.Context, d dialects.Dialect) (string, []any, error) {
 		return d.Identifier(i), nil, nil
 	})
 }
@@ -29,11 +31,11 @@ func IdentifierList(strs []string) []ToSQLer {
 }
 
 func Join(sqlers []ToSQLer, sep string) ToSQLer {
-	return ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
+	return ToSQLFunc(func(ctx context.Context, d dialects.Dialect) (string, []any, error) {
 		sql := ""
 		bindings := []any{}
 		for i, sqler := range sqlers {
-			q, b, err := sqler.ToSQL(d)
+			q, b, err := sqler.ToSQL(ctx, d)
 			if err != nil {
 				return "", nil, err
 			}
@@ -48,20 +50,20 @@ func Join(sqlers []ToSQLer, sep string) ToSQLer {
 }
 
 func Raw(sql string, bindings ...any) ToSQLer {
-	return ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
+	return ToSQLFunc(func(ctx context.Context, d dialects.Dialect) (string, []any, error) {
 		return sql, bindings, nil
 	})
 }
 
 func Group(sqler ToSQLer) ToSQLer {
-	return ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
-		q, bindings, err := sqler.ToSQL(d)
+	return ToSQLFunc(func(ctx context.Context, d dialects.Dialect) (string, []any, error) {
+		q, bindings, err := sqler.ToSQL(ctx, d)
 		return "(" + q + ")", bindings, err
 	})
 }
 
 func Literal(v any) ToSQLer {
-	return ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
+	return ToSQLFunc(func(ctx context.Context, d dialects.Dialect) (string, []any, error) {
 		return "?", []any{v}, nil
 	})
 }

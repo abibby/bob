@@ -1,5 +1,7 @@
 package selects
 
+import "context"
+
 func (b *Builder[T]) From(table string) *Builder[T] {
 	b = b.Clone()
 	b.subBuilder = b.subBuilder.From(table)
@@ -245,8 +247,8 @@ func (b *Builder[T]) HavingOr(cb func(wl *WhereList)) *Builder[T] {
 	b.subBuilder = b.subBuilder.HavingOr(cb)
 	return b
 }
-func (b *Builder[T]) Dump() *Builder[T] {
+func (b *Builder[T]) Dump(ctx context.Context) *Builder[T] {
 	b = b.Clone()
-	b.subBuilder = b.subBuilder.Dump()
+	b.subBuilder = b.subBuilder.Dump(ctx)
 	return b
 }

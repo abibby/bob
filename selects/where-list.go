@@ -1,6 +1,7 @@
 package selects
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/abibby/bob/builder"
@@ -41,7 +42,7 @@ func (w *WhereList) Clone() *WhereList {
 		list:   cloneSlice(w.list),
 	}
 }
-func (w *WhereList) ToSQL(d dialects.Dialect) (string, []any, error) {
+func (w *WhereList) ToSQL(ctx context.Context, d dialects.Dialect) (string, []any, error) {
 	if len(w.list) == 0 {
 		return "", nil, nil
 	}
@@ -59,7 +60,7 @@ func (w *WhereList) ToSQL(d dialects.Dialect) (string, []any, error) {
 			}
 		}
 		if w.Column != nil {
-			r.Add(w.Column.ToSQL(d))
+			r.Add(w.Column.ToSQL(ctx, d))
 
 			if w.Operator == "" {
 				return "", nil, fmt.Errorf("the operator must be set when the column is set")
@@ -80,18 +81,18 @@ func (w *WhereList) ToSQL(d dialects.Dialect) (string, []any, error) {
 				r.AddString(w.Operator)
 			}
 			if sb, ok := w.Value.(QueryBuilder); ok {
-				r.Add(builder.Group(sb).ToSQL(d))
+				r.Add(builder.Group(sb).ToSQL(ctx, d))
 			} else if sb, ok := w.Value.(*WhereList); ok {
-				r.Add(builder.Group(sb).ToSQL(d))
+				r.Add(builder.Group(sb).ToSQL(ctx, d))
 			} else if sb, ok := w.Value.(builder.ToSQLer); ok {
-				r.Add(sb.ToSQL(d))
+				r.Add(sb.ToSQL(ctx, d))
 			} else {
-				r.Add(builder.Literal(w.Value).ToSQL(d))
+				r.Add(builder.Literal(w.Value).ToSQL(ctx, d))
 			}
 		}
 	}
 
-	return r.ToSQL(d)
+	return r.ToSQL(ctx, d)
 }
 
 func (w *WhereList) Where(column, operator string, value any) *WhereList {

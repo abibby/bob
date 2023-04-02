@@ -1,6 +1,7 @@
 package selects
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/abibby/bob/builder"
@@ -18,7 +19,7 @@ func (l *limit) Clone() *limit {
 		offset: l.offset,
 	}
 }
-func (l *limit) ToSQL(d dialects.Dialect) (string, []any, error) {
+func (l *limit) ToSQL(ctx context.Context, d dialects.Dialect) (string, []any, error) {
 	if l.limit == 0 && l.offset == 0 {
 		return "", nil, nil
 	}
@@ -27,7 +28,7 @@ func (l *limit) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if l.offset != 0 {
 		r.AddString(fmt.Sprintf("OFFSET %d", l.offset))
 	}
-	return r.ToSQL(d)
+	return r.ToSQL(ctx, d)
 }
 
 func (l *limit) Limit(limit int) *limit {
