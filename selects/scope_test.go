@@ -40,7 +40,13 @@ func TestScope(t *testing.T) {
 		{
 			Name:             "global scope",
 			Builder:          selects.From[*ScopeFoo](),
-			ExpectedSQL:      "SELECT * FROM \"scope_foos\" WHERE \"deleted_at\" IS NOT NULL",
+			ExpectedSQL:      "SELECT * FROM \"scope_foos\" WHERE \"deleted_at\" IS NULL",
+			ExpectedBindings: []any{},
+		},
+		{
+			Name:             "global scope",
+			Builder:          selects.From[*ScopeFoo]().WithoutGlobalScope(bob.SoftDeletes),
+			ExpectedSQL:      "SELECT * FROM \"scope_foos\"",
 			ExpectedBindings: []any{},
 		},
 		{
