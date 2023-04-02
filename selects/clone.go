@@ -2,8 +2,9 @@ package selects
 
 func (b *Builder[T]) Clone() *Builder[T] {
 	return &Builder[T]{
-		subBuilder: b.subBuilder.Clone(),
-		withs:      cloneSlice(b.withs),
+		subBuilder:    b.subBuilder.Clone(),
+		withs:         cloneSlice(b.withs),
+		withoutScopes: b.withoutScopes.Clone(),
 	}
 }
 func (b *SubBuilder) Clone() *SubBuilder {

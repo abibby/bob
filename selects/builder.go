@@ -3,6 +3,7 @@ package selects
 import (
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/models"
+	"github.com/abibby/bob/set"
 )
 
 type QueryBuilder interface {
@@ -24,8 +25,9 @@ type SubBuilder struct {
 
 //go:generate go run ../build/build.go
 type Builder[T models.Model] struct {
-	subBuilder *SubBuilder
-	withs      []string
+	subBuilder    *SubBuilder
+	withs         []string
+	withoutScopes set.Set[string]
 }
 
 func New[T models.Model]() *Builder[T] {
@@ -43,8 +45,9 @@ func NewEmpty[T models.Model]() *Builder[T] {
 	sb.wheres.withParent(m)
 	sb.havings.withParent(m)
 	return &Builder[T]{
-		subBuilder: sb,
-		withs:      []string{},
+		subBuilder:    sb,
+		withs:         []string{},
+		withoutScopes: set.New[string](),
 	}
 }
 func NewSubBuilder() *SubBuilder {

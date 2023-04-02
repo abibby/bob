@@ -1,5 +1,9 @@
 package selects
 
+type Scoper interface {
+	Scopes() []*Scope
+}
+
 type Scope struct {
 	Name  string
 	Apply ScopeFunc
@@ -22,4 +26,10 @@ func (s scopes) WithoutScope(scope *Scope) scopes {
 		}
 	}
 	return newScopes
+}
+
+func (b *Builder[T]) WithoutGlobalScope(scope *Scope) *Builder[T] {
+	b = b.Clone()
+	b.withoutScopes.Add(scope.Name)
+	return b
 }
