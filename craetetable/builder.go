@@ -1,8 +1,6 @@
 package craetetable
 
 import (
-	"context"
-
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/dialects"
 )
@@ -25,23 +23,23 @@ func CreateTable(name string, cb func(t *Table)) *Builder {
 	}
 }
 
-func (b *Builder) ToSQL(ctx context.Context, d dialects.Dialect) (string, []any, error) {
+func (b *Builder) ToSQL(d dialects.Dialect) (string, []any, error) {
 	r := builder.Result()
 	r.AddString("CREATE TABLE")
-	r.Add(builder.Identifier(b.name).ToSQL(ctx, d))
+	r.Add(builder.Identifier(b.name).ToSQL(d))
 	columns := make([]builder.ToSQLer, len(b.columns))
 	for i, c := range b.columns {
 		columns[i] = c
 	}
-	r.Add(builder.Group(builder.Join(columns, ", ")).ToSQL(ctx, d))
+	r.Add(builder.Group(builder.Join(columns, ", ")).ToSQL(d))
 	// r.AddString("(")
 	// for i, c := range b.columns {
-	// 	q, bindings, err := c.ToSQL(ctx, d)
+	// 	q, bindings, err := c.ToSQL(d)
 	// 	if i < len(b.columns)-1 {
 	// 		q += ","
 	// 	}
 	// 	r.Add(q, bindings, err)
 	// }
 	// r.AddString(")")
-	return r.ToSQL(ctx, d)
+	return r.ToSQL(d)
 }

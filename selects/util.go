@@ -8,6 +8,6 @@ import (
 )
 
 func (b *SubBuilder) Dump(ctx context.Context) *SubBuilder {
-	spew.Dump(b.ToSQL(ctx, dialects.DefaultDialect))
+	spew.Dump(b.ToSQL(dialects.DefaultDialect))
 	return b
 }

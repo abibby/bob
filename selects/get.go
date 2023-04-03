@@ -67,7 +67,10 @@ func (b *Builder[T]) Load(tx *sqlx.Tx, v any) error {
 	return b.LoadContext(context.Background(), tx, v)
 }
 func (b *Builder[T]) LoadContext(ctx context.Context, tx *sqlx.Tx, v any) error {
-	q, bindings, err := b.ToSQL(ctx, dialects.DefaultDialect)
+	if b.Context() == context.Background() {
+		b = b.WithContext(ctx)
+	}
+	q, bindings, err := b.ToSQL(dialects.DefaultDialect)
 	if err != nil {
 		return err
 	}
@@ -93,9 +96,12 @@ func (b *Builder[T]) LoadOne(tx *sqlx.Tx, v any) error {
 	return b.LoadOneContext(context.Background(), tx, v)
 }
 func (b *Builder[T]) LoadOneContext(ctx context.Context, tx *sqlx.Tx, v any) error {
+	if b.Context() == context.Background() {
+		b = b.WithContext(ctx)
+	}
 	q, bindings, err := b.Clone().
 		Limit(1).
-		ToSQL(ctx, dialects.DefaultDialect)
+		ToSQL(dialects.DefaultDialect)
 
 	if err != nil {
 		return err

@@ -7,6 +7,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"golang.org/x/tools/imports"
 )
 
 func main() {
@@ -26,17 +28,19 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	matches := regexp.MustCompile(fmt.Sprintf(`func \((\w+ +)?([^)]+)\) ([\w)]+)\((.*)\) \*?\w+(:?\[.+\])? {`)).FindAllStringSubmatch(goSrc, -1)
-	src := "package selects\n\n"
+	matches := regexp.MustCompile(fmt.Sprintf(`\nfunc \((\w+ +)?([^)]+)\) ([\w)]+)\((.*)\) (\*?\w+(?:\[.+\])?) {`)).FindAllStringSubmatch(goSrc, -1)
 
+	src := "package selects\n\n"
 	for _, match := range matches {
 		fieldType := match[2]
 		methodName := match[3]
 		params := match[4]
+		// returnType := match[5]
 
 		if methodName == "Clone" || methodName == "ToSQL" || !IsUppercase(methodName[0]) {
 			continue
 		}
+
 		if fieldNames, ok := structFields[fieldType]; ok {
 			for _, fieldName := range fieldNames {
 				originalMethodName := methodName
@@ -80,10 +84,18 @@ func main() {
 		}
 	}
 
-	err = os.WriteFile(fmt.Sprintf("generated_%s.go", structName), []byte(src), 0644)
+	outFile := fmt.Sprintf("generated_%s.go", structName)
+
+	b, err := imports.Process(outFile, []byte(src), nil)
 	if err != nil {
 		panic(err)
 	}
+
+	err = os.WriteFile(outFile, b, 0644)
+	if err != nil {
+		panic(err)
+	}
+
 }
 
 func IsUppercase(r byte) bool {

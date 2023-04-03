@@ -1,8 +1,6 @@
 package bob
 
 import (
-	"context"
-
 	"github.com/abibby/bob/models"
 	"github.com/abibby/bob/selects"
 )
@@ -13,7 +11,7 @@ type Scoper = selects.Scoper
 
 var SoftDeletes = &selects.Scope{
 	Name: "soft-deletes",
-	Apply: func(ctx context.Context, b *selects.SubBuilder) *selects.SubBuilder {
+	Apply: func(b *selects.SubBuilder) *selects.SubBuilder {
 		return b.Where("deleted_at", "=", nil)
 	},
 }

@@ -1,6 +1,8 @@
 package selects
 
 import (
+	"context"
+
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/models"
 	"github.com/abibby/bob/set"
@@ -21,6 +23,7 @@ type SubBuilder struct {
 	limit    *limit
 	orderBys orderBys
 	scopes   *scopes
+	ctx      context.Context
 }
 
 //go:generate go run ../build/build.go
@@ -60,6 +63,7 @@ func NewSubBuilder() *SubBuilder {
 		havings:  NewWhereList().withPrefix("HAVING"),
 		limit:    &limit{},
 		scopes:   newScopes(),
+		ctx:      context.Background(),
 	}
 }
 

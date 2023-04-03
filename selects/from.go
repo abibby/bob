@@ -1,8 +1,6 @@
 package selects
 
 import (
-	"context"
-
 	"github.com/abibby/bob/dialects"
 )
 
@@ -11,7 +9,7 @@ type fromTable string
 func (f fromTable) Clone() fromTable {
 	return f
 }
-func (f fromTable) ToSQL(ctx context.Context, d dialects.Dialect) (string, []any, error) {
+func (f fromTable) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if f == "" {
 		return "", nil, nil
 	}

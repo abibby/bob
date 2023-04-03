@@ -1,8 +1,6 @@
 package selects
 
 import (
-	"context"
-
 	"github.com/abibby/bob/set"
 )
 
@@ -14,7 +12,7 @@ type Scope struct {
 	Name  string
 	Apply ScopeFunc
 }
-type ScopeFunc func(ctx context.Context, b *SubBuilder) *SubBuilder
+type ScopeFunc func(b *SubBuilder) *SubBuilder
 type scopes struct {
 	parent              any
 	scopes              []*Scope

@@ -2,6 +2,11 @@ package selects
 
 import "context"
 
+func (b *Builder[T]) WithContext(ctx context.Context) *Builder[T] {
+	b = b.Clone()
+	b.subBuilder = b.subBuilder.WithContext(ctx)
+	return b
+}
 func (b *Builder[T]) From(table string) *Builder[T] {
 	b = b.Clone()
 	b.subBuilder = b.subBuilder.From(table)

@@ -75,14 +75,14 @@ func SaveContext(ctx context.Context, tx *sqlx.Tx, v models.Model) error {
 func insert(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns []string, values []any) error {
 	r := builder.Result().
 		AddString("INSERT INTO").
-		Add(builder.Identifier(builder.GetTable(v)).ToSQL(ctx, d)).
+		Add(builder.Identifier(builder.GetTable(v)).ToSQL(d)).
 		Add(
 			builder.Group(
 				builder.Join(
 					builder.IdentifierList(columns),
 					", ",
 				),
-			).ToSQL(ctx, d),
+			).ToSQL(d),
 		).
 		AddString("VALUES").
 		Add(
@@ -91,10 +91,10 @@ func insert(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns
 					builder.LiteralList(values),
 					", ",
 				),
-			).ToSQL(ctx, d),
+			).ToSQL(d),
 		)
 
-	q, bindings, err := r.ToSQL(ctx, d)
+	q, bindings, err := r.ToSQL(d)
 	if err != nil {
 		return err
 	}
@@ -110,16 +110,16 @@ func update(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns
 	pKey := builder.PrimaryKey(v)
 	r := builder.Result().
 		AddString("UPDATE").
-		Add(builder.Identifier(builder.GetTable(v)).ToSQL(ctx, d)).
+		Add(builder.Identifier(builder.GetTable(v)).ToSQL(d)).
 		AddString("SET")
 
 	for i, column := range columns {
 		if i != 0 {
 			r.AddString(",")
 		}
-		r.Add(builder.Identifier(column).ToSQL(ctx, d))
+		r.Add(builder.Identifier(column).ToSQL(d))
 		r.AddString("=")
-		r.Add(builder.Literal(values[i]).ToSQL(ctx, d))
+		r.Add(builder.Literal(values[i]).ToSQL(d))
 	}
 
 	r.AddString("WHERE")
@@ -134,12 +134,12 @@ func update(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns
 			r.AddString("AND")
 		}
 
-		r.Add(builder.Identifier(k).ToSQL(ctx, d)).
+		r.Add(builder.Identifier(k).ToSQL(d)).
 			AddString("=").
-			Add(builder.Literal(pKeyValue).ToSQL(ctx, d))
+			Add(builder.Literal(pKeyValue).ToSQL(d))
 	}
 
-	q, bindings, err := r.ToSQL(ctx, d)
+	q, bindings, err := r.ToSQL(d)
 	if err != nil {
 		return err
 	}

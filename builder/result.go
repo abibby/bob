@@ -1,8 +1,6 @@
 package builder
 
 import (
-	"context"
-
 	"github.com/abibby/bob/dialects"
 )
 
@@ -39,6 +37,6 @@ func (r *SQLResult) Add(sql string, bindings []any, err error) *SQLResult {
 	return r
 }
 
-func (r *SQLResult) ToSQL(ctx context.Context, d dialects.Dialect) (string, []any, error) {
+func (r *SQLResult) ToSQL(d dialects.Dialect) (string, []any, error) {
 	return r.sql, r.bindings, r.err
 }
