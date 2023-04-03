@@ -252,8 +252,8 @@ func (b *Builder[T]) HavingOr(cb func(wl *WhereList)) *Builder[T] {
 	b.subBuilder = b.subBuilder.HavingOr(cb)
 	return b
 }
-func (b *Builder[T]) Dump(ctx context.Context) *Builder[T] {
+func (b *Builder[T]) Dump() *Builder[T] {
 	b = b.Clone()
-	b.subBuilder = b.subBuilder.Dump(ctx)
+	b.subBuilder = b.subBuilder.Dump()
 	return b
 }
