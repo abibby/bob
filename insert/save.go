@@ -42,7 +42,11 @@ func columnsAndValues(v reflect.Value) ([]string, []any) {
 }
 
 func Save(tx *sqlx.Tx, v models.Model) error {
-	return SaveContext(context.Background(), tx, v)
+	ctx := context.Background()
+	if v, ok := v.(models.Contexter); ok {
+		ctx = v.Context()
+	}
+	return SaveContext(ctx, tx, v)
 }
 func SaveContext(ctx context.Context, tx *sqlx.Tx, v models.Model) error {
 	err := hooks.BeforeSave(ctx, tx, v)

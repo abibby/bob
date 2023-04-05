@@ -1,6 +1,7 @@
 package selects_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/abibby/bob"
@@ -28,7 +29,13 @@ func TestScope(t *testing.T) {
 			return b.Where("a", "=", "b")
 		},
 	}
-
+	scopeCtx := &selects.Scope{
+		Name: "ctx",
+		Apply: func(b *selects.SubBuilder) *selects.SubBuilder {
+			foo := b.Context().Value("foo")
+			return b.Where("a", "=", foo)
+		},
+	}
 	test.QueryTest(t, []test.Case{
 		{
 			Name:             "scope",
@@ -61,6 +68,12 @@ func TestScope(t *testing.T) {
 			}),
 			ExpectedSQL:      `SELECT * FROM "scope_bars" WHERE EXISTS (SELECT * FROM "scope_foos" WHERE "id" = "scope_bars"."scope_foo_id" AND "deleted_at" IS NULL)`,
 			ExpectedBindings: []any{},
+		},
+		{
+			Name:             "access-context",
+			Builder:          NewTestBuilder().WithScope(scopeCtx).WithContext(context.WithValue(context.Background(), "foo", "bar")),
+			ExpectedSQL:      "SELECT * FROM \"foos\" WHERE \"a\" = ?",
+			ExpectedBindings: []any{"bar"},
 		},
 	})
 }

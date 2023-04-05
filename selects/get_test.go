@@ -1,6 +1,7 @@
 package selects_test
 
 import (
+	"context"
 	"encoding/json"
 	"testing"
 
@@ -44,6 +45,35 @@ func TestFirst(t *testing.T) {
 			"bars":null
 		}`, foo)
 	})
+}
+
+func TestGet_with_scope_and_context(t *testing.T) {
+	scopeCtx := &selects.Scope{
+		Name: "ctx",
+		Apply: func(b *selects.SubBuilder) *selects.SubBuilder {
+			return b.Where("id", "=", b.Context().Value("foo"))
+		},
+	}
+	test.WithDatabase(func(tx *sqlx.Tx) {
+		ctx := context.WithValue(context.Background(), "foo", 2)
+
+		MustSave(tx, &test.Foo{ID: 1, Name: "foo1"})
+		MustSave(tx, &test.Foo{ID: 2, Name: "foo2"})
+
+		foos, err := NewTestBuilder().
+			WithScope(scopeCtx).
+			Where("name", "like", "foo%").
+			WithContext(ctx).
+			Get(tx)
+		assert.NoError(t, err)
+		assertJsonEqual(t, `[{
+			"id":2,
+			"name":"foo2",
+			"bar":null,
+			"bars":null
+		}]`, foos)
+	})
+
 }
 
 func assertJsonEqual(t *testing.T, rawJson string, v any) bool {
