@@ -13,9 +13,10 @@ func TestContext(t *testing.T) {
 
 	assert.Equal(t, context.Background(), q.Context())
 
-	q = q.WithContext(context.WithValue(context.Background(), "foo", "bar"))
+	q = q.WithContext(context.WithValue(context.Background(), "foo", "bar")).Where("1", "=", 2)
 
 	assert.NotEqual(t, context.Background(), q.Context())
+	assert.NotNil(t, q.Context())
 }
 
 func TestContext_sub_builder(t *testing.T) {
@@ -23,11 +24,11 @@ func TestContext_sub_builder(t *testing.T) {
 
 	assert.Equal(t, context.Background(), q.Context())
 
-	q = q.WithContext(context.WithValue(context.Background(), "foo", "bar"))
+	q = q.WithContext(context.WithValue(context.Background(), "foo", "bar")).Where("1", "=", 2)
 
 	q.WhereHas("Bar", func(q *selects.SubBuilder) *selects.SubBuilder {
 		assert.NotEqual(t, context.Background(), q.Context())
+		assert.NotNil(t, q.Context())
 		return q
 	})
-
 }

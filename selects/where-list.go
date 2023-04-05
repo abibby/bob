@@ -42,6 +42,7 @@ func (w *WhereList) Clone() *WhereList {
 		parent: w.parent,
 		prefix: w.prefix,
 		list:   cloneSlice(w.list),
+		ctx:    w.ctx,
 	}
 }
 func (w *WhereList) ToSQL(d dialects.Dialect) (string, []any, error) {
