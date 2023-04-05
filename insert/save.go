@@ -44,7 +44,10 @@ func columnsAndValues(v reflect.Value) ([]string, []any) {
 func Save(tx *sqlx.Tx, v models.Model) error {
 	ctx := context.Background()
 	if v, ok := v.(models.Contexter); ok {
-		ctx = v.Context()
+		modelCtx := v.Context()
+		if modelCtx != nil {
+			ctx = modelCtx
+		}
 	}
 	return SaveContext(ctx, tx, v)
 }
@@ -56,7 +59,6 @@ func SaveContext(ctx context.Context, tx *sqlx.Tx, v models.Model) error {
 
 	d := dialects.DefaultDialect
 	columns, values := columnsAndValues(reflect.ValueOf(v).Elem())
-
 	if v.InDatabase() {
 		err = update(ctx, tx, d, v, columns, values)
 		if err != nil {

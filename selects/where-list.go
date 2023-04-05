@@ -1,6 +1,7 @@
 package selects
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/abibby/bob/builder"
@@ -18,11 +19,13 @@ type WhereList struct {
 	parent any
 	prefix string
 	list   []*where
+	ctx    context.Context
 }
 
 func NewWhereList() *WhereList {
 	return &WhereList{
 		list: []*where{},
+		ctx:  context.Background(),
 	}
 }
 
@@ -169,7 +172,7 @@ func (w *WhereList) whereHas(relation string, cb func(q *SubBuilder) *SubBuilder
 		return w
 	}
 
-	return w.whereExists(cb(r.Subquery()), or)
+	return w.whereExists(cb(r.Subquery().WithContext(w.ctx)), or)
 }
 
 func (w *WhereList) WhereRaw(rawSql string, bindings ...any) *WhereList {
@@ -194,6 +197,7 @@ func (w *WhereList) Or(cb func(wl *WhereList)) *WhereList {
 
 func (w *WhereList) group(cb func(wl *WhereList), or bool) *WhereList {
 	wl := NewWhereList().withParent(w.parent)
+	wl.ctx = w.ctx
 	cb(wl)
 	return w.addWhere(&where{Value: wl, Or: or})
 }
