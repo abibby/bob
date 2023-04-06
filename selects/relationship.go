@@ -83,15 +83,23 @@ func getRelation(v any, relation string) (Relationship, bool) {
 	for i := 0; i < rv.NumField(); i++ {
 		ft := t.Field(i)
 
+		if ft.Anonymous {
+			r, ok := getRelation(rv.Field(i).Interface(), relation)
+			if ok {
+				return r, true
+			}
+			continue
+		}
+
 		if ft.Name != relation {
 			continue
 		}
 
-		relation, ok := rv.Field(i).Interface().(Relationship)
+		r, ok := rv.Field(i).Interface().(Relationship)
 		if !ok {
 			continue
 		}
-		return relation, true
+		return r, true
 	}
 	return nil, false
 }

@@ -1,8 +1,6 @@
 package selects
 
 import (
-	"fmt"
-
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/dialects"
 )
@@ -23,9 +21,11 @@ func (l *limit) ToSQL(d dialects.Dialect) (string, []any, error) {
 		return "", nil, nil
 	}
 	r := builder.Result()
-	r.AddString(fmt.Sprintf("LIMIT %d", l.limit))
+	r.AddString("LIMIT")
+	r.Add(builder.Literal(l.limit).ToSQL(d))
 	if l.offset != 0 {
-		r.AddString(fmt.Sprintf("OFFSET %d", l.offset))
+		r.AddString("OFFSET")
+		r.Add(builder.Literal(l.offset).ToSQL(d))
 	}
 	return r.ToSQL(d)
 }

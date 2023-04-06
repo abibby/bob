@@ -1,45 +1,61 @@
 package selects
 
 import (
+	"fmt"
 	"reflect"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/jmoiron/sqlx"
 )
 
+var ErrMissingRelationship = fmt.Errorf("missing relationship")
+
+var relationType = reflect.TypeOf((*Relationship)(nil)).Elem()
+
 func InitializeRelationships(v any) error {
-	relationType := reflect.TypeOf((*Relationship)(nil)).Elem()
-	return each(v, func(rv reflect.Value) error {
-		rt := rv.Type()
-		for i := 0; i < rv.NumField(); i++ {
-			ft := rt.Field(i)
+	return each(v, initializeRelationships)
+}
 
-			if ft.Type.Implements(relationType) {
-				fv := rv.Field(i)
-				if ft.Type.Kind() == reflect.Ptr {
-					fv.Set(reflect.New(ft.Type.Elem()))
-				} else {
-					fv.Set(reflect.New(ft.Type).Elem())
-				}
-				err := fv.Interface().(Relationship).Initialize(rv.Interface(), ft)
-				if err != nil {
-					return err
-				}
+func initializeRelationships(v reflect.Value) error {
+	t := v.Type()
+	for i := 0; i < v.NumField(); i++ {
+		ft := t.Field(i)
+
+		if ft.Anonymous {
+			err := initializeRelationships(v.Field(i))
+			if err != nil {
+				return err
 			}
-
+			continue
 		}
-		return nil
-	})
+
+		if ft.Type.Implements(relationType) {
+			fv := v.Field(i)
+			if ft.Type.Kind() == reflect.Ptr {
+				fv.Set(reflect.New(ft.Type.Elem()))
+			} else {
+				fv.Set(reflect.New(ft.Type).Elem())
+			}
+			err := fv.Interface().(Relationship).Initialize(v.Interface(), ft)
+			if err != nil {
+				return err
+			}
+		}
+
+	}
+	return nil
 }
 
 func Load(tx *sqlx.Tx, v any, relation string) error {
 	relations := []Relationship{}
 	err := each(v, func(v reflect.Value) error {
-		relation, ok := getRelation(v.Interface(), relation)
+		spew.Dump(v)
+		r, ok := getRelation(v.Interface(), relation)
 		if !ok {
-			return nil
+			return fmt.Errorf("%s has no relation %s: %w", v.Type().Name(), relation, ErrMissingRelationship)
 		}
 
-		relations = append(relations, relation)
+		relations = append(relations, r)
 		return nil
 	})
 	if err != nil {

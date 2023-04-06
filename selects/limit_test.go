@@ -11,20 +11,20 @@ func TestLimit(t *testing.T) {
 		{
 			Name:             "limit",
 			Builder:          NewTestBuilder().Limit(1),
-			ExpectedSQL:      "SELECT * FROM \"foos\" LIMIT 1",
-			ExpectedBindings: []any{},
+			ExpectedSQL:      "SELECT * FROM \"foos\" LIMIT ?",
+			ExpectedBindings: []any{1},
 		},
 		{
 			Name:             "offset",
 			Builder:          NewTestBuilder().Offset(1),
-			ExpectedSQL:      "SELECT * FROM \"foos\" LIMIT 0 OFFSET 1",
-			ExpectedBindings: []any{},
+			ExpectedSQL:      "SELECT * FROM \"foos\" LIMIT ? OFFSET ?",
+			ExpectedBindings: []any{0, 1},
 		},
 		{
 			Name:             "limit and offset",
 			Builder:          NewTestBuilder().Limit(1).Offset(2),
-			ExpectedSQL:      "SELECT * FROM \"foos\" LIMIT 1 OFFSET 2",
-			ExpectedBindings: []any{},
+			ExpectedSQL:      "SELECT * FROM \"foos\" LIMIT ? OFFSET ?",
+			ExpectedBindings: []any{1, 2},
 		},
 	})
 }
