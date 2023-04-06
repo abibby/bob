@@ -1,6 +1,7 @@
 package selects
 
 import (
+	"context"
 	"reflect"
 
 	"github.com/abibby/bob/builder"
@@ -14,10 +15,6 @@ type HasMany[T models.Model] struct {
 }
 
 var _ Relationship = &HasMany[models.Model]{}
-
-func (r *HasMany[T]) Value(tx *sqlx.Tx) ([]T, error) {
-	return r.relationValue.Value(tx, r)
-}
 
 func (r *HasMany[T]) Initialize(parent any, field reflect.StructField) error {
 	r.parent = parent
@@ -34,8 +31,8 @@ func (r *HasMany[T]) Initialize(parent any, field reflect.StructField) error {
 	r.relatedKey = relatedKey
 	return nil
 }
-func (r *HasMany[T]) Load(tx *sqlx.Tx, relations []Relationship) error {
-	relatedLists, err := getRelated[T](tx, r, relations)
+func (r *HasMany[T]) Load(ctx context.Context, tx *sqlx.Tx, relations []Relationship) error {
+	relatedLists, err := r.getRelated(ctx, tx, relations)
 	if err != nil {
 		return err
 	}

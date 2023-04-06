@@ -1,6 +1,8 @@
 package selects
 
 import (
+	"context"
+
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/models"
 	"github.com/jmoiron/sqlx"
@@ -42,7 +44,7 @@ func (r hasOneOrMany[T]) getRelatedKey() string {
 	return r.relatedKey
 }
 
-func getRelated[T models.Model](tx *sqlx.Tx, r iHasOneOrMany, relations []Relationship) ([]T, error) {
+func (r hasOneOrMany[T]) getRelated(ctx context.Context, tx *sqlx.Tx, relations []Relationship) ([]T, error) {
 	localKeys := make([]any, 0, len(relations))
 	for _, r := range relations {
 		local, ok := r.(iHasOneOrMany).parentKeyValue()
@@ -54,5 +56,7 @@ func getRelated[T models.Model](tx *sqlx.Tx, r iHasOneOrMany, relations []Relati
 
 	return From[T]().
 		WhereIn(r.getRelatedKey(), localKeys).
+		WithContext(ctx).
+		Dump().
 		Get(tx)
 }

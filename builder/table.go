@@ -12,14 +12,6 @@ type Tabler interface {
 }
 
 func GetTable(m any) string {
-	name := GetTableSingular(m)
-	if !strings.HasSuffix(name, "s") {
-		name += "s"
-	}
-	return name
-}
-
-func GetTableSingular(m any) string {
 	if m, ok := m.(Tabler); ok {
 		return m.Table()
 	}
@@ -27,5 +19,18 @@ func GetTableSingular(m any) string {
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}
-	return strcase.SnakeCase(t.Name())
+	name := strcase.SnakeCase(t.Name())
+	if !strings.HasSuffix(name, "s") {
+		name += "s"
+	}
+	return name
+}
+
+func GetTableSingular(m any) string {
+	name := GetTable(m)
+
+	if strings.HasSuffix(name, "s") {
+		name = name[:len(name)-1]
+	}
+	return name
 }

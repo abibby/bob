@@ -28,8 +28,8 @@ func TestHasOneLoad(t *testing.T) {
 
 		for _, foo := range foos {
 			assert.True(t, foo.Bar.Loaded())
-			bar, err := foo.Bar.Value(nil)
-			assert.NoError(t, err)
+			bar, ok := foo.Bar.Value()
+			assert.True(t, ok)
 			assert.Equal(t, foo.ID+3, bar.ID)
 			assert.Equal(t, foo.ID, bar.FooID)
 		}

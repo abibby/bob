@@ -1,6 +1,7 @@
 package selects
 
 import (
+	"context"
 	"reflect"
 
 	"github.com/abibby/bob/builder"
@@ -17,10 +18,6 @@ type HasOne[T models.Model] struct {
 
 var _ Relationship = &HasOne[models.Model]{}
 
-func (r *HasOne[T]) Value(tx *sqlx.Tx) (T, error) {
-	return r.relationValue.Value(tx, r)
-}
-
 func (r *HasOne[T]) Initialize(parent any, field reflect.StructField) error {
 	r.parent = parent
 	parentKey, err := primaryKeyName(field, "local", parent)
@@ -31,13 +28,12 @@ func (r *HasOne[T]) Initialize(parent any, field reflect.StructField) error {
 	if err != nil {
 		return err
 	}
-
 	r.parentKey = parentKey
 	r.relatedKey = relatedKey
 	return nil
 }
-func (r *HasOne[T]) Load(tx *sqlx.Tx, relations []Relationship) error {
-	relatedLists, err := getRelated[T](tx, r, relations)
+func (r *HasOne[T]) Load(ctx context.Context, tx *sqlx.Tx, relations []Relationship) error {
+	relatedLists, err := r.getRelated(ctx, tx, relations)
 	if err != nil {
 		return err
 	}
@@ -47,10 +43,16 @@ func (r *HasOne[T]) Load(tx *sqlx.Tx, relations []Relationship) error {
 
 	// TODO: replace with something more efficient
 	for _, relation := range ofType[*HasOne[T]](relations) {
+		local, ok := relation.parentKeyValue()
+		if !ok {
+			continue
+		}
 		for _, related := range relatedLists {
-			local, localOk := relation.parentKeyValue()
-			foreign, foreignOk := builder.GetValue(related, r.getRelatedKey())
-			if localOk && foreignOk && local == foreign {
+			foreign, ok := builder.GetValue(related, r.getRelatedKey())
+			if !ok {
+				continue
+			}
+			if local == foreign {
 				relation.value = related
 			}
 

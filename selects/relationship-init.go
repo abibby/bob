@@ -1,10 +1,10 @@
 package selects
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -16,13 +16,13 @@ func InitializeRelationships(v any) error {
 	return each(v, initializeRelationships)
 }
 
-func initializeRelationships(v reflect.Value) error {
+func initializeRelationships(v reflect.Value, pointer bool) error {
 	t := v.Type()
 	for i := 0; i < v.NumField(); i++ {
 		ft := t.Field(i)
 
 		if ft.Anonymous {
-			err := initializeRelationships(v.Field(i))
+			err := initializeRelationships(v.Field(i), ft.Type.Kind() == reflect.Ptr)
 			if err != nil {
 				return err
 			}
@@ -36,7 +36,11 @@ func initializeRelationships(v reflect.Value) error {
 			} else {
 				fv.Set(reflect.New(ft.Type).Elem())
 			}
-			err := fv.Interface().(Relationship).Initialize(v.Interface(), ft)
+			iValue := v
+			if pointer {
+				iValue = iValue.Addr()
+			}
+			err := fv.Interface().(Relationship).Initialize(iValue.Interface(), ft)
 			if err != nil {
 				return err
 			}
@@ -47,9 +51,11 @@ func initializeRelationships(v reflect.Value) error {
 }
 
 func Load(tx *sqlx.Tx, v any, relation string) error {
+	return LoadContext(context.Background(), tx, v, relation)
+}
+func LoadContext(ctx context.Context, tx *sqlx.Tx, v any, relation string) error {
 	relations := []Relationship{}
-	err := each(v, func(v reflect.Value) error {
-		spew.Dump(v)
+	err := each(v, func(v reflect.Value, pointer bool) error {
 		r, ok := getRelation(v.Interface(), relation)
 		if !ok {
 			return fmt.Errorf("%s has no relation %s: %w", v.Type().Name(), relation, ErrMissingRelationship)
@@ -65,7 +71,7 @@ func Load(tx *sqlx.Tx, v any, relation string) error {
 	if len(relations) == 0 {
 		return nil
 	}
-	return relations[0].Load(tx, relations)
+	return relations[0].Load(ctx, tx, relations)
 }
 
 func ofType[T Relationship](relations []Relationship) []T {
@@ -79,10 +85,12 @@ func ofType[T Relationship](relations []Relationship) []T {
 	return relationsOfType
 }
 
-func each(v any, cb func(reflect.Value) error) error {
+func each(v any, cb func(v reflect.Value, pointer bool) error) error {
+	pointer := false
 	rv := reflect.ValueOf(v)
 	if rv.Kind() == reflect.Ptr {
 		rv = rv.Elem()
+		pointer = true
 	}
 	if rv.Kind() == reflect.Slice {
 		for i := 0; i < rv.Len(); i++ {
@@ -97,5 +105,5 @@ func each(v any, cb func(reflect.Value) error) error {
 		return nil
 	}
 
-	return cb(rv)
+	return cb(rv, pointer)
 }

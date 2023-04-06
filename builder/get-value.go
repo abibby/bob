@@ -6,7 +6,9 @@ import (
 )
 
 func GetValue(v any, key string) (any, bool) {
-	rv := reflect.ValueOf(v)
+	return RGetValue(reflect.ValueOf(v), key)
+}
+func RGetValue(rv reflect.Value, key string) (any, bool) {
 	if rv.Kind() == reflect.Ptr {
 		rv = rv.Elem()
 	}
@@ -15,7 +17,15 @@ func GetValue(v any, key string) (any, bool) {
 	}
 	rt := rv.Type()
 	for i := 0; i < rv.NumField(); i++ {
-		if FieldName(rt.Field(i)) == key {
+		ft := rt.Field(i)
+		if ft.Anonymous {
+			result, ok := RGetValue(rv.Field(i), key)
+			if ok {
+				return result, true
+			}
+			continue
+		}
+		if FieldName(ft) == key {
 			return rv.Field(i).Interface(), true
 		}
 	}

@@ -12,6 +12,14 @@ func PrimaryKey(m any) []string {
 	}
 
 	t := reflect.TypeOf(m)
+	primary, fallback := primaryKey(t)
+	if len(primary) == 0 {
+		return []string{fallback}
+	}
+	return primary
+}
+
+func primaryKey(t reflect.Type) ([]string, string) {
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}
@@ -21,6 +29,11 @@ func PrimaryKey(m any) []string {
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
 		if f.Anonymous {
+			p, f := primaryKey(f.Type)
+			if fallback == "" {
+				fallback = f
+			}
+			primary = append(primary, p...)
 			continue
 		}
 		tag := DBTag(f)
@@ -31,11 +44,8 @@ func PrimaryKey(m any) []string {
 			primary = append(primary, tag[0])
 		}
 	}
-	if len(primary) == 0 {
-		return []string{fallback}
-	}
 
-	return primary
+	return primary, fallback
 }
 
 func includes[T comparable](arr []T, v T) bool {

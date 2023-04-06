@@ -46,11 +46,11 @@ func TestGetTableSingular(t *testing.T) {
 		expectedName string
 	}{
 		{Simple{}, "simple"},
-		{TwoWords{}, "two_words"},
+		{TwoWords{}, "two_word"},
 		{local{}, "local"},
 		{Already_Snake{}, "already_snake"},
 		{Singular{}, "singular"},
-		{Plurals{}, "plurals"},
+		{Plurals{}, "plural"},
 	}
 
 	for _, tc := range testCases {

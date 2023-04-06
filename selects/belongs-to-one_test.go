@@ -36,8 +36,8 @@ func TestBelongsToLoad(t *testing.T) {
 
 		for _, bar := range bars {
 			assert.True(t, bar.Foo.Loaded())
-			foo, err := bar.Foo.Value(nil)
-			assert.NoError(t, err)
+			foo, ok := bar.Foo.Value()
+			assert.True(t, ok)
 			assert.Equal(t, bar.FooID, foo.ID)
 		}
 	})

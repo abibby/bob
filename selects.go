@@ -3,6 +3,7 @@ package bob
 import (
 	"github.com/abibby/bob/models"
 	"github.com/abibby/bob/selects"
+	"github.com/jmoiron/sqlx"
 )
 
 type Scope = selects.Scope
@@ -26,4 +27,12 @@ func From[T models.Model]() *selects.Builder[T] {
 
 func NewEmpty[T models.Model]() *selects.Builder[T] {
 	return selects.NewEmpty[T]()
+}
+
+func Load(tx *sqlx.Tx, v any, relation string) error {
+	return selects.Load(tx, v, relation)
+}
+
+func InitializeRelationships(v any) error {
+	return selects.InitializeRelationships(v)
 }

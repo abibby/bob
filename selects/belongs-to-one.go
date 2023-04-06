@@ -1,6 +1,7 @@
 package selects
 
 import (
+	"context"
 	"reflect"
 
 	"github.com/abibby/bob/builder"
@@ -14,10 +15,6 @@ type BelongsTo[T models.Model] struct {
 }
 
 var _ Relationship = &BelongsTo[models.Model]{}
-
-func (r *BelongsTo[T]) Value(tx *sqlx.Tx) (T, error) {
-	return r.relationValue.Value(tx, r)
-}
 
 func (r *BelongsTo[T]) Initialize(parent any, field reflect.StructField) error {
 	var related T
@@ -37,8 +34,8 @@ func (r *BelongsTo[T]) Initialize(parent any, field reflect.StructField) error {
 	return nil
 }
 
-func (r *BelongsTo[T]) Load(tx *sqlx.Tx, relations []Relationship) error {
-	relatedLists, err := getRelated[T](tx, r, relations)
+func (r *BelongsTo[T]) Load(ctx context.Context, tx *sqlx.Tx, relations []Relationship) error {
+	relatedLists, err := r.getRelated(ctx, tx, relations)
 	if err != nil {
 		return err
 	}

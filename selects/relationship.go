@@ -1,6 +1,7 @@
 package selects
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"reflect"
@@ -12,7 +13,7 @@ import (
 type Relationship interface {
 	Subquery() *SubBuilder
 	Initialize(self any, field reflect.StructField) error
-	Load(tx *sqlx.Tx, relations []Relationship) error
+	Load(ctx context.Context, tx *sqlx.Tx, relations []Relationship) error
 	Loaded() bool
 }
 
@@ -21,15 +22,8 @@ type relationValue[T any] struct {
 	value  T
 }
 
-func (v *relationValue[T]) Value(tx *sqlx.Tx, r Relationship) (T, error) {
-	if !v.loaded {
-		err := r.Load(tx, []Relationship{r})
-		if err != nil {
-			var zero T
-			return zero, err
-		}
-	}
-	return v.value, nil
+func (v *relationValue[T]) Value() (T, bool) {
+	return v.value, v.loaded
 }
 func (v *relationValue[T]) Loaded() bool {
 	return v.loaded
