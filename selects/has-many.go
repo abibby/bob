@@ -4,7 +4,6 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/models"
 	"github.com/jmoiron/sqlx"
 )
@@ -32,24 +31,21 @@ func (r *HasMany[T]) Initialize(parent any, field reflect.StructField) error {
 	return nil
 }
 func (r *HasMany[T]) Load(ctx context.Context, tx *sqlx.Tx, relations []Relationship) error {
-	relatedLists, err := r.getRelated(ctx, tx, relations)
+	relatedMap, err := r.relatedMap(ctx, tx, relations)
 	if err != nil {
 		return err
 	}
-	if len(relatedLists) == 0 {
-		return nil
-	}
 
-	// TODO: replace with something more efficient
 	for _, relation := range ofType[*HasMany[T]](relations) {
-		relation.value = []T{}
-		for _, related := range relatedLists {
-			local, localOk := relation.parentKeyValue()
-			foreign, foreignOk := builder.GetValue(related, r.getRelatedKey())
-			if localOk && foreignOk && local == foreign {
-				relation.value = append(relation.value, related)
-			}
-
+		local, ok := relation.parentKeyValue()
+		if !ok {
+			continue
+		}
+		m, ok := relatedMap[local]
+		if ok {
+			relation.value = m
+		} else {
+			relation.value = []T{}
 		}
 		relation.loaded = true
 	}

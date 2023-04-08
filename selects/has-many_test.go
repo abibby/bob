@@ -69,3 +69,22 @@ func TestHasMany_Load(t *testing.T) {
 		}
 	})
 }
+
+func BenchmarkHasManyLoad(b *testing.B) {
+	test.WithDatabase(func(tx *sqlx.Tx) {
+		foos := make([]*test.Foo, 100)
+		for i := 0; i < 100; i++ {
+			f := &test.Foo{ID: i}
+			foos[i] = f
+			MustSave(tx, f)
+			for j := 0; j < 10; j++ {
+				MustSave(tx, &test.Bar{ID: i*100 + j, FooID: i})
+			}
+		}
+
+		for i := 0; i < b.N; i++ {
+			selects.Load(tx, foos, "Bars")
+		}
+
+	})
+}

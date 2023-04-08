@@ -57,6 +57,27 @@ func (r hasOneOrMany[T]) getRelated(ctx context.Context, tx *sqlx.Tx, relations 
 	return From[T]().
 		WhereIn(r.getRelatedKey(), localKeys).
 		WithContext(ctx).
-		Dump().
 		Get(tx)
+}
+func (r hasOneOrMany[T]) relatedMap(ctx context.Context, tx *sqlx.Tx, relations []Relationship) (map[any][]T, error) {
+	relatedLists, err := r.getRelated(ctx, tx, relations)
+	if err != nil {
+		return nil, err
+	}
+	relatedMap := map[any][]T{}
+	for _, related := range relatedLists {
+		foreign, ok := builder.GetValue(related, r.getRelatedKey())
+		if !ok {
+			continue
+		}
+		m, ok := relatedMap[foreign]
+		if !ok {
+			m = []T{related}
+		} else {
+			m = append(m, related)
+		}
+		relatedMap[foreign] = m
+	}
+
+	return relatedMap, nil
 }

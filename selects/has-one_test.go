@@ -55,3 +55,19 @@ func TestHasOne_json_marshal(t *testing.T) {
 	})
 
 }
+
+func BenchmarkHasOneLoad(b *testing.B) {
+	test.WithDatabase(func(tx *sqlx.Tx) {
+		foos := make([]*test.Foo, 100)
+		for i := 0; i < 100; i++ {
+			f := &test.Foo{ID: i}
+			foos[i] = f
+			MustSave(tx, f)
+			MustSave(tx, &test.Bar{ID: i, FooID: i})
+		}
+		for i := 0; i < b.N; i++ {
+			selects.Load(tx, foos, "Bars")
+		}
+
+	})
+}
