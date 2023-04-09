@@ -3,6 +3,7 @@ package selects
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/dialects"
@@ -168,7 +169,7 @@ func (w *WhereList) OrWhereHas(relation string, cb func(q *SubBuilder) *SubBuild
 	return w.whereHas(relation, cb, true)
 }
 func (w *WhereList) whereHas(relation string, cb func(q *SubBuilder) *SubBuilder, or bool) *WhereList {
-	r, ok := getRelation(w.parent, relation)
+	r, ok := getRelation(reflect.ValueOf(w.parent), relation)
 	if !ok {
 		return w
 	}

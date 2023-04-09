@@ -9,6 +9,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type HasOneFoo struct {
+	test.Foo
+	BadLocal   *selects.HasOne[*test.Bar] `db:"-" local:"bad_key"`
+	BadForeign *selects.HasOne[*test.Bar] `db:"-" foreign:"bad_key"`
+}
+
+func (h *HasOneFoo) Table() string {
+	return "foos"
+}
+
 func TestHasOneLoad(t *testing.T) {
 	test.WithDatabase(func(tx *sqlx.Tx) {
 		foos := []*test.Foo{
@@ -52,6 +62,30 @@ func TestHasOne_json_marshal(t *testing.T) {
 			"bars":null
 		}`, f)
 
+	})
+
+}
+
+func TestHasOne_invalid_local_key(t *testing.T) {
+	test.WithDatabase(func(tx *sqlx.Tx) {
+		f := &HasOneFoo{Foo: test.Foo{ID: 1}}
+		MustSave(tx, f)
+		MustSave(tx, &test.Bar{ID: 4, FooID: 1})
+
+		err := selects.Load(tx, f, "BadLocal")
+		assert.ErrorIs(t, err, selects.ErrMissingField)
+	})
+
+}
+
+func TestHasOne_invalid_foreign_key(t *testing.T) {
+	test.WithDatabase(func(tx *sqlx.Tx) {
+		f := &HasOneFoo{Foo: test.Foo{ID: 1}}
+		MustSave(tx, f)
+		MustSave(tx, &test.Bar{ID: 4, FooID: 1})
+
+		err := selects.Load(tx, f, "BadForeign")
+		assert.ErrorIs(t, err, selects.ErrMissingField)
 	})
 
 }

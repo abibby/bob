@@ -8,8 +8,6 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-var ErrMissingRelationship = fmt.Errorf("missing relationship")
-
 var relationType = reflect.TypeOf((*Relationship)(nil)).Elem()
 
 func InitializeRelationships(v any) error {
@@ -56,7 +54,7 @@ func Load(tx *sqlx.Tx, v any, relation string) error {
 func LoadContext(ctx context.Context, tx *sqlx.Tx, v any, relation string) error {
 	relations := []Relationship{}
 	err := each(v, func(v reflect.Value, pointer bool) error {
-		r, ok := getRelation(v.Interface(), relation)
+		r, ok := getRelation(v, relation)
 		if !ok {
 			return fmt.Errorf("%s has no relation %s: %w", v.Type().Name(), relation, ErrMissingRelationship)
 		}

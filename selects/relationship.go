@@ -22,6 +22,11 @@ type relationValue[T any] struct {
 	value  T
 }
 
+var (
+	ErrMissingRelationship = fmt.Errorf("missing relationship")
+	ErrMissingField        = fmt.Errorf("missing related field")
+)
+
 func (v *relationValue[T]) Value() (T, bool) {
 	return v.value, v.loaded
 }
@@ -61,8 +66,7 @@ func primaryKeyName(field reflect.StructField, tag string, tableType any) (strin
 	return pKeys[0], nil
 }
 
-func getRelation(v any, relation string) (Relationship, bool) {
-	rv := reflect.ValueOf(v)
+func getRelation(rv reflect.Value, relation string) (Relationship, bool) {
 	if rv.Kind() == reflect.Ptr {
 		if rv.IsZero() {
 			rv = reflect.New(rv.Type().Elem())
@@ -78,7 +82,7 @@ func getRelation(v any, relation string) (Relationship, bool) {
 		ft := t.Field(i)
 
 		if ft.Anonymous {
-			r, ok := getRelation(rv.Field(i).Interface(), relation)
+			r, ok := getRelation(rv.Field(i), relation)
 			if ok {
 				return r, true
 			}

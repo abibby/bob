@@ -2,6 +2,8 @@ package selects
 
 import (
 	"context"
+	"fmt"
+	"reflect"
 
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/models"
@@ -49,7 +51,8 @@ func (r hasOneOrMany[T]) getRelated(ctx context.Context, tx *sqlx.Tx, relations 
 	for _, r := range relations {
 		local, ok := r.(iHasOneOrMany).parentKeyValue()
 		if !ok {
-			continue
+			var related T
+			return nil, fmt.Errorf("%s has no field %s: %w", reflect.TypeOf(related).Name(), r.(iHasOneOrMany).getParentKey(), ErrMissingField)
 		}
 		localKeys = append(localKeys, local)
 	}
@@ -60,6 +63,12 @@ func (r hasOneOrMany[T]) getRelated(ctx context.Context, tx *sqlx.Tx, relations 
 		Get(tx)
 }
 func (r hasOneOrMany[T]) relatedMap(ctx context.Context, tx *sqlx.Tx, relations []Relationship) (map[any][]T, error) {
+	var related T
+	_, ok := builder.GetValue(related, r.getRelatedKey())
+	if !ok {
+		return nil, fmt.Errorf("%s has no field %s: %w", reflect.TypeOf(related).Name(), r.getRelatedKey(), ErrMissingField)
+	}
+
 	relatedLists, err := r.getRelated(ctx, tx, relations)
 	if err != nil {
 		return nil, err
@@ -68,7 +77,7 @@ func (r hasOneOrMany[T]) relatedMap(ctx context.Context, tx *sqlx.Tx, relations 
 	for _, related := range relatedLists {
 		foreign, ok := builder.GetValue(related, r.getRelatedKey())
 		if !ok {
-			continue
+			return nil, fmt.Errorf("%s has no field %s: %w", reflect.TypeOf(related).Name(), r.getRelatedKey(), ErrMissingField)
 		}
 		m, ok := relatedMap[foreign]
 		if !ok {
