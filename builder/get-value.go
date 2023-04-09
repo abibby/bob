@@ -16,7 +16,7 @@ func RGetValue(rv reflect.Value, key string) (any, bool) {
 		return nil, false
 	}
 	rt := rv.Type()
-	for i := 0; i < rv.NumField(); i++ {
+	for i := 0; i < rt.NumField(); i++ {
 		ft := rt.Field(i)
 		if ft.Anonymous {
 			result, ok := RGetValue(rv.Field(i), key)

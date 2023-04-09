@@ -7,6 +7,7 @@ import (
 
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/models"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -64,8 +65,8 @@ func (r hasOneOrMany[T]) getRelated(ctx context.Context, tx *sqlx.Tx, relations 
 }
 func (r hasOneOrMany[T]) relatedMap(ctx context.Context, tx *sqlx.Tx, relations []Relationship) (map[any][]T, error) {
 	var related T
-	_, ok := builder.GetValue(related, r.getRelatedKey())
-	if !ok {
+	if !builder.HasField(related, r.getRelatedKey()) {
+		spew.Dump(related, r.getRelatedKey())
 		return nil, fmt.Errorf("%s has no field %s: %w", reflect.TypeOf(related).Name(), r.getRelatedKey(), ErrMissingField)
 	}
 
