@@ -2,7 +2,6 @@ package selects_test
 
 import (
 	"context"
-	"encoding/json"
 	"testing"
 
 	"github.com/abibby/bob/selects"
@@ -76,20 +75,18 @@ func TestGet_with_scope_and_context(t *testing.T) {
 
 }
 
-func assertJsonEqual(t *testing.T, rawJson string, v any) bool {
-	b, err := json.Marshal(v)
-	if !assert.NoError(t, err) {
-		return false
-	}
-	var data any
-	err = json.Unmarshal([]byte(rawJson), &data)
-	if !assert.NoError(t, err) {
-		return false
-	}
-	formattedJson, err := json.Marshal(data)
-	if !assert.NoError(t, err) {
-		return false
-	}
+func TestGet_returns_empty_array_with_no_results(t *testing.T) {
+	test.WithDatabase(func(tx *sqlx.Tx) {
+		foos, err := NewTestBuilder().Get(tx)
+		assert.NoError(t, err)
+		assertJsonEqual(t, `[]`, foos)
+	})
+}
 
-	return assert.JSONEq(t, string(formattedJson), string(b))
+func TestFirst_returns_nil_with_no_results(t *testing.T) {
+	test.WithDatabase(func(tx *sqlx.Tx) {
+		foo, err := NewTestBuilder().First(tx)
+		assert.NoError(t, err)
+		assert.Nil(t, foo)
+	})
 }

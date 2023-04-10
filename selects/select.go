@@ -55,13 +55,16 @@ func (s *selects) AddSelect(columns ...string) *selects {
 	return s
 }
 
-func (s *selects) SelectSubquery(sb QueryBuilder) *selects {
-	s.list = []builder.ToSQLer{builder.Group(sb)}
-
-	return s
+func (s *selects) SelectSubquery(sb QueryBuilder, as string) *selects {
+	s.list = make([]builder.ToSQLer, 0, 1)
+	return s.AddSelectSubquery(sb, as)
 }
-func (s *selects) AddSelectSubquery(sb QueryBuilder) *selects {
-	s.list = append(s.list, builder.Group(sb))
+func (s *selects) AddSelectSubquery(sb QueryBuilder, as string) *selects {
+	s.list = append(s.list, builder.Concat(
+		builder.Group(sb),
+		builder.Raw(" as "),
+		builder.Identifier(as),
+	))
 
 	return s
 }

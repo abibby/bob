@@ -60,14 +60,14 @@ func (b *SubBuilder) AddSelect(columns ...string) *SubBuilder {
 	b.selects = b.selects.AddSelect(columns...)
 	return b
 }
-func (b *SubBuilder) SelectSubquery(sb QueryBuilder) *SubBuilder {
+func (b *SubBuilder) SelectSubquery(sb QueryBuilder, as string) *SubBuilder {
 	b = b.Clone()
-	b.selects = b.selects.SelectSubquery(sb)
+	b.selects = b.selects.SelectSubquery(sb, as)
 	return b
 }
-func (b *SubBuilder) AddSelectSubquery(sb QueryBuilder) *SubBuilder {
+func (b *SubBuilder) AddSelectSubquery(sb QueryBuilder, as string) *SubBuilder {
 	b = b.Clone()
-	b.selects = b.selects.AddSelectSubquery(sb)
+	b.selects = b.selects.AddSelectSubquery(sb, as)
 	return b
 }
 func (b *SubBuilder) SelectFunction(function, column string) *SubBuilder {

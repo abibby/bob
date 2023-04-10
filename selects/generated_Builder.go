@@ -67,14 +67,14 @@ func (b *Builder[T]) AddSelect(columns ...string) *Builder[T] {
 	b.subBuilder = b.subBuilder.AddSelect(columns...)
 	return b
 }
-func (b *Builder[T]) SelectSubquery(sb QueryBuilder) *Builder[T] {
+func (b *Builder[T]) SelectSubquery(sb QueryBuilder, as string) *Builder[T] {
 	b = b.Clone()
-	b.subBuilder = b.subBuilder.SelectSubquery(sb)
+	b.subBuilder = b.subBuilder.SelectSubquery(sb, as)
 	return b
 }
-func (b *Builder[T]) AddSelectSubquery(sb QueryBuilder) *Builder[T] {
+func (b *Builder[T]) AddSelectSubquery(sb QueryBuilder, as string) *Builder[T] {
 	b = b.Clone()
-	b.subBuilder = b.subBuilder.AddSelectSubquery(sb)
+	b.subBuilder = b.subBuilder.AddSelectSubquery(sb, as)
 	return b
 }
 func (b *Builder[T]) SelectFunction(function, column string) *Builder[T] {

@@ -59,6 +59,9 @@ func Group(sqler ToSQLer) ToSQLer {
 		return "(" + q + ")", bindings, err
 	})
 }
+func Concat(sqlers ...ToSQLer) ToSQLer {
+	return Join(sqlers, "")
+}
 
 func Literal(v any) ToSQLer {
 	return ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {

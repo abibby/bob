@@ -34,8 +34,8 @@ func TestSelect(t *testing.T) {
 		},
 		{
 			Name:             "subquery",
-			Builder:          NewTestBuilder().SelectSubquery(NewTestBuilder().Select("a")),
-			ExpectedSQL:      "SELECT (SELECT \"a\" FROM \"foos\") FROM \"foos\"",
+			Builder:          NewTestBuilder().SelectSubquery(NewTestBuilder().Select("a"), "test"),
+			ExpectedSQL:      "SELECT (SELECT \"a\" FROM \"foos\") as \"test\" FROM \"foos\"",
 			ExpectedBindings: []any{},
 		},
 	})
