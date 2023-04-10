@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestName(t *testing.T) {
+func TestHasField(t *testing.T) {
 	type A struct {
 		Foo string
 	}

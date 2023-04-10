@@ -66,6 +66,35 @@ func TestHasOne_json_marshal(t *testing.T) {
 
 }
 
+func TestHasOne_deep(t *testing.T) {
+	test.WithDatabase(func(tx *sqlx.Tx) {
+		f := &test.Foo{ID: 1}
+		MustSave(tx, f)
+		MustSave(tx, &test.Bar{ID: 4, FooID: 1})
+
+		err := selects.Load(tx, f, "Bar.Foo")
+		assert.NoError(t, err)
+
+		assertJsonEqual(t, `{
+			"id":1,
+			"name":"",
+			"bar":{
+				"id":4,
+				"foo_id":1,
+				"foo": {
+					"id":1,
+					"name":"",
+					"bar":null,
+					"bars":null
+				}
+			},
+			"bars":null
+		}`, f)
+
+	})
+
+}
+
 func TestHasOne_invalid_local_key(t *testing.T) {
 	test.WithDatabase(func(tx *sqlx.Tx) {
 		f := &HasOneFoo{Foo: test.Foo{ID: 1}}
