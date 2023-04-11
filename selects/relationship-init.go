@@ -1,12 +1,7 @@
 package selects
 
 import (
-	"context"
-	"fmt"
 	"reflect"
-	"strings"
-
-	"github.com/jmoiron/sqlx"
 )
 
 var relationType = reflect.TypeOf((*Relationship)(nil)).Elem()
@@ -47,112 +42,4 @@ func initializeRelationships(v reflect.Value, pointer bool) error {
 
 	}
 	return nil
-}
-
-func Load(tx *sqlx.Tx, v any, relation string) error {
-	return LoadContext(context.Background(), tx, v, relation)
-}
-func LoadContext(ctx context.Context, tx *sqlx.Tx, v any, relation string) error {
-	relations := strings.Split(relation, ".")
-	for i, rel := range relations {
-		relations := []Relationship{}
-		err := each(v, func(v reflect.Value, pointer bool) error {
-			r, ok := getRelation(v, rel)
-			if !ok {
-				return fmt.Errorf("%s has no relation %s: %w", v.Type().Name(), rel, ErrMissingRelationship)
-			}
-
-			relations = append(relations, r)
-			return nil
-		})
-		if err != nil {
-			return err
-		}
-
-		if len(relations) == 0 {
-			return nil
-		}
-		err = relations[0].Load(ctx, tx, relations)
-		if err != nil {
-			return err
-		}
-
-		if i <= len(relations)-1 {
-			values := []any{}
-			each(v, func(v reflect.Value, pointer bool) error {
-				related, ok := getValue(v, rel)
-				if !ok {
-					return nil
-				}
-				out := related.MethodByName("Value").Call([]reflect.Value{})
-				if len(out) != 2 {
-					return fmt.Errorf("invalid value method")
-				}
-				if !out[1].IsZero() {
-					values = append(values, out[0].Interface())
-				}
-				return nil
-			})
-			v = values
-		}
-	}
-
-	return nil
-}
-
-func getValue(rv reflect.Value, key string) (reflect.Value, bool) {
-	if rv.Kind() == reflect.Ptr {
-		rv = rv.Elem()
-	}
-	if rv.Kind() != reflect.Struct {
-		return reflect.Value{}, false
-	}
-	rt := rv.Type()
-	for i := 0; i < rt.NumField(); i++ {
-		ft := rt.Field(i)
-		if ft.Anonymous {
-			result, ok := getValue(rv.Field(i), key)
-			if ok {
-				return result, true
-			}
-			continue
-		}
-		if ft.Name == key {
-			return rv.Field(i), true
-		}
-	}
-	return reflect.Value{}, false
-}
-func ofType[T Relationship](relations []Relationship) []T {
-	relationsOfType := make([]T, 0, len(relations))
-	for _, r := range relations {
-		rOfType, ok := r.(T)
-		if ok {
-			relationsOfType = append(relationsOfType, rOfType)
-		}
-	}
-	return relationsOfType
-}
-
-func each(v any, cb func(v reflect.Value, pointer bool) error) error {
-	pointer := false
-	rv := reflect.ValueOf(v)
-	if rv.Kind() == reflect.Ptr {
-		rv = rv.Elem()
-		pointer = true
-	}
-	if rv.Kind() == reflect.Slice {
-		for i := 0; i < rv.Len(); i++ {
-			err := each(rv.Index(i).Interface(), cb)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	}
-	if rv.Kind() != reflect.Struct {
-		return nil
-	}
-
-	return cb(rv, pointer)
 }

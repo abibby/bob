@@ -28,11 +28,6 @@ func (*SQLite) DataType(t dialects.DataType) string {
 	return string(t)
 }
 
-func (d *SQLite) InsertOrUpdate(table, primaryKey string, columns []string, values []any) (string, []any) {
-
-	return "", nil
-}
-
 func init() {
 	dialects.DefaultDialect = &SQLite{}
 }

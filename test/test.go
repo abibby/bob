@@ -1,10 +1,9 @@
 package test
 
 import (
-	"context"
-	"fmt"
 	"testing"
 
+	"github.com/abibby/bob/bobtesting"
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/dialects"
 	_ "github.com/abibby/bob/dialects/sqlite"
@@ -37,56 +36,31 @@ func QueryTest(t *testing.T, testCases []Case) {
 
 type Foo struct {
 	models.BaseModel
-	ID   int                    `db:"id,primary" json:"id"`
-	Name string                 `db:"name"       json:"name"`
-	Bar  *selects.HasOne[*Bar]  `db:"-"          json:"bar"`
-	Bars *selects.HasMany[*Bar] `db:"-"          json:"bars"`
+	ID   int                    `json:"id"   db:"id,primary,autoincrement"`
+	Name string                 `json:"name" db:"name"`
+	Bar  *selects.HasOne[*Bar]  `json:"bar"  db:"-"`
+	Bars *selects.HasMany[*Bar] `json:"bars" db:"-"`
 }
 
 type Bar struct {
 	models.BaseModel
-	ID    int                      `db:"id,primary" json:"id"`
-	FooID int                      `db:"foo_id"     json:"foo_id"`
-	Foo   *selects.BelongsTo[*Foo] `db:"-"          json:"foo"`
+	ID    int                      `json:"id"     db:"id,primary,autoincrement"`
+	FooID int                      `json:"foo_id" db:"foo_id"`
+	Foo   *selects.BelongsTo[*Foo] `json:"foo"    db:"-"`
 }
 
 const createTables = `CREATE TABLE foos (
-	id int not null,
-	name varchar(255) not null default '',
-	PRIMARY KEY (id)
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	name varchar(255) not null default ''
 );
 CREATE TABLE bars (
-	id int not null,
-	foo_id int not null,
-	PRIMARY KEY (id)
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	foo_id INTEGER not null
 );`
 
-var db *sqlx.DB
-
 func init() {
-	var err error
-	db, err = sqlx.Open("sqlite3", ":memory:")
-	// db, err = sqlx.Open("sqlite3", "./test.db")
-	if err != nil {
-		panic(fmt.Errorf("failed to open database: %w", err))
-	}
-	_, err = db.Exec(createTables)
-	if err != nil {
-		panic(fmt.Errorf("failed to create tables: %w", err))
-	}
-}
-
-func WithDatabase(cb func(tx *sqlx.Tx)) {
-	tx, err := db.BeginTxx(context.Background(), nil)
-	if err != nil {
-		panic(fmt.Errorf("failed to begin transaction: %w", err))
-	}
-
-	cb(tx)
-
-	// err = tx.Commit()
-	err = tx.Rollback()
-	if err != nil {
-		panic(fmt.Errorf("failed to rollback transaction: %w", err))
-	}
+	bobtesting.SetMigrate(func(db *sqlx.DB) error {
+		_, err := db.Exec(createTables)
+		return err
+	})
 }

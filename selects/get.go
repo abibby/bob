@@ -17,7 +17,7 @@ func (b *Builder[T]) Get(tx *sqlx.Tx) ([]T, error) {
 	}
 
 	for _, with := range b.withs {
-		err = LoadContext(b.Context(), tx, v, with)
+		err = LoadMissingContext(b.Context(), tx, v, with)
 		if err != nil {
 			return nil, err
 		}

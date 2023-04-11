@@ -40,7 +40,7 @@ func primaryKey(t reflect.Type) ([]string, string) {
 		if fallback == "" {
 			fallback = tag[0]
 		}
-		if includes(tag, "primary") {
+		if Includes(tag, "primary") {
 			primary = append(primary, tag[0])
 		}
 	}
@@ -48,7 +48,7 @@ func primaryKey(t reflect.Type) ([]string, string) {
 	return primary, fallback
 }
 
-func includes[T comparable](arr []T, v T) bool {
+func Includes[T comparable](arr []T, v T) bool {
 	for _, e := range arr {
 		if v == e {
 			return true

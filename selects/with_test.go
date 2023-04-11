@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/abibby/bob/bobtesting"
 	"github.com/abibby/bob/selects"
 	"github.com/abibby/bob/test"
 	"github.com/jmoiron/sqlx"
@@ -39,7 +40,7 @@ func (f *WithBar) Scopes() []*selects.Scope {
 }
 
 func TestWith_HasOne(t *testing.T) {
-	test.WithDatabase(func(tx *sqlx.Tx) {
+	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {
 		MustSave(tx, &test.Foo{ID: 1})
 		MustSave(tx, &test.Bar{ID: 4, FooID: 1})
 
@@ -57,7 +58,7 @@ func TestWith_HasOne(t *testing.T) {
 }
 
 func TestWith_HasOne_bad_relation(t *testing.T) {
-	test.WithDatabase(func(tx *sqlx.Tx) {
+	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {
 		MustSave(tx, &test.Foo{ID: 1})
 		MustSave(tx, &test.Bar{ID: 4, FooID: 1})
 
@@ -69,7 +70,7 @@ func TestWith_HasOne_bad_relation(t *testing.T) {
 
 func TestWith_HasOne_anonymous(t *testing.T) {
 
-	test.WithDatabase(func(tx *sqlx.Tx) {
+	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {
 		MustSave(tx, &test.Foo{ID: 1})
 		MustSave(tx, &test.Bar{ID: 4, FooID: 1})
 
@@ -80,7 +81,7 @@ func TestWith_HasOne_anonymous(t *testing.T) {
 }
 
 func TestWith_HasOne_scope_context(t *testing.T) {
-	test.WithDatabase(func(tx *sqlx.Tx) {
+	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {
 		MustSave(tx, &test.Foo{ID: 1})
 		MustSave(tx, &test.Bar{ID: 2, FooID: 1})
 		MustSave(tx, &test.Bar{ID: 3, FooID: 1})

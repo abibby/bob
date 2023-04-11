@@ -3,6 +3,7 @@ package selects_test
 import (
 	"testing"
 
+	"github.com/abibby/bob/bobtesting"
 	"github.com/abibby/bob/insert"
 	"github.com/abibby/bob/selects"
 	"github.com/abibby/bob/test"
@@ -11,7 +12,7 @@ import (
 )
 
 func TestBelongsToLoad(t *testing.T) {
-	test.WithDatabase(func(tx *sqlx.Tx) {
+	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {
 		foos := []*test.Foo{
 			{ID: 1},
 			{ID: 2},

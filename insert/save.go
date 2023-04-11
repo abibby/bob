@@ -79,6 +79,19 @@ func SaveContext(ctx context.Context, tx *sqlx.Tx, v models.Model) error {
 }
 
 func insert(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns []string, values []any) error {
+	rPKey, pKey, isAuto := isAutoIncrementing(v)
+	if isAuto {
+		newColumns := make([]string, 0, len(columns))
+		newValues := make([]any, 0, len(values))
+		for i, column := range columns {
+			if column != pKey {
+				newColumns = append(newColumns, column)
+				newValues = append(newValues, values[i])
+			}
+		}
+		columns = newColumns
+		values = newValues
+	}
 	r := builder.Result().
 		AddString("INSERT INTO").
 		Add(builder.Identifier(builder.GetTable(v)).ToSQL(d)).
@@ -105,11 +118,57 @@ func insert(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns
 		return err
 	}
 
-	_, err = tx.ExecContext(ctx, q, bindings...)
+	result, err := tx.ExecContext(ctx, q, bindings...)
 	if err != nil {
 		return err
 	}
+
+	if isAuto {
+		id, err := result.LastInsertId()
+		if err != nil {
+			return err
+		}
+		rPKey.SetInt(id)
+	}
 	return nil
+}
+
+func isAutoIncrementing(v any) (reflect.Value, string, bool) {
+	pKeys := builder.PrimaryKey(v)
+	if len(pKeys) != 1 {
+		return reflect.Value{}, "", false
+	}
+
+	pKey := pKeys[0]
+	rv := reflect.ValueOf(v)
+	if rv.Kind() == reflect.Pointer {
+		rv = rv.Elem()
+	}
+	if rv.Kind() != reflect.Struct {
+		return reflect.Value{}, "", false
+	}
+	var pKeyTags []string
+	var rPKey reflect.Value
+	errFound := fmt.Errorf("found")
+	err := builder.EachField(rv, func(sf reflect.StructField, fv reflect.Value) error {
+		tag := builder.DBTag(sf)
+		if tag[0] == pKey {
+			pKeyTags = tag
+			rPKey = fv
+			if !rPKey.IsZero() {
+				return nil
+			}
+			return errFound
+		}
+		return nil
+	})
+	if err != errFound {
+		return reflect.Value{}, "", false
+	}
+	if len(pKeyTags) > 1 && !builder.Includes(pKeyTags[1:], "autoincrement") {
+		return reflect.Value{}, "", false
+	}
+	return rPKey, pKey, true
 }
 
 func update(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns []string, values []any) error {

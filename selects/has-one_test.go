@@ -3,6 +3,7 @@ package selects_test
 import (
 	"testing"
 
+	"github.com/abibby/bob/bobtesting"
 	"github.com/abibby/bob/selects"
 	"github.com/abibby/bob/test"
 	"github.com/jmoiron/sqlx"
@@ -20,7 +21,7 @@ func (h *HasOneFoo) Table() string {
 }
 
 func TestHasOneLoad(t *testing.T) {
-	test.WithDatabase(func(tx *sqlx.Tx) {
+	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {
 		foos := []*test.Foo{
 			{ID: 1},
 			{ID: 2},
@@ -47,7 +48,7 @@ func TestHasOneLoad(t *testing.T) {
 }
 
 func TestHasOne_json_marshal(t *testing.T) {
-	test.WithDatabase(func(tx *sqlx.Tx) {
+	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {
 		f := &test.Foo{ID: 1}
 		MustSave(tx, f)
 		MustSave(tx, &test.Bar{ID: 4, FooID: 1})
@@ -67,7 +68,7 @@ func TestHasOne_json_marshal(t *testing.T) {
 }
 
 func TestHasOne_deep(t *testing.T) {
-	test.WithDatabase(func(tx *sqlx.Tx) {
+	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {
 		f := &test.Foo{ID: 1}
 		MustSave(tx, f)
 		MustSave(tx, &test.Bar{ID: 4, FooID: 1})
@@ -96,7 +97,7 @@ func TestHasOne_deep(t *testing.T) {
 }
 
 func TestHasOne_invalid_local_key(t *testing.T) {
-	test.WithDatabase(func(tx *sqlx.Tx) {
+	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {
 		f := &HasOneFoo{Foo: test.Foo{ID: 1}}
 		MustSave(tx, f)
 		MustSave(tx, &test.Bar{ID: 4, FooID: 1})
@@ -108,7 +109,7 @@ func TestHasOne_invalid_local_key(t *testing.T) {
 }
 
 func TestHasOne_invalid_foreign_key(t *testing.T) {
-	test.WithDatabase(func(tx *sqlx.Tx) {
+	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {
 		f := &HasOneFoo{Foo: test.Foo{ID: 1}}
 		MustSave(tx, f)
 		MustSave(tx, &test.Bar{ID: 4, FooID: 1})
@@ -120,7 +121,7 @@ func TestHasOne_invalid_foreign_key(t *testing.T) {
 }
 
 func BenchmarkHasOneLoad(b *testing.B) {
-	test.WithDatabase(func(tx *sqlx.Tx) {
+	bobtesting.RunWithDatabase(b, "", func(t *testing.B, tx *sqlx.Tx) {
 		foos := make([]*test.Foo, 100)
 		for i := 0; i < 100; i++ {
 			f := &test.Foo{ID: i}

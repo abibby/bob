@@ -28,10 +28,6 @@ func (*MySQL) DataType(t dialects.DataType) string {
 	return string(t)
 }
 
-func (d *MySQL) InsertOrUpdate(table, primaryKey string, columns []string, values []any) (string, []any) {
-	return "", nil
-}
-
 func init() {
 	dialects.DefaultDialect = &MySQL{}
 }
