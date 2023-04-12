@@ -30,8 +30,12 @@ func columnsAndValues(v reflect.Value) ([]string, []any) {
 			columns = append(columns, subColumns...)
 			values = append(values, subValues...)
 		} else {
-			name := builder.FieldName(field)
+			tag := builder.DBTag(field)
+			name := tag[0]
 			if name == "-" {
+				continue
+			}
+			if builder.Includes(tag, "readonly") {
 				continue
 			}
 			columns = append(columns, name)

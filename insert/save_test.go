@@ -7,6 +7,7 @@ import (
 	"github.com/abibby/bob/bobtesting"
 	"github.com/abibby/bob/hooks"
 	"github.com/abibby/bob/insert"
+	"github.com/abibby/bob/selects"
 	"github.com/abibby/bob/test"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
@@ -140,4 +141,31 @@ func TestSave_hooks(t *testing.T) {
 
 		assert.True(t, f.saved)
 	})
+}
+
+type SaveFooReadonly struct {
+	test.Foo
+	Readonly string `db:"computed,readonly"`
+}
+
+func (f *SaveFooReadonly) Table() string {
+	return "foos"
+}
+
+func TestSave_readonly(t *testing.T) {
+	bobtesting.RunWithDatabase(t, "runs hooks", func(t *testing.T, tx *sqlx.Tx) {
+		f := &SaveFooReadonly{
+			Foo: test.Foo{
+				ID: 1,
+			},
+			Readonly: "yes",
+		}
+		err := insert.Save(tx, f)
+		assert.NoError(t, err)
+
+		newFoo, err := selects.From[*SaveFooReadonly]().First(tx)
+		assert.NoError(t, err)
+		assert.Equal(t, "", newFoo.Readonly)
+	})
+
 }
