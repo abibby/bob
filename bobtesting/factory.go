@@ -1,7 +1,6 @@
 package bobtesting
 
 import (
-	"fmt"
 	"reflect"
 
 	"github.com/abibby/bob/insert"
@@ -9,27 +8,15 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-var factories = map[string]any{}
+type Factory[T models.Model] func() T
 
-type Factory[T models.Model] struct {
-	make func() T
+func NewFactory[T models.Model](cb func() T) Factory[T] {
+	return Factory[T](cb)
 }
+
 type CountFactory[T models.Model] struct {
-	factory *Factory[T]
+	factory Factory[T]
 	count   int
-}
-
-type State[T models.Model] interface {
-	Apply(T) T
-}
-type stateFunc[T models.Model] func(T) T
-
-func (sf stateFunc[T]) Apply(t T) T {
-	return sf(t)
-}
-
-func StateFunc[T models.Model](apply func(T) T) State[T] {
-	return stateFunc[T](apply)
 }
 
 func name[T any]() string {
@@ -37,36 +24,20 @@ func name[T any]() string {
 	return reflect.TypeOf(m).String()
 }
 
-func DefineFactory[T models.Model](cb func() T) {
-	factories[name[T]()] = &Factory[T]{
-		make: cb,
-	}
-}
-func NewFactory[T models.Model]() *Factory[T] {
-	f, ok := factories[name[T]()]
-	if !ok {
-		panic(fmt.Errorf("No factory found for %s", name[T]()))
-	}
-
-	return f.(*Factory[T])
-}
-
-func (f *Factory[T]) Count(count int) *CountFactory[T] {
+func (f Factory[T]) Count(count int) *CountFactory[T] {
 	return &CountFactory[T]{
 		factory: f,
 		count:   count,
 	}
 }
-func (f *Factory[T]) State(s State[T]) *Factory[T] {
-	return &Factory[T]{
-		make: func() T {
-			return s.Apply(f.make())
-		},
+func (f Factory[T]) State(s func(T) T) Factory[T] {
+	return func() T {
+		return s(f())
 	}
 }
 
-func (f *Factory[T]) Create(tx *sqlx.Tx) T {
-	m := f.make()
+func (f Factory[T]) Create(tx *sqlx.Tx) T {
+	m := f()
 	err := insert.Save(tx, m)
 	if err != nil {
 		panic(err)
@@ -77,7 +48,7 @@ func (f *Factory[T]) Create(tx *sqlx.Tx) T {
 func (f *CountFactory[T]) Create(tx *sqlx.Tx) []T {
 	models := make([]T, f.count)
 	for i := 0; i < f.count; i++ {
-		m := f.factory.make()
+		m := f.factory()
 		err := insert.Save(tx, m)
 		if err != nil {
 			panic(err)
