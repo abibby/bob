@@ -51,7 +51,7 @@ func loadContext(ctx context.Context, tx *sqlx.Tx, v any, relation string, onlyM
 
 		if i <= len(relations)-1 {
 			values := []any{}
-			each(v, func(v reflect.Value, pointer bool) error {
+			err := each(v, func(v reflect.Value, pointer bool) error {
 				related, ok := getValue(v, rel)
 				if !ok {
 					return nil
@@ -65,6 +65,9 @@ func loadContext(ctx context.Context, tx *sqlx.Tx, v any, relation string, onlyM
 				}
 				return nil
 			})
+			if err != nil {
+				return err
+			}
 			v = values
 		}
 	}

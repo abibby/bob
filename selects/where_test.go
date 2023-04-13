@@ -47,9 +47,9 @@ func TestWhere(t *testing.T) {
 		},
 		{
 			Name: "and group",
-			Builder: NewTestBuilder().And(func(wl *selects.WhereList) {
+			Builder: NewTestBuilder().And(func(wl *selects.Conditions) {
 				wl.Where("a", "=", "a").OrWhere("b", "=", "b")
-			}).And(func(wl *selects.WhereList) {
+			}).And(func(wl *selects.Conditions) {
 				wl.Where("c", "=", "c").OrWhere("d", "=", "d")
 			}),
 			ExpectedSQL:      "SELECT * FROM \"foos\" WHERE (\"a\" = ? OR \"b\" = ?) AND (\"c\" = ? OR \"d\" = ?)",
@@ -57,9 +57,9 @@ func TestWhere(t *testing.T) {
 		},
 		{
 			Name: "or group",
-			Builder: NewTestBuilder().Or(func(wl *selects.WhereList) {
+			Builder: NewTestBuilder().Or(func(wl *selects.Conditions) {
 				wl.Where("a", "=", "a").Where("b", "=", "b")
-			}).Or(func(wl *selects.WhereList) {
+			}).Or(func(wl *selects.Conditions) {
 				wl.Where("c", "=", "c").Where("d", "=", "d")
 			}),
 			ExpectedSQL:      "SELECT * FROM \"foos\" WHERE (\"a\" = ? AND \"b\" = ?) OR (\"c\" = ? AND \"d\" = ?)",

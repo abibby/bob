@@ -22,6 +22,56 @@ func (b *Builder[T]) AddGroupBy(columns ...string) *Builder[T] {
 	b.subBuilder = b.subBuilder.AddGroupBy(columns...)
 	return b
 }
+func (b *Builder[T]) Join(table, localColumn, operator, foreignColumn string) *Builder[T] {
+	b = b.Clone()
+	b.subBuilder = b.subBuilder.Join(table, localColumn, operator, foreignColumn)
+	return b
+}
+func (b *Builder[T]) LeftJoin(table, localColumn, operator, foreignColumn string) *Builder[T] {
+	b = b.Clone()
+	b.subBuilder = b.subBuilder.LeftJoin(table, localColumn, operator, foreignColumn)
+	return b
+}
+func (b *Builder[T]) RightJoin(table, localColumn, operator, foreignColumn string) *Builder[T] {
+	b = b.Clone()
+	b.subBuilder = b.subBuilder.RightJoin(table, localColumn, operator, foreignColumn)
+	return b
+}
+func (b *Builder[T]) InnerJoin(table, localColumn, operator, foreignColumn string) *Builder[T] {
+	b = b.Clone()
+	b.subBuilder = b.subBuilder.InnerJoin(table, localColumn, operator, foreignColumn)
+	return b
+}
+func (b *Builder[T]) CrossJoin(table, localColumn, operator, foreignColumn string) *Builder[T] {
+	b = b.Clone()
+	b.subBuilder = b.subBuilder.CrossJoin(table, localColumn, operator, foreignColumn)
+	return b
+}
+func (b *Builder[T]) JoinOn(table string, cb func(q *Conditions)) *Builder[T] {
+	b = b.Clone()
+	b.subBuilder = b.subBuilder.JoinOn(table, cb)
+	return b
+}
+func (b *Builder[T]) LeftJoinOn(table string, cb func(q *Conditions)) *Builder[T] {
+	b = b.Clone()
+	b.subBuilder = b.subBuilder.LeftJoinOn(table, cb)
+	return b
+}
+func (b *Builder[T]) RightJoinOn(table string, cb func(q *Conditions)) *Builder[T] {
+	b = b.Clone()
+	b.subBuilder = b.subBuilder.RightJoinOn(table, cb)
+	return b
+}
+func (b *Builder[T]) InnerJoinOn(table string, cb func(q *Conditions)) *Builder[T] {
+	b = b.Clone()
+	b.subBuilder = b.subBuilder.InnerJoinOn(table, cb)
+	return b
+}
+func (b *Builder[T]) CrossJoinOn(table string, cb func(q *Conditions)) *Builder[T] {
+	b = b.Clone()
+	b.subBuilder = b.subBuilder.CrossJoinOn(table, cb)
+	return b
+}
 func (b *Builder[T]) Limit(limit int) *Builder[T] {
 	b = b.Clone()
 	b.subBuilder = b.subBuilder.Limit(limit)
@@ -232,22 +282,22 @@ func (b *Builder[T]) OrHavingRaw(rawSql string, bindings ...any) *Builder[T] {
 	b.subBuilder = b.subBuilder.OrHavingRaw(rawSql, bindings...)
 	return b
 }
-func (b *Builder[T]) And(cb func(wl *WhereList)) *Builder[T] {
+func (b *Builder[T]) And(cb func(q *Conditions)) *Builder[T] {
 	b = b.Clone()
 	b.subBuilder = b.subBuilder.And(cb)
 	return b
 }
-func (b *Builder[T]) HavingAnd(cb func(wl *WhereList)) *Builder[T] {
+func (b *Builder[T]) HavingAnd(cb func(q *Conditions)) *Builder[T] {
 	b = b.Clone()
 	b.subBuilder = b.subBuilder.HavingAnd(cb)
 	return b
 }
-func (b *Builder[T]) Or(cb func(wl *WhereList)) *Builder[T] {
+func (b *Builder[T]) Or(cb func(q *Conditions)) *Builder[T] {
 	b = b.Clone()
 	b.subBuilder = b.subBuilder.Or(cb)
 	return b
 }
-func (b *Builder[T]) HavingOr(cb func(wl *WhereList)) *Builder[T] {
+func (b *Builder[T]) HavingOr(cb func(q *Conditions)) *Builder[T] {
 	b = b.Clone()
 	b.subBuilder = b.subBuilder.HavingOr(cb)
 	return b

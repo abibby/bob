@@ -15,6 +15,56 @@ func (b *SubBuilder) AddGroupBy(columns ...string) *SubBuilder {
 	b.groupBys = b.groupBys.AddGroupBy(columns...)
 	return b
 }
+func (b *SubBuilder) Join(table, localColumn, operator, foreignColumn string) *SubBuilder {
+	b = b.Clone()
+	b.joins = b.joins.Join(table, localColumn, operator, foreignColumn)
+	return b
+}
+func (b *SubBuilder) LeftJoin(table, localColumn, operator, foreignColumn string) *SubBuilder {
+	b = b.Clone()
+	b.joins = b.joins.LeftJoin(table, localColumn, operator, foreignColumn)
+	return b
+}
+func (b *SubBuilder) RightJoin(table, localColumn, operator, foreignColumn string) *SubBuilder {
+	b = b.Clone()
+	b.joins = b.joins.RightJoin(table, localColumn, operator, foreignColumn)
+	return b
+}
+func (b *SubBuilder) InnerJoin(table, localColumn, operator, foreignColumn string) *SubBuilder {
+	b = b.Clone()
+	b.joins = b.joins.InnerJoin(table, localColumn, operator, foreignColumn)
+	return b
+}
+func (b *SubBuilder) CrossJoin(table, localColumn, operator, foreignColumn string) *SubBuilder {
+	b = b.Clone()
+	b.joins = b.joins.CrossJoin(table, localColumn, operator, foreignColumn)
+	return b
+}
+func (b *SubBuilder) JoinOn(table string, cb func(q *Conditions)) *SubBuilder {
+	b = b.Clone()
+	b.joins = b.joins.JoinOn(table, cb)
+	return b
+}
+func (b *SubBuilder) LeftJoinOn(table string, cb func(q *Conditions)) *SubBuilder {
+	b = b.Clone()
+	b.joins = b.joins.LeftJoinOn(table, cb)
+	return b
+}
+func (b *SubBuilder) RightJoinOn(table string, cb func(q *Conditions)) *SubBuilder {
+	b = b.Clone()
+	b.joins = b.joins.RightJoinOn(table, cb)
+	return b
+}
+func (b *SubBuilder) InnerJoinOn(table string, cb func(q *Conditions)) *SubBuilder {
+	b = b.Clone()
+	b.joins = b.joins.InnerJoinOn(table, cb)
+	return b
+}
+func (b *SubBuilder) CrossJoinOn(table string, cb func(q *Conditions)) *SubBuilder {
+	b = b.Clone()
+	b.joins = b.joins.CrossJoinOn(table, cb)
+	return b
+}
 func (b *SubBuilder) Limit(limit int) *SubBuilder {
 	b = b.Clone()
 	b.limit = b.limit.Limit(limit)
@@ -225,22 +275,22 @@ func (b *SubBuilder) OrHavingRaw(rawSql string, bindings ...any) *SubBuilder {
 	b.havings = b.havings.OrWhereRaw(rawSql, bindings...)
 	return b
 }
-func (b *SubBuilder) And(cb func(wl *WhereList)) *SubBuilder {
+func (b *SubBuilder) And(cb func(q *Conditions)) *SubBuilder {
 	b = b.Clone()
 	b.wheres = b.wheres.And(cb)
 	return b
 }
-func (b *SubBuilder) HavingAnd(cb func(wl *WhereList)) *SubBuilder {
+func (b *SubBuilder) HavingAnd(cb func(q *Conditions)) *SubBuilder {
 	b = b.Clone()
 	b.havings = b.havings.And(cb)
 	return b
 }
-func (b *SubBuilder) Or(cb func(wl *WhereList)) *SubBuilder {
+func (b *SubBuilder) Or(cb func(q *Conditions)) *SubBuilder {
 	b = b.Clone()
 	b.wheres = b.wheres.Or(cb)
 	return b
 }
-func (b *SubBuilder) HavingOr(cb func(wl *WhereList)) *SubBuilder {
+func (b *SubBuilder) HavingOr(cb func(q *Conditions)) *SubBuilder {
 	b = b.Clone()
 	b.havings = b.havings.Or(cb)
 	return b

@@ -28,7 +28,7 @@ func IdentifierList(strs []string) []ToSQLer {
 	return identifiers
 }
 
-func Join(sqlers []ToSQLer, sep string) ToSQLer {
+func Join[T ToSQLer](sqlers []T, sep string) ToSQLer {
 	return ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
 		sql := ""
 		bindings := []any{}

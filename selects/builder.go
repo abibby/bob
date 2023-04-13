@@ -17,9 +17,10 @@ type QueryBuilder interface {
 type SubBuilder struct {
 	selects  *selects
 	from     fromTable
-	wheres   *WhereList
+	joins    joins
+	wheres   *Conditions
 	groupBys groupBys
-	havings  *WhereList
+	havings  *Conditions
 	limit    *limit
 	orderBys orderBys
 	scopes   *scopes
@@ -58,9 +59,9 @@ func NewSubBuilder() *SubBuilder {
 	return &SubBuilder{
 		selects:  NewSelects(),
 		from:     "",
-		wheres:   NewWhereList().withPrefix("WHERE"),
+		wheres:   newConditions().withPrefix("WHERE"),
 		groupBys: groupBys{},
-		havings:  NewWhereList().withPrefix("HAVING"),
+		havings:  newConditions().withPrefix("HAVING"),
 		limit:    &limit{},
 		scopes:   newScopes(),
 		ctx:      context.Background(),

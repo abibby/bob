@@ -11,6 +11,7 @@ func (b *SubBuilder) Clone() *SubBuilder {
 	return &SubBuilder{
 		selects:  b.selects.Clone(),
 		from:     b.from.Clone(),
+		joins:    b.joins.Clone(),
 		wheres:   b.wheres.Clone(),
 		groupBys: b.groupBys.Clone(),
 		havings:  b.havings.Clone(),

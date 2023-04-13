@@ -16,6 +16,7 @@ func (b *SubBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
 	return builder.Result().
 		Add(b.selects.ToSQL(d)).
 		Add(b.from.ToSQL(d)).
+		Add(b.joins.ToSQL(d)).
 		Add(b.wheres.ToSQL(d)).
 		Add(b.groupBys.ToSQL(d)).
 		Add(b.havings.ToSQL(d)).
