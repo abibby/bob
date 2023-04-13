@@ -79,5 +79,11 @@ func TestJoin(t *testing.T) {
 			ExpectedSQL:      "SELECT * FROM \"foos\" CROSS JOIN \"bars\" ON \"a\" > ? AND \"b\" = \"c\"",
 			ExpectedBindings: []any{4},
 		},
+		{
+			Name:             "multiple joins",
+			Builder:          NewTestBuilder().Join("a", "b", "=", "c").Join("d", "e", "=", "f"),
+			ExpectedSQL:      "SELECT * FROM \"foos\" JOIN \"a\" ON \"b\" = \"c\" JOIN \"d\" ON \"e\" = \"f\"",
+			ExpectedBindings: []any{},
+		},
 	})
 }
