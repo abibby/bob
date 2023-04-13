@@ -2,6 +2,7 @@ package selects
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/dialects"
@@ -42,6 +43,8 @@ func (s *selects) Select(columns ...string) *selects {
 	for i, c := range columns {
 		if c == "*" {
 			identifiers[i] = builder.Raw("*")
+		} else if strings.HasSuffix(c, ".*") {
+			identifiers[i] = builder.Concat(builder.Identifier(c[:len(c)-2]), builder.Raw(".*"))
 		} else {
 			identifiers[i] = builder.Identifier(c)
 		}

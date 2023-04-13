@@ -38,5 +38,17 @@ func TestSelect(t *testing.T) {
 			ExpectedSQL:      "SELECT (SELECT \"a\" FROM \"foos\") as \"test\" FROM \"foos\"",
 			ExpectedBindings: []any{},
 		},
+		{
+			Name:             "all columns",
+			Builder:          NewTestBuilder().Select("*"),
+			ExpectedSQL:      "SELECT * FROM \"foos\"",
+			ExpectedBindings: []any{},
+		},
+		{
+			Name:             "all columns from table",
+			Builder:          NewTestBuilder().Select("foos.*"),
+			ExpectedSQL:      "SELECT \"foos\".* FROM \"foos\"",
+			ExpectedBindings: []any{},
+		},
 	})
 }

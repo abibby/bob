@@ -40,7 +40,7 @@ func New[T models.Model]() *Builder[T] {
 
 func From[T models.Model]() *Builder[T] {
 	var m T
-	return New[T]().From(builder.GetTable(m))
+	return NewEmpty[T]().Select(builder.GetTable(m) + ".*").From(builder.GetTable(m))
 }
 
 func NewEmpty[T models.Model]() *Builder[T] {

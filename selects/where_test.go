@@ -12,37 +12,37 @@ func TestWhere(t *testing.T) {
 		{
 			Name:             "one where",
 			Builder:          NewTestBuilder().Where("a", "=", "b"),
-			ExpectedSQL:      "SELECT * FROM \"foos\" WHERE \"a\" = ?",
+			ExpectedSQL:      "SELECT \"foos\".* FROM \"foos\" WHERE \"a\" = ?",
 			ExpectedBindings: []any{"b"},
 		},
 		{
 			Name:             "2 wheres",
 			Builder:          NewTestBuilder().Where("a", "=", "b").Where("c", "=", "d"),
-			ExpectedSQL:      "SELECT * FROM \"foos\" WHERE \"a\" = ? AND \"c\" = ?",
+			ExpectedSQL:      "SELECT \"foos\".* FROM \"foos\" WHERE \"a\" = ? AND \"c\" = ?",
 			ExpectedBindings: []any{"b", "d"},
 		},
 		{
 			Name:             "null",
 			Builder:          NewTestBuilder().Where("a", "=", nil),
-			ExpectedSQL:      "SELECT * FROM \"foos\" WHERE \"a\" IS NULL",
+			ExpectedSQL:      "SELECT \"foos\".* FROM \"foos\" WHERE \"a\" IS NULL",
 			ExpectedBindings: []any{},
 		},
 		{
 			Name:             "not null",
 			Builder:          NewTestBuilder().Where("a", "!=", nil),
-			ExpectedSQL:      "SELECT * FROM \"foos\" WHERE \"a\" IS NOT NULL",
+			ExpectedSQL:      "SELECT \"foos\".* FROM \"foos\" WHERE \"a\" IS NOT NULL",
 			ExpectedBindings: []any{},
 		},
 		{
 			Name:             "specified table",
 			Builder:          NewTestBuilder().Where("foo.a", "=", "b"),
-			ExpectedSQL:      "SELECT * FROM \"foos\" WHERE \"foo\".\"a\" = ?",
+			ExpectedSQL:      "SELECT \"foos\".* FROM \"foos\" WHERE \"foo\".\"a\" = ?",
 			ExpectedBindings: []any{"b"},
 		},
 		{
 			Name:             "or where",
 			Builder:          NewTestBuilder().Where("a", "=", "b").OrWhere("c", "=", "d"),
-			ExpectedSQL:      "SELECT * FROM \"foos\" WHERE \"a\" = ? OR \"c\" = ?",
+			ExpectedSQL:      "SELECT \"foos\".* FROM \"foos\" WHERE \"a\" = ? OR \"c\" = ?",
 			ExpectedBindings: []any{"b", "d"},
 		},
 		{
@@ -52,7 +52,7 @@ func TestWhere(t *testing.T) {
 			}).And(func(wl *selects.Conditions) {
 				wl.Where("c", "=", "c").OrWhere("d", "=", "d")
 			}),
-			ExpectedSQL:      "SELECT * FROM \"foos\" WHERE (\"a\" = ? OR \"b\" = ?) AND (\"c\" = ? OR \"d\" = ?)",
+			ExpectedSQL:      "SELECT \"foos\".* FROM \"foos\" WHERE (\"a\" = ? OR \"b\" = ?) AND (\"c\" = ? OR \"d\" = ?)",
 			ExpectedBindings: []any{"a", "b", "c", "d"},
 		},
 		{
@@ -62,31 +62,31 @@ func TestWhere(t *testing.T) {
 			}).Or(func(wl *selects.Conditions) {
 				wl.Where("c", "=", "c").Where("d", "=", "d")
 			}),
-			ExpectedSQL:      "SELECT * FROM \"foos\" WHERE (\"a\" = ? AND \"b\" = ?) OR (\"c\" = ? AND \"d\" = ?)",
+			ExpectedSQL:      "SELECT \"foos\".* FROM \"foos\" WHERE (\"a\" = ? AND \"b\" = ?) OR (\"c\" = ? AND \"d\" = ?)",
 			ExpectedBindings: []any{"a", "b", "c", "d"},
 		},
 		{
 			Name:             "subquery",
 			Builder:          NewTestBuilder().Where("a", "=", NewTestBuilder().Select("a").Where("id", "=", 1)),
-			ExpectedSQL:      "SELECT * FROM \"foos\" WHERE \"a\" = (SELECT \"a\" FROM \"foos\" WHERE \"id\" = ?)",
+			ExpectedSQL:      "SELECT \"foos\".* FROM \"foos\" WHERE \"a\" = (SELECT \"a\" FROM \"foos\" WHERE \"id\" = ?)",
 			ExpectedBindings: []any{1},
 		},
 		{
 			Name:             "wherein",
 			Builder:          NewTestBuilder().WhereIn("a", []any{1, 2, 3}),
-			ExpectedSQL:      "SELECT * FROM \"foos\" WHERE \"a\" in (?, ?, ?)",
+			ExpectedSQL:      "SELECT \"foos\".* FROM \"foos\" WHERE \"a\" in (?, ?, ?)",
 			ExpectedBindings: []any{1, 2, 3},
 		},
 		{
 			Name:             "where subquery",
 			Builder:          NewTestBuilder().WhereSubquery(NewTestBuilder().Select("a").Where("id", "=", 1), "=", "a"),
-			ExpectedSQL:      `SELECT * FROM "foos" WHERE (SELECT "a" FROM "foos" WHERE "id" = ?) = ?`,
+			ExpectedSQL:      `SELECT "foos".* FROM "foos" WHERE (SELECT "a" FROM "foos" WHERE "id" = ?) = ?`,
 			ExpectedBindings: []any{1, "a"},
 		},
 		{
 			Name:             "where exists",
 			Builder:          NewTestBuilder().WhereExists(NewTestBuilder().Select("a").Where("id", "=", 1)),
-			ExpectedSQL:      `SELECT * FROM "foos" WHERE EXISTS (SELECT "a" FROM "foos" WHERE "id" = ?)`,
+			ExpectedSQL:      `SELECT "foos".* FROM "foos" WHERE EXISTS (SELECT "a" FROM "foos" WHERE "id" = ?)`,
 			ExpectedBindings: []any{1},
 		},
 		{
@@ -94,7 +94,7 @@ func TestWhere(t *testing.T) {
 			Builder: NewTestBuilder().WhereHas("Bar", func(q *selects.SubBuilder) *selects.SubBuilder {
 				return q.Where("id", "=", "b")
 			}),
-			ExpectedSQL:      `SELECT * FROM "foos" WHERE EXISTS (SELECT * FROM "bars" WHERE "foo_id" = "foos"."id" AND "id" = ?)`,
+			ExpectedSQL:      `SELECT "foos".* FROM "foos" WHERE EXISTS (SELECT "bars".* FROM "bars" WHERE "foo_id" = "foos"."id" AND "id" = ?)`,
 			ExpectedBindings: []any{"b"},
 		},
 		{
@@ -102,7 +102,7 @@ func TestWhere(t *testing.T) {
 			Builder: NewTestBuilder().WhereHas("Bars", func(q *selects.SubBuilder) *selects.SubBuilder {
 				return q.Where("id", "=", "b")
 			}),
-			ExpectedSQL:      `SELECT * FROM "foos" WHERE EXISTS (SELECT * FROM "bars" WHERE "foo_id" = "foos"."id" AND "id" = ?)`,
+			ExpectedSQL:      `SELECT "foos".* FROM "foos" WHERE EXISTS (SELECT "bars".* FROM "bars" WHERE "foo_id" = "foos"."id" AND "id" = ?)`,
 			ExpectedBindings: []any{"b"},
 		},
 		{
@@ -110,13 +110,13 @@ func TestWhere(t *testing.T) {
 			Builder: selects.From[*test.Bar]().WhereHas("Foo", func(q *selects.SubBuilder) *selects.SubBuilder {
 				return q.Where("id", "=", "b")
 			}),
-			ExpectedSQL:      `SELECT * FROM "bars" WHERE EXISTS (SELECT * FROM "foos" WHERE "id" = "bars"."foo_id" AND "id" = ?)`,
+			ExpectedSQL:      `SELECT "bars".* FROM "bars" WHERE EXISTS (SELECT "foos".* FROM "foos" WHERE "id" = "bars"."foo_id" AND "id" = ?)`,
 			ExpectedBindings: []any{"b"},
 		},
 		{
 			Name:             "whereRaw",
 			Builder:          NewTestBuilder().WhereRaw("function(a) = ?", "b"),
-			ExpectedSQL:      `SELECT * FROM "foos" WHERE function(a) = ?`,
+			ExpectedSQL:      `SELECT "foos".* FROM "foos" WHERE function(a) = ?`,
 			ExpectedBindings: []any{"b"},
 		},
 	})

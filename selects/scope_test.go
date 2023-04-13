@@ -40,25 +40,25 @@ func TestScope(t *testing.T) {
 		{
 			Name:             "scope",
 			Builder:          NewTestBuilder().WithScope(scopeA),
-			ExpectedSQL:      "SELECT * FROM \"foos\" WHERE \"a\" = ?",
+			ExpectedSQL:      "SELECT \"foos\".* FROM \"foos\" WHERE \"a\" = ?",
 			ExpectedBindings: []any{"b"},
 		},
 		{
 			Name:             "without scope",
 			Builder:          NewTestBuilder().WithScope(scopeA).WithoutScope(scopeA),
-			ExpectedSQL:      "SELECT * FROM \"foos\"",
+			ExpectedSQL:      "SELECT \"foos\".* FROM \"foos\"",
 			ExpectedBindings: []any{},
 		},
 		{
 			Name:             "global scope",
 			Builder:          selects.From[*ScopeFoo](),
-			ExpectedSQL:      "SELECT * FROM \"scope_foos\" WHERE \"deleted_at\" IS NULL",
+			ExpectedSQL:      "SELECT \"scope_foos\".* FROM \"scope_foos\" WHERE \"deleted_at\" IS NULL",
 			ExpectedBindings: []any{},
 		},
 		{
 			Name:             "without global scope",
 			Builder:          selects.From[*ScopeFoo]().WithoutGlobalScope(bob.SoftDeletes),
-			ExpectedSQL:      "SELECT * FROM \"scope_foos\"",
+			ExpectedSQL:      "SELECT \"scope_foos\".* FROM \"scope_foos\"",
 			ExpectedBindings: []any{},
 		},
 		{
@@ -66,13 +66,13 @@ func TestScope(t *testing.T) {
 			Builder: selects.From[*ScopeBar]().WhereHas("ScopeFoo", func(q *selects.SubBuilder) *selects.SubBuilder {
 				return q
 			}),
-			ExpectedSQL:      `SELECT * FROM "scope_bars" WHERE EXISTS (SELECT * FROM "scope_foos" WHERE "id" = "scope_bars"."scope_foo_id" AND "deleted_at" IS NULL)`,
+			ExpectedSQL:      `SELECT "scope_bars".* FROM "scope_bars" WHERE EXISTS (SELECT "scope_foos".* FROM "scope_foos" WHERE "id" = "scope_bars"."scope_foo_id" AND "deleted_at" IS NULL)`,
 			ExpectedBindings: []any{},
 		},
 		{
 			Name:             "access-context",
 			Builder:          NewTestBuilder().WithScope(scopeCtx).WithContext(context.WithValue(context.Background(), "foo", "bar")),
-			ExpectedSQL:      "SELECT * FROM \"foos\" WHERE \"a\" = ?",
+			ExpectedSQL:      "SELECT \"foos\".* FROM \"foos\" WHERE \"a\" = ?",
 			ExpectedBindings: []any{"bar"},
 		},
 	})
