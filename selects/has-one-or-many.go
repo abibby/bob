@@ -54,7 +54,9 @@ func (r hasOneOrMany[T]) getRelated(ctx context.Context, tx *sqlx.Tx, relations 
 			var related T
 			return nil, fmt.Errorf("%s has no field %s: %w", reflect.TypeOf(related).Name(), r.(iHasOneOrMany).getParentKey(), ErrMissingField)
 		}
-		localKeys = append(localKeys, local)
+		if local != nil {
+			localKeys = append(localKeys, local)
+		}
 	}
 
 	return From[T]().
@@ -77,6 +79,9 @@ func (r hasOneOrMany[T]) relatedMap(ctx context.Context, tx *sqlx.Tx, relations 
 		foreign, ok := builder.GetValue(related, r.getRelatedKey())
 		if !ok {
 			return nil, fmt.Errorf("%s has no field %s: %w", reflect.TypeOf(related).Name(), r.getRelatedKey(), ErrMissingField)
+		}
+		if str, ok := foreign.(fmt.Stringer); ok {
+			foreign = str.String()
 		}
 		m, ok := relatedMap[foreign]
 		if !ok {

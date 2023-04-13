@@ -2,6 +2,7 @@ package selects
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 
 	"github.com/abibby/bob/models"
@@ -33,30 +34,6 @@ func (r *BelongsTo[T]) Initialize(parent any, field reflect.StructField) error {
 	return nil
 }
 
-// func (r *BelongsTo[T]) Load(ctx context.Context, tx *sqlx.Tx, relations []Relationship) error {
-// 	relatedLists, err := r.getRelated(ctx, tx, relations)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	if len(relatedLists) == 0 {
-// 		return nil
-// 	}
-
-// 	// TODO: replace with something more efficient
-// 	for _, relation := range ofType[*BelongsTo[T]](relations) {
-// 		for _, related := range relatedLists {
-// 			local, localOk := relation.parentKeyValue()
-// 			foreign, foreignOk := builder.GetValue(related, r.getRelatedKey())
-// 			if localOk && foreignOk && local == foreign {
-// 				relation.value = related
-// 			}
-// 		}
-// 		relation.loaded = true
-// 	}
-
-// 	return nil
-// }
-
 func (r *BelongsTo[T]) Load(ctx context.Context, tx *sqlx.Tx, relations []Relationship) error {
 	relatedMap, err := r.relatedMap(ctx, tx, relations)
 	if err != nil {
@@ -67,6 +44,9 @@ func (r *BelongsTo[T]) Load(ctx context.Context, tx *sqlx.Tx, relations []Relati
 		local, ok := relation.parentKeyValue()
 		if !ok {
 			continue
+		}
+		if str, ok := local.(fmt.Stringer); ok {
+			local = str.String()
 		}
 		m, ok := relatedMap[local]
 		if ok {

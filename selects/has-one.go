@@ -2,6 +2,7 @@ package selects
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 
 	"github.com/abibby/bob/models"
@@ -72,6 +73,9 @@ func (r *HasOne[T]) Load(ctx context.Context, tx *sqlx.Tx, relations []Relations
 		local, ok := relation.parentKeyValue()
 		if !ok {
 			continue
+		}
+		if str, ok := local.(fmt.Stringer); ok {
+			local = str.String()
 		}
 		m, ok := relatedMap[local]
 		if ok {
