@@ -35,9 +35,9 @@ func main() {
 		fieldType := match[2]
 		methodName := match[3]
 		params := match[4]
-		// returnType := match[5]
+		returnType := match[5]
 
-		if methodName == "Clone" || methodName == "ToSQL" || !IsUppercase(methodName[0]) {
+		if methodName == "Clone" || methodName == "ToSQL" || !IsUppercase(methodName[0]) || returnType != fieldType {
 			continue
 		}
 

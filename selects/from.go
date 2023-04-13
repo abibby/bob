@@ -20,3 +20,10 @@ func (f fromTable) ToSQL(d dialects.Dialect) (string, []any, error) {
 func (f fromTable) From(table string) fromTable {
 	return fromTable(table)
 }
+
+func (b *SubBuilder) GetTable() string {
+	return string(b.from)
+}
+func (b *Builder[T]) GetTable() string {
+	return b.subBuilder.GetTable()
+}
