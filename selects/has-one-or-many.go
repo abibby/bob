@@ -64,7 +64,62 @@ func (r hasOneOrMany[T]) getRelated(ctx context.Context, tx *sqlx.Tx, relations 
 		WithContext(ctx).
 		Get(tx)
 }
-func (r hasOneOrMany[T]) relatedMap(ctx context.Context, tx *sqlx.Tx, relations []Relationship) (map[any][]T, error) {
+
+type relatedMap[T models.Model] map[any][]T
+
+func newRelatedMap[T models.Model]() relatedMap[T] {
+	return relatedMap[T]{}
+}
+
+func (rm relatedMap[T]) Get(k any) []T {
+	k = stringify(k)
+	if k == nil {
+		return []T{}
+	}
+	v, ok := rm[k]
+	if !ok {
+		return []T{}
+	}
+	return v
+}
+
+func (rm relatedMap[T]) Single(k any, ok bool) T {
+	if !ok {
+		var zero T
+		return zero
+	}
+
+	v := rm.Get(k)
+	if len(v) == 0 {
+		var zero T
+		return zero
+	}
+	return v[0]
+}
+func (rm relatedMap[T]) Multi(k any, ok bool) []T {
+	if !ok {
+		return []T{}
+	}
+
+	return rm.Get(k)
+}
+
+func (rm relatedMap[T]) Add(k any, v T) {
+	k = stringify(k)
+	if k == nil {
+		return
+	}
+
+	m, ok := rm[k]
+	if !ok {
+		m = []T{v}
+	} else {
+		m = append(m, v)
+	}
+	rm[k] = m
+}
+
+func (r hasOneOrMany[T]) relatedMap(ctx context.Context, tx *sqlx.Tx, relations []Relationship) (relatedMap[T], error) {
 	var related T
 	if !builder.HasField(related, r.getRelatedKey()) {
 		return nil, fmt.Errorf("%s has no field %s: %w", reflect.TypeOf(related).Name(), r.getRelatedKey(), ErrMissingField)
@@ -74,23 +129,25 @@ func (r hasOneOrMany[T]) relatedMap(ctx context.Context, tx *sqlx.Tx, relations 
 	if err != nil {
 		return nil, err
 	}
-	relatedMap := map[any][]T{}
+	rm := newRelatedMap[T]()
 	for _, related := range relatedLists {
 		foreign, ok := builder.GetValue(related, r.getRelatedKey())
 		if !ok {
 			return nil, fmt.Errorf("%s has no field %s: %w", reflect.TypeOf(related).Name(), r.getRelatedKey(), ErrMissingField)
 		}
-		if str, ok := foreign.(fmt.Stringer); ok {
-			foreign = str.String()
-		}
-		m, ok := relatedMap[foreign]
-		if !ok {
-			m = []T{related}
-		} else {
-			m = append(m, related)
-		}
-		relatedMap[foreign] = m
+		rm.Add(foreign, related)
 	}
 
-	return relatedMap, nil
+	return rm, nil
+}
+
+func stringify(v any) any {
+	rv := reflect.ValueOf(v)
+	if rv.Kind() == reflect.Pointer && rv.IsNil() {
+		return nil
+	}
+	if str, ok := v.(fmt.Stringer); ok {
+		return str.String()
+	}
+	return v
 }

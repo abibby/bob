@@ -42,11 +42,19 @@ type Foo struct {
 	Bars *selects.HasMany[*Bar] `json:"bars" db:"-"`
 }
 
+func (h *Foo) Table() string {
+	return "foos"
+}
+
 type Bar struct {
 	models.BaseModel
 	ID    int                      `json:"id"     db:"id,primary,autoincrement"`
 	FooID int                      `json:"foo_id" db:"foo_id"`
 	Foo   *selects.BelongsTo[*Foo] `json:"foo"    db:"-"`
+}
+
+func (h *Bar) Table() string {
+	return "bars"
 }
 
 const createTables = `CREATE TABLE foos (

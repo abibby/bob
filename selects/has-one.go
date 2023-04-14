@@ -2,7 +2,6 @@ package selects
 
 import (
 	"context"
-	"fmt"
 	"reflect"
 
 	"github.com/abibby/bob/models"
@@ -64,23 +63,13 @@ func (r *HasOne[T]) Initialize(parent any, field reflect.StructField) error {
 //		return nil
 //	}
 func (r *HasOne[T]) Load(ctx context.Context, tx *sqlx.Tx, relations []Relationship) error {
-	relatedMap, err := r.relatedMap(ctx, tx, relations)
+	rm, err := r.relatedMap(ctx, tx, relations)
 	if err != nil {
 		return err
 	}
 
 	for _, relation := range ofType[*HasOne[T]](relations) {
-		local, ok := relation.parentKeyValue()
-		if !ok {
-			continue
-		}
-		if str, ok := local.(fmt.Stringer); ok {
-			local = str.String()
-		}
-		m, ok := relatedMap[local]
-		if ok {
-			relation.value = m[0]
-		}
+		relation.value = rm.Single(relation.parentKeyValue())
 		relation.loaded = true
 	}
 	return nil

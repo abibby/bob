@@ -13,6 +13,11 @@ type Tabler interface {
 
 func GetTable(m any) string {
 	if m, ok := m.(Tabler); ok {
+		rv := reflect.ValueOf(m)
+		if rv.Kind() == reflect.Pointer && rv.IsNil() {
+			rv = reflect.New(rv.Type().Elem())
+			m = rv.Interface().(Tabler)
+		}
 		return m.Table()
 	}
 	t := reflect.TypeOf(m)

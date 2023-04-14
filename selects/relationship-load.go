@@ -44,6 +44,7 @@ func loadContext(ctx context.Context, tx *sqlx.Tx, v any, relation string, onlyM
 		if len(relations) == 0 {
 			return nil
 		}
+
 		err = relations[0].Load(ctx, tx, relations)
 		if err != nil {
 			return err

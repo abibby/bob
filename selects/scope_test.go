@@ -9,7 +9,9 @@ import (
 	"github.com/abibby/bob/test"
 )
 
-type ScopeFoo test.Foo
+type ScopeFoo struct {
+	test.Foo
+}
 
 func (f *ScopeFoo) Scopes() []*selects.Scope {
 	return []*selects.Scope{
@@ -52,13 +54,13 @@ func TestScope(t *testing.T) {
 		{
 			Name:             "global scope",
 			Builder:          selects.From[*ScopeFoo](),
-			ExpectedSQL:      "SELECT \"scope_foos\".* FROM \"scope_foos\" WHERE \"deleted_at\" IS NULL",
+			ExpectedSQL:      "SELECT \"foos\".* FROM \"foos\" WHERE \"foos\".\"deleted_at\" IS NULL",
 			ExpectedBindings: []any{},
 		},
 		{
 			Name:             "without global scope",
 			Builder:          selects.From[*ScopeFoo]().WithoutGlobalScope(bob.SoftDeletes),
-			ExpectedSQL:      "SELECT \"scope_foos\".* FROM \"scope_foos\"",
+			ExpectedSQL:      "SELECT \"foos\".* FROM \"foos\"",
 			ExpectedBindings: []any{},
 		},
 		{
@@ -66,7 +68,7 @@ func TestScope(t *testing.T) {
 			Builder: selects.From[*ScopeBar]().WhereHas("ScopeFoo", func(q *selects.SubBuilder) *selects.SubBuilder {
 				return q
 			}),
-			ExpectedSQL:      `SELECT "scope_bars".* FROM "scope_bars" WHERE EXISTS (SELECT "scope_foos".* FROM "scope_foos" WHERE "id" = "scope_bars"."scope_foo_id" AND "deleted_at" IS NULL)`,
+			ExpectedSQL:      `SELECT "bars".* FROM "bars" WHERE EXISTS (SELECT "foos".* FROM "foos" WHERE "id" = "bars"."foo_id" AND "foos"."deleted_at" IS NULL)`,
 			ExpectedBindings: []any{},
 		},
 		{

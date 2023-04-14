@@ -16,10 +16,6 @@ type HasOneFoo struct {
 	BadForeign *selects.HasOne[*test.Bar] `db:"-" foreign:"bad_key"`
 }
 
-func (h *HasOneFoo) Table() string {
-	return "foos"
-}
-
 func TestHasOneLoad(t *testing.T) {
 	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {
 		foos := []*test.Foo{
