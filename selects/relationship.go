@@ -16,6 +16,10 @@ type ForeignKey struct {
 	RelatedKey   string
 }
 
+func (f *ForeignKey) Equal(v *ForeignKey) bool {
+	return f.LocalKey == v.LocalKey && f.RelatedKey == v.RelatedKey && f.RelatedTable == v.RelatedTable
+}
+
 type Relationship interface {
 	Subquery() *SubBuilder
 	Initialize(self any, field reflect.StructField) error

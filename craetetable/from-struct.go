@@ -8,6 +8,7 @@ import (
 	"github.com/abibby/bob/dialects"
 	"github.com/abibby/bob/models"
 	"github.com/abibby/bob/selects"
+	"github.com/abibby/bob/slices"
 )
 
 type field struct {
@@ -70,13 +71,20 @@ func FromStruct(m models.Model) *Builder {
 	if err != nil {
 		panic(err)
 	}
-	// relationshipInterface := reflect.TypeOf((*selects.Relationship)(nil)).Elem()
+
 	tableName := builder.GetTable(m)
 	fields := getFields(m)
 	return CreateTable(tableName, func(table *Table) {
+		addedForeignKeys := []*selects.ForeignKey{}
 		for _, field := range fields {
 			if field.relation != nil {
-				for _, foreignKey := range field.relation.ForeignKeys() {
+				foreignKeys := field.relation.ForeignKeys()
+				for _, foreignKey := range foreignKeys {
+					if slices.Has(addedForeignKeys, foreignKey) {
+						continue
+					}
+
+					addedForeignKeys = append(addedForeignKeys, foreignKey)
 					table.ForeignKey(foreignKey.LocalKey, foreignKey.RelatedTable, foreignKey.RelatedKey)
 				}
 			} else {
@@ -91,11 +99,3 @@ func FromStruct(m models.Model) *Builder {
 		}
 	})
 }
-
-// func initialize[T any](v T) T {
-// 	rv := reflect.ValueOf(v)
-// 	if rv.Kind() != reflect.Pointer || !rv.IsNil() {
-// 		return v
-// 	}
-// 	return reflect.New(rv.Type().Elem()).Interface().(T)
-// }

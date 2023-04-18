@@ -18,15 +18,17 @@ func TestFromStruct(t *testing.T) {
 	}
 	test.QueryTest(t, []test.Case{
 		{
-			Name:             "create table",
-			Builder:          craetetable.FromStruct(&test.Foo{}),
-			ExpectedSQL:      "CREATE TABLE \"foos\" (\"id\" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \"name\" TEXT NOT NULL);",
+			Name:    "create table",
+			Builder: craetetable.FromStruct(&test.Foo{}),
+			ExpectedSQL: "CREATE TABLE \"foos\" (\"id\" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \"name\" TEXT NOT NULL); " +
+				"CONSTRAINT \"bars\" FOREIGN KEY (\"id\") REFERENCES \"bars\"(\"foo_id\");",
 			ExpectedBindings: []any{},
 		},
 		{
-			Name:             "create table",
-			Builder:          craetetable.FromStruct(&A{}),
-			ExpectedSQL:      "CREATE TABLE \"as\" (\"id\" INTEGER PRIMARY KEY NOT NULL, \"nullable\" TEXT, \"indexed\" INTEGER NOT NULL); CREATE INDEX IF NOT EXIST \"as-indexed\" ON \"as\" (\"indexed\");",
+			Name:    "create table",
+			Builder: craetetable.FromStruct(&A{}),
+			ExpectedSQL: "CREATE TABLE \"as\" (\"id\" INTEGER PRIMARY KEY NOT NULL, \"nullable\" TEXT, \"indexed\" INTEGER NOT NULL); " +
+				"CREATE INDEX IF NOT EXIST \"as-indexed\" ON \"as\" (\"indexed\");",
 			ExpectedBindings: []any{},
 		},
 	})

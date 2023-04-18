@@ -6,9 +6,6 @@ import (
 
 type SQLResult struct {
 	sqlers []ToSQLer
-	// sql      string
-	// bindings []any
-	// err      error
 }
 
 func Result() *SQLResult {
