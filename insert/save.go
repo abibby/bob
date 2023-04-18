@@ -121,18 +121,18 @@ func insert(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns
 
 	q, bindings, err := r.ToSQL(d)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to generate sql: %w", err)
 	}
 
 	result, err := tx.ExecContext(ctx, q, bindings...)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to insert model: %w", err)
 	}
 
 	if isAuto {
 		id, err := result.LastInsertId()
 		if err != nil {
-			return err
+			return fmt.Errorf("could not get last insert id: %w", err)
 		}
 		rPKey.SetInt(id)
 	}
