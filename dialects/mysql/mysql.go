@@ -18,13 +18,14 @@ func (*MySQL) Identifier(s string) string {
 
 func (*MySQL) DataType(t dialects.DataType) string {
 	switch t {
-	case dialects.DataTypeString:
-		return "varchar(255)"
-	case dialects.DataTypeInteger:
-		return "int"
+	case dialects.DataTypeString, dialects.DataTypeJSON, dialects.DataTypeDate, dialects.DataTypeDateTime:
+		return "VARCHAR(255)"
+	case dialects.DataTypeInteger, dialects.DataTypeUnsignedInteger, dialects.DataTypeBoolean:
+		return "INTEGER"
 	case dialects.DataTypeFloat:
-		return "float"
+		return "FLOAT"
 	}
+
 	return string(t)
 }
 

@@ -16,7 +16,7 @@ func (o orderBys) ToSQL(d dialects.Dialect) (string, []any, error) {
 	}
 	r := builder.Result()
 	r.AddString("ORDER BY")
-	r.Add(builder.Join(o, ", ").ToSQL(d))
+	r.Add(builder.Join(o, ", "))
 	return r.ToSQL(d)
 }
 

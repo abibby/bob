@@ -64,7 +64,7 @@ func (c *Conditions) ToSQL(d dialects.Dialect) (string, []any, error) {
 			}
 		}
 		if c.Column != nil {
-			r.Add(c.Column.ToSQL(d))
+			r.Add(c.Column)
 
 			if c.Operator == "" {
 				return "", nil, fmt.Errorf("the operator must be set when the column is set")
@@ -85,13 +85,13 @@ func (c *Conditions) ToSQL(d dialects.Dialect) (string, []any, error) {
 				r.AddString(c.Operator)
 			}
 			if sb, ok := c.Value.(QueryBuilder); ok {
-				r.Add(builder.Group(sb).ToSQL(d))
+				r.Add(builder.Group(sb))
 			} else if sb, ok := c.Value.(*Conditions); ok {
-				r.Add(builder.Group(sb).ToSQL(d))
+				r.Add(builder.Group(sb))
 			} else if sb, ok := c.Value.(builder.ToSQLer); ok {
-				r.Add(sb.ToSQL(d))
+				r.Add(sb)
 			} else {
-				r.Add(builder.Literal(c.Value).ToSQL(d))
+				r.Add(builder.Literal(c.Value))
 			}
 		}
 	}

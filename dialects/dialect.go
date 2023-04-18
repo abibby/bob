@@ -3,9 +3,14 @@ package dialects
 type DataType string
 
 const (
-	DataTypeString  = DataType("string")
-	DataTypeInteger = DataType("int")
-	DataTypeFloat   = DataType("float")
+	DataTypeString          = DataType("string")
+	DataTypeInteger         = DataType("int")
+	DataTypeUnsignedInteger = DataType("uint")
+	DataTypeFloat           = DataType("float")
+	DataTypeBoolean         = DataType("bool")
+	DataTypeJSON            = DataType("json")
+	DataTypeDate            = DataType("date")
+	DataTypeDateTime        = DataType("date-time")
 )
 
 type Dialect interface {

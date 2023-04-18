@@ -14,13 +14,13 @@ func (b *SubBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
 		b = scope.Apply(b)
 	}
 	return builder.Result().
-		Add(b.selects.ToSQL(d)).
-		Add(b.from.ToSQL(d)).
-		Add(b.joins.ToSQL(d)).
-		Add(b.wheres.ToSQL(d)).
-		Add(b.groupBys.ToSQL(d)).
-		Add(b.havings.ToSQL(d)).
-		Add(b.orderBys.ToSQL(d)).
-		Add(b.limit.ToSQL(d)).
+		Add(b.selects).
+		Add(b.from).
+		Add(b.joins).
+		Add(b.wheres).
+		Add(b.groupBys).
+		Add(b.havings).
+		Add(b.orderBys).
+		Add(b.limit).
 		ToSQL(d)
 }

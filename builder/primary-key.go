@@ -38,10 +38,10 @@ func primaryKey(t reflect.Type) ([]string, string) {
 		}
 		tag := DBTag(f)
 		if fallback == "" {
-			fallback = tag[0]
+			fallback = tag.Name
 		}
-		if Includes(tag, "primary") {
-			primary = append(primary, tag[0])
+		if tag.Primary {
+			primary = append(primary, tag.Name)
 		}
 	}
 

@@ -5,9 +5,10 @@ import (
 )
 
 type SQLResult struct {
-	sql      string
-	bindings []any
-	err      error
+	sqlers []ToSQLer
+	// sql      string
+	// bindings []any
+	// err      error
 }
 
 func Result() *SQLResult {
@@ -15,28 +16,30 @@ func Result() *SQLResult {
 }
 
 func (r *SQLResult) AddString(sql string) *SQLResult {
-	return r.Add(sql, nil, nil)
+	return r.Add(Raw(sql))
 }
-func (r *SQLResult) Add(sql string, bindings []any, err error) *SQLResult {
-	if r.err != nil {
-		return r
-	}
-	r.err = err
-
-	if r.sql != "" && sql != "" {
-		r.sql += " "
-	}
-	r.sql += sql
-
-	if r.bindings == nil {
-		r.bindings = []any{}
-	}
-	if bindings != nil {
-		r.bindings = append(r.bindings, bindings...)
-	}
+func (r *SQLResult) Add(sqler ToSQLer) *SQLResult {
+	r.sqlers = append(r.sqlers, sqler)
 	return r
 }
 
 func (r *SQLResult) ToSQL(d dialects.Dialect) (string, []any, error) {
-	return r.sql, r.bindings, r.err
+	resultSql := ""
+	resultBindings := []any{}
+	for _, sqler := range r.sqlers {
+		sql, bindings, err := sqler.ToSQL(d)
+		if err != nil {
+			return "", nil, err
+		}
+		if resultSql != "" && sql != "" {
+			resultSql += " "
+		}
+		resultSql += sql
+
+		if bindings != nil {
+			resultBindings = append(resultBindings, bindings...)
+		}
+
+	}
+	return resultSql, resultBindings, nil
 }

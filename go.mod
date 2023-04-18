@@ -3,6 +3,7 @@ module github.com/abibby/bob
 go 1.20
 
 require (
+	github.com/abibby/nulls v1.1.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/google/uuid v1.3.0
 	github.com/jmoiron/sqlx v1.3.5

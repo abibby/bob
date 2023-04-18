@@ -10,11 +10,18 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+type ForeignKey struct {
+	LocalKey     string
+	RelatedTable string
+	RelatedKey   string
+}
+
 type Relationship interface {
 	Subquery() *SubBuilder
 	Initialize(self any, field reflect.StructField) error
 	Load(ctx context.Context, tx *sqlx.Tx, relations []Relationship) error
 	Loaded() bool
+	ForeignKeys() []*ForeignKey
 }
 
 type relationValue[T any] struct {

@@ -22,10 +22,10 @@ func (l *limit) ToSQL(d dialects.Dialect) (string, []any, error) {
 	}
 	r := builder.Result()
 	r.AddString("LIMIT")
-	r.Add(builder.Literal(l.limit).ToSQL(d))
+	r.Add(builder.Literal(l.limit))
 	if l.offset != 0 {
 		r.AddString("OFFSET")
-		r.Add(builder.Literal(l.offset).ToSQL(d))
+		r.Add(builder.Literal(l.offset))
 	}
 	return r.ToSQL(d)
 }

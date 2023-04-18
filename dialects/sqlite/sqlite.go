@@ -18,12 +18,12 @@ func (*SQLite) Identifier(s string) string {
 
 func (*SQLite) DataType(t dialects.DataType) string {
 	switch t {
-	case dialects.DataTypeString:
-		return "text"
-	case dialects.DataTypeInteger:
-		return "int"
+	case dialects.DataTypeString, dialects.DataTypeJSON, dialects.DataTypeDate, dialects.DataTypeDateTime:
+		return "TEXT"
+	case dialects.DataTypeInteger, dialects.DataTypeUnsignedInteger, dialects.DataTypeBoolean:
+		return "INTEGER"
 	case dialects.DataTypeFloat:
-		return "float"
+		return "FLOAT"
 	}
 	return string(t)
 }

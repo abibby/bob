@@ -34,7 +34,7 @@ func (s *selects) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if s.distinct {
 		r.AddString("DISTINCT")
 	}
-	r.Add(builder.Join(s.list, ", ").ToSQL(d))
+	r.Add(builder.Join(s.list, ", "))
 	return r.ToSQL(d)
 }
 

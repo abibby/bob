@@ -2,7 +2,6 @@ package builder
 
 import (
 	"reflect"
-	"strings"
 )
 
 func GetValue(v any, key string) (any, bool) {
@@ -33,12 +32,5 @@ func RGetValue(rv reflect.Value, key string) (any, bool) {
 }
 
 func FieldName(f reflect.StructField) string {
-	return DBTag(f)[0]
-}
-func DBTag(f reflect.StructField) []string {
-	dbTag, ok := f.Tag.Lookup("db")
-	if ok {
-		return strings.Split(dbTag, ",")
-	}
-	return []string{f.Name}
+	return DBTag(f).Name
 }

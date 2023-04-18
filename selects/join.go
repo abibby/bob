@@ -64,8 +64,8 @@ func (j *join) ToSQL(d dialects.Dialect) (string, []any, error) {
 	r := builder.Result().
 		AddString(j.direction).
 		AddString("JOIN").
-		Add(j.table.ToSQL(d)).
-		Add(j.conditions.ToSQL(d))
+		Add(j.table).
+		Add(j.conditions)
 
 	return r.ToSQL(d)
 }

@@ -38,8 +38,8 @@ type Foo struct {
 	models.BaseModel
 	ID   int                    `json:"id"   db:"id,primary,autoincrement"`
 	Name string                 `json:"name" db:"name"`
-	Bar  *selects.HasOne[*Bar]  `json:"bar"  db:"-"`
-	Bars *selects.HasMany[*Bar] `json:"bars" db:"-"`
+	Bar  *selects.HasOne[*Bar]  `json:"bar"`
+	Bars *selects.HasMany[*Bar] `json:"bars"`
 }
 
 func (h *Foo) Table() string {
@@ -50,7 +50,7 @@ type Bar struct {
 	models.BaseModel
 	ID    int                      `json:"id"     db:"id,primary,autoincrement"`
 	FooID int                      `json:"foo_id" db:"foo_id"`
-	Foo   *selects.BelongsTo[*Foo] `json:"foo"    db:"-"`
+	Foo   *selects.BelongsTo[*Foo] `json:"foo"`
 }
 
 func (h *Bar) Table() string {

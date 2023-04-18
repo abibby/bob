@@ -46,6 +46,14 @@ func (r hasOneOrMany[T]) getRelatedKey() string {
 	return r.relatedKey
 }
 
+func (r hasOneOrMany[T]) ForeignKeys() []*ForeignKey {
+	var related T
+	return []*ForeignKey{{
+		LocalKey:     r.getParentKey(),
+		RelatedTable: builder.GetTable(related),
+		RelatedKey:   r.getRelatedKey(),
+	}}
+}
 func (r hasOneOrMany[T]) getRelated(ctx context.Context, tx *sqlx.Tx, relations []Relationship) ([]T, error) {
 	localKeys := make([]any, 0, len(relations))
 	for _, r := range relations {

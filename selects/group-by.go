@@ -16,7 +16,7 @@ func (g groupBys) ToSQL(d dialects.Dialect) (string, []any, error) {
 	}
 	r := builder.Result()
 	r.AddString("GROUP BY")
-	r.Add(builder.Join(g, ", ").ToSQL(d))
+	r.Add(builder.Join(g, ", "))
 	return r.ToSQL(d)
 }
 

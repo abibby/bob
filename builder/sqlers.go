@@ -30,6 +30,9 @@ func IdentifierList(strs []string) []ToSQLer {
 
 func Join[T ToSQLer](sqlers []T, sep string) ToSQLer {
 	return ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
+		if sqlers == nil {
+			return "", []any{}, nil
+		}
 		sql := ""
 		bindings := []any{}
 		for i, sqler := range sqlers {

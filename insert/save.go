@@ -13,6 +13,8 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+var relationshipInterface = reflect.TypeOf((*selects.Relationship)(nil)).Elem()
+
 func columnsAndValues(v reflect.Value) ([]string, []any) {
 	t := v.Type()
 	numFields := t.NumField()
@@ -31,14 +33,10 @@ func columnsAndValues(v reflect.Value) ([]string, []any) {
 			values = append(values, subValues...)
 		} else {
 			tag := builder.DBTag(field)
-			name := tag[0]
-			if name == "-" {
+			if tag.Name == "-" || tag.Readonly || field.Type.Implements(relationshipInterface) {
 				continue
 			}
-			if builder.Includes(tag, "readonly") {
-				continue
-			}
-			columns = append(columns, name)
+			columns = append(columns, tag.Name)
 			values = append(values, v.Field(i).Interface())
 		}
 	}
@@ -98,14 +96,14 @@ func insert(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns
 	}
 	r := builder.Result().
 		AddString("INSERT INTO").
-		Add(builder.Identifier(builder.GetTable(v)).ToSQL(d)).
+		Add(builder.Identifier(builder.GetTable(v))).
 		Add(
 			builder.Group(
 				builder.Join(
 					builder.IdentifierList(columns),
 					", ",
 				),
-			).ToSQL(d),
+			),
 		).
 		AddString("VALUES").
 		Add(
@@ -114,7 +112,7 @@ func insert(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns
 					builder.LiteralList(values),
 					", ",
 				),
-			).ToSQL(d),
+			),
 		)
 
 	q, bindings, err := r.ToSQL(d)
@@ -151,13 +149,13 @@ func isAutoIncrementing(v any) (reflect.Value, string, bool) {
 	if rv.Kind() != reflect.Struct {
 		return reflect.Value{}, "", false
 	}
-	var pKeyTags []string
+	var pKeyTag *builder.Tag
 	var rPKey reflect.Value
 	errFound := fmt.Errorf("found")
 	err := builder.EachField(rv, func(sf reflect.StructField, fv reflect.Value) error {
 		tag := builder.DBTag(sf)
-		if tag[0] == pKey {
-			pKeyTags = tag
+		if tag.Name == pKey {
+			pKeyTag = tag
 			rPKey = fv
 			if !rPKey.IsZero() {
 				return nil
@@ -169,7 +167,7 @@ func isAutoIncrementing(v any) (reflect.Value, string, bool) {
 	if err != errFound {
 		return reflect.Value{}, "", false
 	}
-	if len(pKeyTags) > 1 && !builder.Includes(pKeyTags[1:], "autoincrement") {
+	if pKeyTag != nil && !pKeyTag.AutoIncrement {
 		return reflect.Value{}, "", false
 	}
 	return rPKey, pKey, true
@@ -179,16 +177,16 @@ func update(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns
 	pKey := builder.PrimaryKey(v)
 	r := builder.Result().
 		AddString("UPDATE").
-		Add(builder.Identifier(builder.GetTable(v)).ToSQL(d)).
+		Add(builder.Identifier(builder.GetTable(v))).
 		AddString("SET")
 
 	for i, column := range columns {
 		if i != 0 {
 			r.AddString(",")
 		}
-		r.Add(builder.Identifier(column).ToSQL(d))
+		r.Add(builder.Identifier(column))
 		r.AddString("=")
-		r.Add(builder.Literal(values[i]).ToSQL(d))
+		r.Add(builder.Literal(values[i]))
 	}
 
 	r.AddString("WHERE")
@@ -203,9 +201,9 @@ func update(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns
 			r.AddString("AND")
 		}
 
-		r.Add(builder.Identifier(k).ToSQL(d)).
+		r.Add(builder.Identifier(k)).
 			AddString("=").
-			Add(builder.Literal(pKeyValue).ToSQL(d))
+			Add(builder.Literal(pKeyValue))
 	}
 
 	q, bindings, err := r.ToSQL(d)
