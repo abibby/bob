@@ -9,6 +9,7 @@ import (
 type Blueprint struct {
 	name        string
 	columns     []*ColumnBuilder
+	dropColumns []string
 	indexes     []*IndexBuilder
 	foreignKeys []*ForeignKeyBuilder
 }
@@ -17,6 +18,7 @@ func newBlueprint(name string) *Blueprint {
 	return &Blueprint{
 		name:        name,
 		columns:     []*ColumnBuilder{},
+		dropColumns: []string{},
 		indexes:     []*IndexBuilder{},
 		foreignKeys: []*ForeignKeyBuilder{},
 	}
@@ -73,6 +75,10 @@ func (t *Blueprint) ForeignKey(localKey, relatedTable, relatedKey string) {
 		relatedKey:   relatedKey,
 	}
 	t.foreignKeys = append(t.foreignKeys, f)
+}
+
+func (t *Blueprint) DropColumn(column string) {
+	t.dropColumns = append(t.dropColumns, column)
 }
 
 func (b *Blueprint) ToGo() string {
