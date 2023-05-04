@@ -18,14 +18,20 @@ func (*SQLite) Identifier(s string) string {
 
 func (*SQLite) DataType(t dialects.DataType) string {
 	switch t {
-	case dialects.DataTypeString, dialects.DataTypeJSON, dialects.DataTypeDate, dialects.DataTypeDateTime:
+	case dialects.DataTypeString, dialects.DataTypeJSON:
 		return "TEXT"
+	case dialects.DataTypeDate, dialects.DataTypeDateTime:
+		return "TIMESTAMP"
 	case dialects.DataTypeInteger, dialects.DataTypeUnsignedInteger, dialects.DataTypeBoolean:
 		return "INTEGER"
 	case dialects.DataTypeFloat:
 		return "FLOAT"
 	}
 	return string(t)
+}
+
+func (*SQLite) CurrentTime() string {
+	return "CURRENT_TIMESTAMP"
 }
 
 func init() {

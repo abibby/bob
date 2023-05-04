@@ -1,12 +1,12 @@
-package craetetable
+package migrate
 
 import (
-	"fmt"
 	"reflect"
 
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/dialects"
 	"github.com/abibby/bob/models"
+	"github.com/abibby/bob/schema"
 	"github.com/abibby/bob/selects"
 	"github.com/abibby/bob/slices"
 )
@@ -66,7 +66,7 @@ func getFields(m models.Model) []*field {
 	return fields
 }
 
-func FromStruct(m models.Model) *Builder {
+func create(m models.Model) *schema.CreateTableBuilder {
 	err := selects.InitializeRelationships(m)
 	if err != nil {
 		panic(err)
@@ -74,7 +74,7 @@ func FromStruct(m models.Model) *Builder {
 
 	tableName := builder.GetTable(m)
 	fields := getFields(m)
-	return CreateTable(tableName, func(table *Table) {
+	return schema.Create(tableName, func(table *schema.Blueprint) {
 		addedForeignKeys := []*selects.ForeignKey{}
 		for _, field := range fields {
 			if field.relation != nil {
@@ -88,12 +88,19 @@ func FromStruct(m models.Model) *Builder {
 					table.ForeignKey(foreignKey.LocalKey, foreignKey.RelatedTable, foreignKey.RelatedKey)
 				}
 			} else {
-				b := table.OfType(field.dataType, field.tag.Name).withTag(field.tag)
+				b := table.OfType(field.dataType, field.tag.Name)
 				if field.nullable {
 					b.Nullable()
 				}
 				if field.tag.Index {
-					table.Index(fmt.Sprintf("%s-%s", tableName, field.tag.Name)).AddColumn(field.tag.Name)
+					b.Index()
+					// table.Index(fmt.Sprintf("%s-%s", tableName, field.tag.Name)).AddColumn(field.tag.Name)
+				}
+				if field.tag.AutoIncrement {
+					b.AutoIncrement()
+				}
+				if field.tag.Primary {
+					b.Primary()
 				}
 			}
 		}

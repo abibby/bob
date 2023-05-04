@@ -1,4 +1,4 @@
-package craetetable
+package schema
 
 import (
 	"github.com/abibby/bob/builder"

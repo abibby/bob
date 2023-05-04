@@ -16,6 +16,7 @@ const (
 type Dialect interface {
 	Identifier(string) string
 	DataType(DataType) string
+	CurrentTime() string
 }
 
 type unsetDialect struct{}
@@ -26,6 +27,10 @@ func (*unsetDialect) Identifier(s string) string {
 
 func (*unsetDialect) DataType(t DataType) string {
 	return string(t)
+}
+
+func (*unsetDialect) CurrentTime() string {
+	return "CURRENT_TIMESTAMP"
 }
 
 var DefaultDialect Dialect = &unsetDialect{}

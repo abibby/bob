@@ -29,6 +29,10 @@ func (*MySQL) DataType(t dialects.DataType) string {
 	return string(t)
 }
 
+func (*MySQL) CurrentTime() string {
+	return "CURRENT_TIMESTAMP"
+}
+
 func init() {
 	dialects.DefaultDialect = &MySQL{}
 }
