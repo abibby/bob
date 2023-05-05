@@ -4,7 +4,20 @@ import (
 	"fmt"
 
 	"github.com/abibby/bob/dialects"
+	"github.com/abibby/bob/slices"
 )
+
+type BlueprintType int
+
+const (
+	BlueprintTypeCreate BlueprintType = iota
+	BlueprintTypeUpdate
+)
+
+type Blueprinter interface {
+	GetBlueprint() *Blueprint
+	Type() BlueprintType
+}
 
 type Blueprint struct {
 	name        string
@@ -24,10 +37,26 @@ func newBlueprint(name string) *Blueprint {
 	}
 }
 
+func (b *Blueprint) Column(name string) (*ColumnBuilder, bool) {
+	return slices.Find(b.columns, func(c *ColumnBuilder) bool {
+		return c.name == name
+	})
+}
+
+func (t *Blueprint) GetBlueprint() *Blueprint {
+	return t
+}
+func (t *Blueprint) TableName() string {
+	return t.name
+}
+
 func (t *Blueprint) OfType(datatype dialects.DataType, name string) *ColumnBuilder {
 	c := NewColumn(name, datatype)
-	t.columns = append(t.columns, c)
+	t.AddColumn(c)
 	return c
+}
+func (t *Blueprint) AddColumn(c *ColumnBuilder) {
+	t.columns = append(t.columns, c)
 }
 func (t *Blueprint) String(name string) *ColumnBuilder {
 	return t.OfType(dialects.DataTypeString, name)
@@ -81,6 +110,10 @@ func (t *Blueprint) DropColumn(column string) {
 	t.dropColumns = append(t.dropColumns, column)
 }
 
+func (t *Blueprint) Columns() []*ColumnBuilder {
+	return t.columns
+}
+
 func (b *Blueprint) ToGo() string {
 	src := "func(table *schema.Blueprint) {\n"
 	for _, c := range b.columns {
@@ -89,7 +122,7 @@ func (b *Blueprint) ToGo() string {
 			dialects.DataTypeInteger:         "Int",
 			dialects.DataTypeUnsignedInteger: "UInt",
 			dialects.DataTypeFloat:           "Float",
-			dialects.DataTypeBoolean:         "Boolean",
+			dialects.DataTypeBoolean:         "Bool",
 			dialects.DataTypeJSON:            "JSON",
 			dialects.DataTypeDate:            "Date",
 			dialects.DataTypeDateTime:        "DateTime",
@@ -97,5 +130,12 @@ func (b *Blueprint) ToGo() string {
 		src += fmt.Sprintf("\ttable.%s(%#v)%s\n", m[c.datatype], c.name, c.ToGo())
 	}
 
+	for _, c := range b.dropColumns {
+		src += fmt.Sprintf("\ttable.DropColumn(%#v)\n", c)
+	}
+
 	return src + "}"
+}
+func (t *Blueprint) Merge(newBlueprint *Blueprint) {
+
 }

@@ -12,6 +12,7 @@ type CreateTableBuilder struct {
 }
 
 var _ builder.ToSQLer = &CreateTableBuilder{}
+var _ Blueprinter = &CreateTableBuilder{}
 
 func Create(name string, cb func(b *Blueprint)) *CreateTableBuilder {
 	b := newBlueprint(name)
@@ -21,6 +22,9 @@ func Create(name string, cb func(b *Blueprint)) *CreateTableBuilder {
 	}
 }
 
+func (b *CreateTableBuilder) Type() BlueprintType {
+	return BlueprintTypeCreate
+}
 func (b *CreateTableBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
 	r := builder.Result()
 	r.AddString("CREATE TABLE")

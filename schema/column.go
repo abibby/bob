@@ -31,10 +31,19 @@ func NewColumn(name string, datatype dialects.DataType) *ColumnBuilder {
 
 var _ builder.ToSQLer = &ColumnBuilder{}
 
-//	func (b *ColumnBuilder) withTag(tag *builder.Tag) *ColumnBuilder {
-//		b.tag = tag
-//		return b
-//	}
+func (b *ColumnBuilder) Matches(dataType dialects.DataType, nullable bool, tag *builder.Tag) bool {
+	return b.datatype == dataType &&
+		b.nullable == nullable &&
+		b.autoIncrement == tag.AutoIncrement &&
+		b.index == tag.Index &&
+		b.name == tag.Name &&
+		b.primary == tag.Primary
+}
+
+func (b *ColumnBuilder) Name() string {
+	return b.name
+}
+
 func (b *ColumnBuilder) Nullable() *ColumnBuilder {
 	b.nullable = true
 	return b
@@ -114,7 +123,7 @@ func (b *ColumnBuilder) ToGo() string {
 	if b.autoIncrement {
 		src += ".AutoIncrement()"
 	}
-	if !b.nullable {
+	if b.nullable {
 		src += ".Nullable()"
 	}
 	if b.defaultValue != nil {
@@ -125,6 +134,12 @@ func (b *ColumnBuilder) ToGo() string {
 	}
 	if b.unique {
 		src += ".Unique()"
+	}
+	if b.index {
+		src += ".Index()"
+	}
+	if b.change {
+		src += ".Change()"
 	}
 	return src
 }

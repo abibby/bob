@@ -12,6 +12,7 @@ type UpdateTableBuilder struct {
 }
 
 var _ builder.ToSQLer = &UpdateTableBuilder{}
+var _ Blueprinter = &UpdateTableBuilder{}
 
 func Table(name string, cb func(table *Blueprint)) *UpdateTableBuilder {
 	table := newBlueprint(name)
@@ -19,6 +20,9 @@ func Table(name string, cb func(table *Blueprint)) *UpdateTableBuilder {
 	return &UpdateTableBuilder{
 		Blueprint: table,
 	}
+}
+func (b *UpdateTableBuilder) Type() BlueprintType {
+	return BlueprintTypeUpdate
 }
 
 func (b *UpdateTableBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
