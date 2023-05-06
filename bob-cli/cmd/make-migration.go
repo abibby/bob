@@ -4,11 +4,8 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"path"
-	"strings"
-	"time"
 
 	"github.com/abibby/bob/bob-cli/util"
 	"github.com/abibby/bob/migrate"
@@ -23,7 +20,7 @@ var makeMigrationCmd = &cobra.Command{
 	Long:  ``,
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		name := fmt.Sprintf("%s-%s", time.Now().Format("20060102_150405"), strings.ReplaceAll(strings.Join(args, "_"), " ", "_"))
+		name := util.Name(args)
 
 		root, err := util.PackageRoot()
 		if err != nil {

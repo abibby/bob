@@ -57,7 +57,10 @@ func GenerateMigration(migrationName, packageName string, m models.Model) (strin
 		return SrcFile(migrationName, packageName, create(m), drop(m))
 	}
 
-	up, down := update(m)
+	up, down, err := update(m)
+	if err != nil {
+		return "", err
+	}
 	return SrcFile(migrationName, packageName, up, down)
 }
 
