@@ -31,7 +31,7 @@ func TestGenerateMigration(t *testing.T) {
 			Name: "2023-01-01T00:00:00Z create test model",
 			Up: func() builder.ToSQLer {
 				return schema.Create("test_models", func(table *schema.Blueprint) {
-					table.UInt("id").Primary()
+					table.Int("id").Primary()
 				})
 			},
 			Down: func() builder.ToSQLer {
@@ -55,13 +55,88 @@ func TestGenerateMigration(t *testing.T) {
 			Name: "2023-01-01T00:00:00Z create test model",
 			Up: func() builder.ToSQLer {
 				return schema.Create("test_models", func(table *schema.Blueprint) {
-					table.UInt("id").Primary()
+					table.Int("id").Primary()
 					table.String("to_drop")
 				})
 			},
 			Down: func() builder.ToSQLer {
 				return schema.DropIfExists("test_models")
 			},
+		})
+
+		type TestModel struct {
+			models.BaseModel
+			ID int `db:"id,primary"`
+		}
+		src, err := m.GenerateMigration("2023-01-01T00:00:00Z create test model", "packageName", &TestModel{})
+		assert.NoError(t, err)
+		cupaloy.SnapshotT(t, src)
+	})
+
+	t.Run("change", func(t *testing.T) {
+		m := migrate.New()
+		m.Add(&migrate.Migration{
+			Name: "2023-01-01T00:00:00Z create test model",
+			Up: func() builder.ToSQLer {
+				return schema.Create("test_models", func(table *schema.Blueprint) {
+					table.Int("id").Primary()
+				})
+			},
+			Down: func() builder.ToSQLer {
+				return schema.DropIfExists("test_models")
+			},
+		})
+
+		type TestModel struct {
+			models.BaseModel
+			ID string `db:"id,primary"`
+		}
+		src, err := m.GenerateMigration("2023-01-01T00:00:00Z create test model", "packageName", &TestModel{})
+		assert.NoError(t, err)
+		cupaloy.SnapshotT(t, src)
+	})
+
+	t.Run("no changes", func(t *testing.T) {
+		m := migrate.New()
+		m.Add(&migrate.Migration{
+			Name: "2023-01-01T00:00:00Z create test model",
+			Up: func() builder.ToSQLer {
+				return schema.Create("test_models", func(table *schema.Blueprint) {
+					table.Int("id").Primary()
+				})
+			},
+			Down: func() builder.ToSQLer {
+				return schema.DropIfExists("test_models")
+			},
+		})
+
+		type TestModel struct {
+			models.BaseModel
+			ID int `db:"id,primary"`
+		}
+		_, err := m.GenerateMigration("2023-01-01T00:00:00Z create test model", "packageName", &TestModel{})
+		assert.ErrorIs(t, err, migrate.ErrNoChanges)
+	})
+
+	t.Run("multiple migrations", func(t *testing.T) {
+		m := migrate.New()
+		m.Add(&migrate.Migration{
+			Name: "2023-01-01T00:00:00Z create test model",
+			Up: func() builder.ToSQLer {
+				return schema.Create("test_models", func(table *schema.Blueprint) {
+					table.Int("id").Primary()
+				})
+			},
+			Down: nil,
+		})
+		m.Add(&migrate.Migration{
+			Name: "2023-01-01T00:00:01Z change",
+			Up: func() builder.ToSQLer {
+				return schema.Table("test_models", func(table *schema.Blueprint) {
+					table.String("id").Primary().Change()
+				})
+			},
+			Down: nil,
 		})
 
 		type TestModel struct {

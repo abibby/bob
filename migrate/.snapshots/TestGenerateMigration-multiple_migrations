@@ -10,14 +10,14 @@ func init() {
 	migrations.Add(&migrate.Migration{
 		Name: "2023-01-01T00:00:00Z create test model",
 		Up: func() builder.ToSQLer {
-			return schema.Create("test_models", func(table *schema.Blueprint) {
-				table.Int("id").Primary()
-				table.String("nullable").Nullable()
-				table.Bool("indexed").Index()
+			return schema.Table("test_models", func(table *schema.Blueprint) {
+				table.Int("id").Primary().Change()
 			})
 		},
 		Down: func() builder.ToSQLer {
-			return schema.DropIfExists("test_models")
+			return schema.Table("test_models", func(table *schema.Blueprint) {
+				table.String("id").Primary().Change()
+			})
 		},
 	})
 }

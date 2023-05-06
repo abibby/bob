@@ -43,9 +43,9 @@ func getFields(m models.Model) []*field {
 		case reflect.Bool:
 			f.dataType = dialects.DataTypeBoolean
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			f.dataType = dialects.DataTypeUnsignedInteger
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 			f.dataType = dialects.DataTypeInteger
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			f.dataType = dialects.DataTypeUnsignedInteger
 		case reflect.Float32, reflect.Float64:
 			f.dataType = dialects.DataTypeFloat
 		case reflect.String:
