@@ -46,6 +46,7 @@ func getFields(m models.Model) ([]*field, error) {
 		t := sf.Type
 		if t.Kind() == reflect.Pointer {
 			t = t.Elem()
+			fv = reflect.New(t).Elem()
 			f.nullable = true
 		}
 
@@ -54,14 +55,12 @@ func getFields(m models.Model) ([]*field, error) {
 				return fmt.Errorf("data type %s is not valid", tag.Type)
 			}
 			f.dataType = tag.Type
-		} else if t.Implements(dataTyperInterface) {
-			f.dataType = fv.Interface().(dialects.DataTyper).DataType()
 		} else {
 			switch field := fv.Interface().(type) {
 			case dialects.DataTyper:
 				f.dataType = field.DataType()
 			case time.Time:
-				f.dataType = dialects.DataTypeDate
+				f.dataType = dialects.DataTypeDateTime
 			case []byte:
 				f.dataType = dialects.DataTypeBlob
 			default:

@@ -11,8 +11,7 @@ func init() {
 		Name: "2023-01-01T00:00:00Z create test model",
 		Up: func() builder.ToSQLer {
 			return schema.Create("test_models", func(table *schema.Blueprint) {
-				table.Blob("id").Primary()
-				table.DateTime("time")
+				table.Date("id").Primary().Nullable()
 			})
 		},
 		Down: func() builder.ToSQLer {

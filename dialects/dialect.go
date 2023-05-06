@@ -34,6 +34,7 @@ func (d DataType) IsValid() bool {
 	return dataTypes.Has(d)
 }
 
+// DataTyper must not be implemented on an interface
 type DataTyper interface {
 	DataType() DataType
 }

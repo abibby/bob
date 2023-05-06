@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/abibby/bob/builder"
+	"github.com/abibby/bob/dialects"
 	"github.com/abibby/bob/migrate"
 	"github.com/abibby/bob/models"
 	"github.com/abibby/bob/schema"
@@ -13,6 +14,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
+
+type Date int
+
+func (d Date) DataType() dialects.DataType {
+	return dialects.DataTypeDate
+}
 
 func TestGenerateMigration(t *testing.T) {
 	t.Run("create", func(t *testing.T) {
@@ -179,6 +186,26 @@ func TestGenerateMigration(t *testing.T) {
 		type TestModel struct {
 			models.BaseModel
 			ID int `db:"id,primary,type:date"`
+		}
+		src, err := migrate.New().GenerateMigration("2023-01-01T00:00:00Z create test model", "packageName", &TestModel{})
+		assert.NoError(t, err)
+		cupaloy.SnapshotT(t, src)
+	})
+
+	t.Run("custom type DataTyper", func(t *testing.T) {
+		type TestModel struct {
+			models.BaseModel
+			ID *Date `db:"id,primary"`
+		}
+		src, err := migrate.New().GenerateMigration("2023-01-01T00:00:00Z create test model", "packageName", &TestModel{})
+		assert.NoError(t, err)
+		cupaloy.SnapshotT(t, src)
+	})
+
+	t.Run("custom type DataTyper not pointer", func(t *testing.T) {
+		type TestModel struct {
+			models.BaseModel
+			ID Date `db:"id,primary"`
 		}
 		src, err := migrate.New().GenerateMigration("2023-01-01T00:00:00Z create test model", "packageName", &TestModel{})
 		assert.NoError(t, err)

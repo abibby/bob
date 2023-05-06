@@ -12,7 +12,7 @@ func init() {
 		Up: func() builder.ToSQLer {
 			return schema.Create("test_models", func(table *schema.Blueprint) {
 				table.Int("id").Primary()
-				table.Date("time")
+				table.DateTime("time")
 			})
 		},
 		Down: func() builder.ToSQLer {
