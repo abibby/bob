@@ -38,7 +38,7 @@ func NewBlueprint(name string) *Blueprint {
 	}
 }
 
-func (b *Blueprint) Column(name string) (*ColumnBuilder, bool) {
+func (b *Blueprint) findColumn(name string) (*ColumnBuilder, bool) {
 	return slices.Find(b.columns, func(c *ColumnBuilder) bool {
 		return c.name == name
 	})
@@ -111,10 +111,6 @@ func (t *Blueprint) DropColumn(column string) {
 	t.dropColumns = append(t.dropColumns, column)
 }
 
-func (t *Blueprint) Columns() []*ColumnBuilder {
-	return t.columns
-}
-
 func (b *Blueprint) ToGo() string {
 	src := "func(table *schema.Blueprint) {\n"
 	for _, c := range b.columns {
@@ -155,24 +151,34 @@ func (t *Blueprint) Merge(newBlueprint *Blueprint) {
 			t.columns = append(t.columns, newColumn)
 		}
 	}
+
+	t.columns = slices.Filter(t.columns, func(c *ColumnBuilder) bool {
+		return !slices.Has(newBlueprint.dropColumns, c.name)
+	})
 }
 
 func (t *Blueprint) Update(oldBlueprint, newBlueprint *Blueprint) bool {
 	addedColumns := set.New[string]()
+	hasChanges := false
 	for _, newColumn := range newBlueprint.columns {
-		oldColumn, ok := oldBlueprint.Column(newColumn.name)
+		oldColumn, ok := oldBlueprint.findColumn(newColumn.name)
 		if ok {
 			addedColumns.Add(newColumn.name)
 			if newColumn.Equals(oldColumn) {
 				continue
 			}
 		}
+
+		newColumn.change = ok
+		hasChanges = true
 		t.AddColumn(newColumn)
 	}
 	for _, oldColumn := range oldBlueprint.columns {
 		if !addedColumns.Has(oldColumn.name) {
+			hasChanges = true
 			t.DropColumn(oldColumn.name)
 		}
 	}
-	return addedColumns.Len() > 0
+
+	return hasChanges
 }
