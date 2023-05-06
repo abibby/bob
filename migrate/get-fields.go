@@ -1,6 +1,7 @@
 package migrate
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"time"
@@ -63,6 +64,8 @@ func getFields(m models.Model) ([]*field, error) {
 				f.dataType = dialects.DataTypeDateTime
 			case []byte:
 				f.dataType = dialects.DataTypeBlob
+			case json.RawMessage:
+				f.dataType = dialects.DataTypeJSON
 			default:
 				switch t.Kind() {
 				case reflect.Bool:
