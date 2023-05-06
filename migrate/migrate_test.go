@@ -2,6 +2,7 @@ package migrate_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/migrate"
@@ -9,6 +10,7 @@ import (
 	"github.com/abibby/bob/schema"
 	"github.com/abibby/nulls"
 	"github.com/bradleyjkemp/cupaloy"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -136,6 +138,49 @@ func TestGenerateMigration(t *testing.T) {
 			ID int `db:"id,primary"`
 		}
 		src, err := m.GenerateMigration("2023-01-01T00:00:00Z create test model", "packageName", &TestModel{})
+		assert.NoError(t, err)
+		cupaloy.SnapshotT(t, src)
+	})
+
+	t.Run("ignore - fields", func(t *testing.T) {
+		type TestModel struct {
+			models.BaseModel
+			ID     int `db:"id,primary"`
+			Ignore int `db:"-"`
+		}
+		src, err := migrate.New().GenerateMigration("2023-01-01T00:00:00Z create test model", "packageName", &TestModel{})
+		assert.NoError(t, err)
+		cupaloy.SnapshotT(t, src)
+	})
+
+	t.Run("dates", func(t *testing.T) {
+		type TestModel struct {
+			models.BaseModel
+			ID   int       `db:"id,primary"`
+			Time time.Time `db:"time"`
+		}
+		src, err := migrate.New().GenerateMigration("2023-01-01T00:00:00Z create test model", "packageName", &TestModel{})
+		assert.NoError(t, err)
+		cupaloy.SnapshotT(t, src)
+	})
+
+	t.Run("uuid", func(t *testing.T) {
+		type TestModel struct {
+			models.BaseModel
+			ID   uuid.UUID `db:"id,primary"`
+			Time time.Time `db:"time"`
+		}
+		src, err := migrate.New().GenerateMigration("2023-01-01T00:00:00Z create test model", "packageName", &TestModel{})
+		assert.NoError(t, err)
+		cupaloy.SnapshotT(t, src)
+	})
+
+	t.Run("custom type", func(t *testing.T) {
+		type TestModel struct {
+			models.BaseModel
+			ID int `db:"id,primary,type:date"`
+		}
+		src, err := migrate.New().GenerateMigration("2023-01-01T00:00:00Z create test model", "packageName", &TestModel{})
 		assert.NoError(t, err)
 		cupaloy.SnapshotT(t, src)
 	})

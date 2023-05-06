@@ -1,17 +1,42 @@
 package dialects
 
+import (
+	"github.com/abibby/bob/set"
+)
+
 type DataType string
 
 const (
-	DataTypeString          = DataType("string")
-	DataTypeInteger         = DataType("int")
-	DataTypeUnsignedInteger = DataType("uint")
-	DataTypeFloat           = DataType("float")
+	DataTypeBlob            = DataType("blob")
 	DataTypeBoolean         = DataType("bool")
-	DataTypeJSON            = DataType("json")
 	DataTypeDate            = DataType("date")
 	DataTypeDateTime        = DataType("date-time")
+	DataTypeFloat           = DataType("float")
+	DataTypeInteger         = DataType("int")
+	DataTypeJSON            = DataType("json")
+	DataTypeString          = DataType("string")
+	DataTypeUnsignedInteger = DataType("uint")
 )
+
+var dataTypes = set.Set[DataType]{
+	DataTypeBlob:            struct{}{},
+	DataTypeBoolean:         struct{}{},
+	DataTypeDate:            struct{}{},
+	DataTypeDateTime:        struct{}{},
+	DataTypeFloat:           struct{}{},
+	DataTypeInteger:         struct{}{},
+	DataTypeJSON:            struct{}{},
+	DataTypeString:          struct{}{},
+	DataTypeUnsignedInteger: struct{}{},
+}
+
+func (d DataType) IsValid() bool {
+	return dataTypes.Has(d)
+}
+
+type DataTyper interface {
+	DataType() DataType
+}
 
 type Dialect interface {
 	Identifier(string) string

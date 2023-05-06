@@ -3,6 +3,8 @@ package builder
 import (
 	"reflect"
 	"strings"
+
+	"github.com/abibby/bob/dialects"
 )
 
 type Tag struct {
@@ -11,6 +13,7 @@ type Tag struct {
 	AutoIncrement bool
 	Readonly      bool
 	Index         bool
+	Type          dialects.DataType
 }
 
 func DBTag(f reflect.StructField) *Tag {
@@ -28,9 +31,14 @@ func DBTag(f reflect.StructField) *Tag {
 	tagValue := reflect.ValueOf(tag).Elem()
 	tagType := tagValue.Type()
 	for _, p := range parts[1:] {
+		typePrefix := "type:"
+		if strings.HasPrefix(p, typePrefix) {
+			tag.Type = dialects.DataType(p[len(typePrefix):])
+			continue
+		}
 		for i := 0; i < tagType.NumField(); i++ {
 			f := tagType.Field(i)
-			if strings.ToLower(f.Name) == p {
+			if strings.ToLower(f.Name) == p && f.Type.Kind() == reflect.Bool {
 				tagValue.Field(i).SetBool(true)
 			}
 		}

@@ -20,7 +20,10 @@ func (m *Migrations) update(model models.Model) (*schema.UpdateTableBuilder, *sc
 	}
 
 	tableName := builder.GetTable(model)
-	fields := getFields(model)
+	fields, err := getFields(model)
+	if err != nil {
+		return nil, nil, err
+	}
 	oldTable := m.Blueprint(tableName)
 	newTable := blueprintFromFields(tableName, fields)
 

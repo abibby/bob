@@ -44,7 +44,11 @@ func (m *Migrations) isTableCreated(table string) bool {
 
 func (m *Migrations) GenerateMigration(migrationName, packageName string, model models.Model) (string, error) {
 	if !m.isTableCreated(builder.GetTable(model)) {
-		return SrcFile(migrationName, packageName, create(model), drop(model))
+		up, err := create(model)
+		if err != nil {
+			return "", err
+		}
+		return SrcFile(migrationName, packageName, up, drop(model))
 	}
 
 	up, down, err := m.update(model)

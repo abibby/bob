@@ -5,13 +5,14 @@ import (
 	"testing"
 
 	"github.com/abibby/bob/builder"
+	"github.com/abibby/bob/dialects"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestName(t *testing.T) {
 	type Foo struct {
 		ID  int
-		Foo string `db:"foo,autoincrement,primary"`
+		Foo string `db:"foo,autoincrement,primary,type:date"`
 	}
 
 	rt := reflect.TypeOf(Foo{})
@@ -34,6 +35,7 @@ func TestName(t *testing.T) {
 			AutoIncrement: true,
 			Readonly:      false,
 			Index:         false,
+			Type:          dialects.DataType("date"),
 		},
 		builder.DBTag(rt.Field(1)),
 	)

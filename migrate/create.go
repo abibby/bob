@@ -8,18 +8,21 @@ import (
 	"github.com/abibby/bob/slices"
 )
 
-func create(m models.Model) *schema.CreateTableBuilder {
+func create(m models.Model) (*schema.CreateTableBuilder, error) {
 	err := selects.InitializeRelationships(m)
 	if err != nil {
 		panic(err)
 	}
 
 	tableName := builder.GetTable(m)
-	fields := getFields(m)
+	fields, err := getFields(m)
+	if err != nil {
+		return nil, err
+	}
 
 	return schema.Create(tableName, func(table *schema.Blueprint) {
 		table.Merge(blueprintFromFields(tableName, fields))
-	})
+	}), nil
 }
 
 func blueprintFromFields(tableName string, fields []*field) *schema.Blueprint {

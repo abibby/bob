@@ -88,6 +88,9 @@ func (t *Blueprint) Date(name string) *ColumnBuilder {
 func (t *Blueprint) DateTime(name string) *ColumnBuilder {
 	return t.OfType(dialects.DataTypeDateTime, name)
 }
+func (t *Blueprint) Blob(name string) *ColumnBuilder {
+	return t.OfType(dialects.DataTypeBlob, name)
+}
 
 func (t *Blueprint) Index(name string) *IndexBuilder {
 	c := &IndexBuilder{
@@ -115,14 +118,15 @@ func (b *Blueprint) ToGo() string {
 	src := "func(table *schema.Blueprint) {\n"
 	for _, c := range b.columns {
 		m := map[dialects.DataType]string{
-			dialects.DataTypeString:          "String",
-			dialects.DataTypeInteger:         "Int",
-			dialects.DataTypeUnsignedInteger: "UInt",
-			dialects.DataTypeFloat:           "Float",
+			dialects.DataTypeBlob:            "Blob",
 			dialects.DataTypeBoolean:         "Bool",
-			dialects.DataTypeJSON:            "JSON",
 			dialects.DataTypeDate:            "Date",
 			dialects.DataTypeDateTime:        "DateTime",
+			dialects.DataTypeFloat:           "Float",
+			dialects.DataTypeInteger:         "Int",
+			dialects.DataTypeJSON:            "JSON",
+			dialects.DataTypeString:          "String",
+			dialects.DataTypeUnsignedInteger: "UInt",
 		}
 		src += fmt.Sprintf("\ttable.%s(%#v)%s\n", m[c.datatype], c.name, c.ToGo())
 	}
