@@ -31,13 +31,13 @@ func NewColumn(name string, datatype dialects.DataType) *ColumnBuilder {
 
 var _ builder.ToSQLer = &ColumnBuilder{}
 
-func (b *ColumnBuilder) Matches(dataType dialects.DataType, nullable bool, tag *builder.Tag) bool {
-	return b.datatype == dataType &&
-		b.nullable == nullable &&
-		b.autoIncrement == tag.AutoIncrement &&
-		b.index == tag.Index &&
-		b.name == tag.Name &&
-		b.primary == tag.Primary
+func (b *ColumnBuilder) Equals(newB *ColumnBuilder) bool {
+	return b.datatype == newB.datatype &&
+		b.nullable == newB.nullable &&
+		b.autoIncrement == newB.autoIncrement &&
+		b.index == newB.index &&
+		b.name == newB.name &&
+		b.primary == newB.primary
 }
 
 func (b *ColumnBuilder) Name() string {

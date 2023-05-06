@@ -15,7 +15,7 @@ var _ builder.ToSQLer = &CreateTableBuilder{}
 var _ Blueprinter = &CreateTableBuilder{}
 
 func Create(name string, cb func(b *Blueprint)) *CreateTableBuilder {
-	b := newBlueprint(name)
+	b := NewBlueprint(name)
 	cb(b)
 	return &CreateTableBuilder{
 		Blueprint: b,

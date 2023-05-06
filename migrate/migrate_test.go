@@ -20,13 +20,14 @@ func TestGenerateMigration(t *testing.T) {
 			Nullable *nulls.String `db:"nullable"`
 			Indexed  bool          `db:"indexed,index"`
 		}
-		src, err := migrate.GenerateMigration("2023-01-01T00:00:00Z create test model", "packageName", &TestModel{})
+		src, err := migrate.New().GenerateMigration("2023-01-01T00:00:00Z create test model", "packageName", &TestModel{})
 		assert.NoError(t, err)
 		cupaloy.SnapshotT(t, src)
 	})
 
 	t.Run("add column", func(t *testing.T) {
-		migrate.Add(&migrate.Migration{
+		m := migrate.New()
+		m.Add(&migrate.Migration{
 			Name: "2023-01-01T00:00:00Z create test model",
 			Up: func() builder.ToSQLer {
 				return schema.Create("test_models", func(table *schema.Blueprint) {
@@ -43,13 +44,14 @@ func TestGenerateMigration(t *testing.T) {
 			ID    int    `db:"id,primary"`
 			ToAdd string `db:"to_add"`
 		}
-		src, err := migrate.GenerateMigration("2023-01-01T00:00:00Z create test model", "packageName", &TestModel{})
+		src, err := m.GenerateMigration("2023-01-01T00:00:00Z create test model", "packageName", &TestModel{})
 		assert.NoError(t, err)
 		cupaloy.SnapshotT(t, src)
 	})
 
 	t.Run("drop column", func(t *testing.T) {
-		migrate.Add(&migrate.Migration{
+		m := migrate.New()
+		m.Add(&migrate.Migration{
 			Name: "2023-01-01T00:00:00Z create test model",
 			Up: func() builder.ToSQLer {
 				return schema.Create("test_models", func(table *schema.Blueprint) {
@@ -66,7 +68,7 @@ func TestGenerateMigration(t *testing.T) {
 			models.BaseModel
 			ID int `db:"id,primary"`
 		}
-		src, err := migrate.GenerateMigration("2023-01-01T00:00:00Z create test model", "packageName", &TestModel{})
+		src, err := m.GenerateMigration("2023-01-01T00:00:00Z create test model", "packageName", &TestModel{})
 		assert.NoError(t, err)
 		cupaloy.SnapshotT(t, src)
 	})

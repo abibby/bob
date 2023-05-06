@@ -22,3 +22,6 @@ func (s Set[T]) Clone() Set[T] {
 	}
 	return newSet
 }
+func (s Set[T]) Len() int {
+	return len(s)
+}

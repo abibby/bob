@@ -15,7 +15,7 @@ var _ builder.ToSQLer = &UpdateTableBuilder{}
 var _ Blueprinter = &UpdateTableBuilder{}
 
 func Table(name string, cb func(table *Blueprint)) *UpdateTableBuilder {
-	table := newBlueprint(name)
+	table := NewBlueprint(name)
 	cb(table)
 	return &UpdateTableBuilder{
 		Blueprint: table,

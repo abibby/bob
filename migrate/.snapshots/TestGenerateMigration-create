@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	migrate.Add(&migrate.Migration{
+	migrations.Add(&migrate.Migration{
 		Name: "2023-01-01T00:00:00Z create test model",
 		Up: func() builder.ToSQLer {
 			return schema.Create("test_models", func(table *schema.Blueprint) {

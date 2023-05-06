@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/abibby/bob/dialects"
+	"github.com/abibby/bob/set"
 	"github.com/abibby/bob/slices"
 )
 
@@ -27,7 +28,7 @@ type Blueprint struct {
 	foreignKeys []*ForeignKeyBuilder
 }
 
-func newBlueprint(name string) *Blueprint {
+func NewBlueprint(name string) *Blueprint {
 	return &Blueprint{
 		name:        name,
 		columns:     []*ColumnBuilder{},
@@ -136,6 +137,42 @@ func (b *Blueprint) ToGo() string {
 
 	return src + "}"
 }
-func (t *Blueprint) Merge(newBlueprint *Blueprint) {
 
+func (t *Blueprint) Merge(newBlueprint *Blueprint) {
+	if t.name != newBlueprint.name {
+		return
+	}
+
+	for _, newColumn := range newBlueprint.columns {
+		if newColumn.change {
+			for i, c := range t.columns {
+				if c.name == newColumn.name {
+					t.columns[i] = newColumn
+					break
+				}
+			}
+		} else {
+			t.columns = append(t.columns, newColumn)
+		}
+	}
+}
+
+func (t *Blueprint) Update(oldBlueprint, newBlueprint *Blueprint) bool {
+	addedColumns := set.New[string]()
+	for _, newColumn := range newBlueprint.columns {
+		oldColumn, ok := oldBlueprint.Column(newColumn.name)
+		if ok {
+			addedColumns.Add(newColumn.name)
+			if newColumn.Equals(oldColumn) {
+				continue
+			}
+		}
+		t.AddColumn(newColumn)
+	}
+	for _, oldColumn := range oldBlueprint.columns {
+		if !addedColumns.Has(oldColumn.name) {
+			t.DropColumn(oldColumn.name)
+		}
+	}
+	return addedColumns.Len() > 0
 }

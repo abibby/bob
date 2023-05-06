@@ -37,11 +37,10 @@ func QueryTest(t *testing.T, testCases []Case) {
 //go:generate go run ../bob-cli/main.go generate
 type Foo struct {
 	models.BaseModel
-	ID       int                    `json:"id"   db:"id,primary,autoincrement"`
-	Name     string                 `json:"name" db:"name"`
-	NewField float32                `json:"new"  db:"new_field"`
-	Bar      *selects.HasOne[*Bar]  `json:"bar"`
-	Bars     *selects.HasMany[*Bar] `json:"bars"`
+	ID   int                    `json:"id"   db:"id,primary,autoincrement"`
+	Name string                 `json:"name" db:"name"`
+	Bar  *selects.HasOne[*Bar]  `json:"bar"`
+	Bars *selects.HasMany[*Bar] `json:"bars"`
 }
 
 func (h *Foo) Table() string {

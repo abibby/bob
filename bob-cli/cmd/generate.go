@@ -28,8 +28,9 @@ import (
 )
 
 func main() {
-	%s.Use()
-	src, err := migrate.GenerateMigration(%#v, %#v, &%s.%s{})
+	m := %s.Use()
+
+	src, err := m.GenerateMigration(%#v, %#v, &%s.%s{})
 	if errors.Is(err, migrate.ErrNoChanges) {
 		return 
 	} else if err != nil {
@@ -44,7 +45,15 @@ func main() {
 `
 var srcMigrations = `package %s
 
-func Use() {}
+import (
+	"github.com/abibby/bob/migrate"
+)
+
+var migrations = migrate.New()
+
+func Use() *migrate.Migrations {
+	return migrations
+}
 `
 
 // generateCmd represents the generate command
@@ -61,6 +70,10 @@ var generateCmd = &cobra.Command{
 		packageName := "migrations"
 		migrationsDir := path.Join(root, packageName)
 
+		err = os.MkdirAll(migrationsDir, 0755)
+		if err != nil {
+			return err
+		}
 		err = os.WriteFile(path.Join(migrationsDir, "migrations.go"), []byte(fmt.Sprintf(srcMigrations, packageName)), 0644)
 		if err != nil {
 			return err
