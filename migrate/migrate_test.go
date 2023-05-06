@@ -34,9 +34,7 @@ func TestGenerateMigration(t *testing.T) {
 					table.Int("id").Primary()
 				})
 			},
-			Down: func() builder.ToSQLer {
-				return schema.DropIfExists("test_models")
-			},
+			Down: nil,
 		})
 
 		type TestModel struct {
@@ -59,9 +57,7 @@ func TestGenerateMigration(t *testing.T) {
 					table.String("to_drop")
 				})
 			},
-			Down: func() builder.ToSQLer {
-				return schema.DropIfExists("test_models")
-			},
+			Down: nil,
 		})
 
 		type TestModel struct {
@@ -82,9 +78,7 @@ func TestGenerateMigration(t *testing.T) {
 					table.Int("id").Primary()
 				})
 			},
-			Down: func() builder.ToSQLer {
-				return schema.DropIfExists("test_models")
-			},
+			Down: nil,
 		})
 
 		type TestModel struct {
@@ -105,9 +99,7 @@ func TestGenerateMigration(t *testing.T) {
 					table.Int("id").Primary()
 				})
 			},
-			Down: func() builder.ToSQLer {
-				return schema.DropIfExists("test_models")
-			},
+			Down: nil,
 		})
 
 		type TestModel struct {

@@ -7,6 +7,7 @@ import (
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/dialects"
 	_ "github.com/abibby/bob/dialects/sqlite"
+	"github.com/abibby/bob/migrations"
 	"github.com/abibby/bob/models"
 	"github.com/abibby/bob/selects"
 	"github.com/jmoiron/sqlx"
@@ -59,18 +60,8 @@ func (h *Bar) Table() string {
 	return "bars"
 }
 
-const createTables = `CREATE TABLE foos (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	name varchar(255) not null default ''
-);
-CREATE TABLE bars (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	foo_id INTEGER not null
-);`
-
 func init() {
 	bobtesting.SetMigrate(func(db *sqlx.DB) error {
-		_, err := db.Exec(createTables)
-		return err
+		return migrations.Use().Up(db)
 	})
 }

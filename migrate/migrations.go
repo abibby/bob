@@ -1,10 +1,14 @@
 package migrate
 
 import (
+	"fmt"
+
 	"github.com/abibby/bob/builder"
+	"github.com/abibby/bob/dialects"
 	"github.com/abibby/bob/models"
 	"github.com/abibby/bob/schema"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/jmoiron/sqlx"
 )
 
 type Migrations struct {
@@ -70,4 +74,17 @@ func (m *Migrations) Blueprint(tableName string) *schema.Blueprint {
 		}
 	}
 	return result
+}
+func (m *Migrations) Up(tx sqlx.Execer) error {
+	for _, migration := range m.migrations {
+		sql, bindings, err := migration.Up().ToSQL(dialects.DefaultDialect)
+		if err != nil {
+			return fmt.Errorf("failed to prepare migration %s: %w", migration.Name, err)
+		}
+		_, err = tx.Exec(sql, bindings...)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
