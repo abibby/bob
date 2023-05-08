@@ -9,6 +9,7 @@ import (
 
 type CreateTableBuilder struct {
 	*Blueprint
+	ifNotExists bool
 }
 
 var _ builder.ToSQLer = &CreateTableBuilder{}
@@ -28,6 +29,9 @@ func (b *CreateTableBuilder) Type() BlueprintType {
 func (b *CreateTableBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
 	r := builder.Result()
 	r.AddString("CREATE TABLE")
+	if b.ifNotExists {
+		r.AddString("IF NOT EXISTS")
+	}
 	r.Add(builder.Identifier(b.name))
 	columns := make([]builder.ToSQLer, len(b.columns))
 	for i, c := range b.columns {
@@ -52,4 +56,8 @@ func (b *CreateTableBuilder) ToGo() string {
 		b.name,
 		b.Blueprint.ToGo(),
 	)
+}
+func (b *CreateTableBuilder) IfNotExists() *CreateTableBuilder {
+	b.ifNotExists = true
+	return b
 }

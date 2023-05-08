@@ -34,6 +34,10 @@ func (*SQLite) CurrentTime() string {
 	return "CURRENT_TIMESTAMP"
 }
 
+func (*SQLite) TableQuery() string {
+	return ""
+}
+
 func init() {
 	dialects.DefaultDialect = &SQLite{}
 }

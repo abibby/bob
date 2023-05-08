@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/abibby/bob/builder"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -21,11 +20,11 @@ func SetMigrate(cb func(db *sqlx.DB) error) {
 	migrate = cb
 }
 
-func RunWithDatabase[T testing.TB](t T, name string, cb func(t T, tx builder.QueryExecer)) bool {
+func RunWithDatabase[T testing.TB](t T, name string, cb func(t T, tx *sqlx.Tx)) bool {
 	var err error
 	if db == nil {
 		if migrate == nil {
-			panic(fmt.Errorf("No migrate function defined call bobtesting.SetMigrate() first"))
+			panic(fmt.Errorf("no migrate function defined call bobtesting.SetMigrate() first"))
 		}
 		db, err = sqlx.Open("sqlite3", ":memory:")
 		if err != nil {

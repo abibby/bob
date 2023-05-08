@@ -43,6 +43,7 @@ type Dialect interface {
 	Identifier(string) string
 	DataType(DataType) string
 	CurrentTime() string
+	TableQuery() string
 }
 
 type unsetDialect struct{}
@@ -57,6 +58,10 @@ func (*unsetDialect) DataType(t DataType) string {
 
 func (*unsetDialect) CurrentTime() string {
 	return "CURRENT_TIMESTAMP"
+}
+
+func (*unsetDialect) TableQuery() string {
+	return ""
 }
 
 var DefaultDialect Dialect = &unsetDialect{}

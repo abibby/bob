@@ -33,6 +33,10 @@ func (*MySQL) CurrentTime() string {
 	return "CURRENT_TIMESTAMP"
 }
 
+func (*MySQL) TableQuery() string {
+	return ""
+}
+
 func init() {
 	dialects.DefaultDialect = &MySQL{}
 }

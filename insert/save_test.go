@@ -10,11 +10,12 @@ import (
 	"github.com/abibby/bob/insert"
 	"github.com/abibby/bob/selects"
 	"github.com/abibby/bob/test"
+	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSave_create(t *testing.T) {
-	bobtesting.RunWithDatabase(t, "create", func(t *testing.T, tx builder.QueryExecer) {
+	bobtesting.RunWithDatabase(t, "create", func(t *testing.T, tx *sqlx.Tx) {
 		f := &test.Foo{
 			ID:   1,
 			Name: "test",
@@ -38,7 +39,7 @@ func TestSave_create(t *testing.T) {
 }
 
 func TestSave_update(t *testing.T) {
-	bobtesting.RunWithDatabase(t, "update", func(t *testing.T, tx builder.QueryExecer) {
+	bobtesting.RunWithDatabase(t, "update", func(t *testing.T, tx *sqlx.Tx) {
 		f := &test.Foo{
 			ID:   1,
 			Name: "test",
@@ -66,7 +67,7 @@ func TestSave_update(t *testing.T) {
 }
 
 func TestSave_model_is_in_database_after_saving(t *testing.T) {
-	bobtesting.RunWithDatabase(t, "model in database after saving", func(t *testing.T, tx builder.QueryExecer) {
+	bobtesting.RunWithDatabase(t, "model in database after saving", func(t *testing.T, tx *sqlx.Tx) {
 		f := &test.Foo{
 			ID: 1,
 		}
@@ -78,14 +79,14 @@ func TestSave_model_is_in_database_after_saving(t *testing.T) {
 }
 
 func TestSave_autoincrement(t *testing.T) {
-	bobtesting.RunWithDatabase(t, "autoincrement", func(t *testing.T, tx builder.QueryExecer) {
+	bobtesting.RunWithDatabase(t, "autoincrement", func(t *testing.T, tx *sqlx.Tx) {
 		f := &test.Foo{}
 		err := insert.Save(tx, f)
 		assert.NoError(t, err)
 
 		assert.Equal(t, f.ID, 1)
 	})
-	bobtesting.RunWithDatabase(t, "autoincrement set id", func(t *testing.T, tx builder.QueryExecer) {
+	bobtesting.RunWithDatabase(t, "autoincrement set id", func(t *testing.T, tx *sqlx.Tx) {
 		f := &test.Foo{
 			ID: 100,
 		}
@@ -116,7 +117,7 @@ func (f *FooSaveHookTest) Table() string {
 }
 
 func TestSave_hooks(t *testing.T) {
-	bobtesting.RunWithDatabase(t, "runs hooks", func(t *testing.T, tx builder.QueryExecer) {
+	bobtesting.RunWithDatabase(t, "runs hooks", func(t *testing.T, tx *sqlx.Tx) {
 		f := &FooSaveHookTest{
 			Foo: test.Foo{
 				ID: 1,
@@ -128,7 +129,7 @@ func TestSave_hooks(t *testing.T) {
 		assert.True(t, f.saved)
 	})
 
-	bobtesting.RunWithDatabase(t, "runs hooks on anonymise structs", func(t *testing.T, tx builder.QueryExecer) {
+	bobtesting.RunWithDatabase(t, "runs hooks on anonymise structs", func(t *testing.T, tx *sqlx.Tx) {
 		f := &FooSaveHookTestWrapper{
 			FooSaveHookTest{
 				Foo: test.Foo{
@@ -153,7 +154,7 @@ func (f *SaveFooReadonly) Table() string {
 }
 
 func TestSave_readonly(t *testing.T) {
-	bobtesting.RunWithDatabase(t, "runs hooks", func(t *testing.T, tx builder.QueryExecer) {
+	bobtesting.RunWithDatabase(t, "runs hooks", func(t *testing.T, tx *sqlx.Tx) {
 		f := &SaveFooReadonly{
 			Foo: test.Foo{
 				ID: 1,

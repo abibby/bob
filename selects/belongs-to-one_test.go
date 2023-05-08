@@ -4,17 +4,17 @@ import (
 	"testing"
 
 	"github.com/abibby/bob/bobtesting"
-	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/insert"
 	"github.com/abibby/bob/models"
 	"github.com/abibby/bob/selects"
 	"github.com/abibby/bob/test"
 	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestBelongsToLoad(t *testing.T) {
-	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx builder.QueryExecer) {
+	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {
 		foos := []*test.Foo{
 			{ID: 1},
 			{ID: 2},
@@ -45,7 +45,7 @@ func TestBelongsToLoad(t *testing.T) {
 		}
 	})
 
-	bobtesting.RunWithDatabase(t, "uuids", func(t *testing.T, tx builder.QueryExecer) {
+	bobtesting.RunWithDatabase(t, "uuids", func(t *testing.T, tx *sqlx.Tx) {
 		type Foo struct {
 			models.BaseModel
 			ID   int       `json:"id" db:"id,primary,autoincrement"`

@@ -6,14 +6,22 @@ import (
 
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/dialects"
+	"github.com/abibby/bob/insert"
 	"github.com/abibby/bob/models"
 	"github.com/abibby/bob/schema"
-	"github.com/davecgh/go-spew/spew"
+	"github.com/abibby/bob/selects"
+	"github.com/abibby/bob/set"
 )
 
 type DBMigration struct {
 	models.BaseModel
-	Name string `db:"name,primary"`
+	Name  string `db:"name,primary"`
+	Run   bool   `db:"run"`
+	table string
+}
+
+func (m *DBMigration) Table() string {
+	return m.table
 }
 
 type Migrations struct {
@@ -36,7 +44,6 @@ func (m *Migrations) isTableCreated(table string) bool {
 	for _, m := range m.migrations {
 		blueprinter, ok := m.Up().(schema.Blueprinter)
 		if !ok {
-			spew.Dump("not ok")
 			continue
 		}
 		if blueprinter.Type() == schema.BlueprintTypeCreate {
@@ -87,22 +94,59 @@ func (m *Migrations) Blueprint(tableName string) *schema.Blueprint {
 	return result
 }
 
-func (m *Migrations) Up(ctx context.Context, tx builder.QueryExecer) error {
-	// migrations, err := selects.From[*DBMigration]().
-	// 	From(m.table).
-	// 	OrderBy("name").
-	// 	WithContext(ctx).
-	// 	Get(tx)
-	// if err != nil {
-	// 	return err
-	// }
-	// TODO: dont rerun migrations
+func (m *Migrations) Up(ctx context.Context, db builder.QueryExecer) error {
+	sql, bindings, err := schema.Create(m.table, func(b *schema.Blueprint) {
+		b.String("name")
+		b.Bool("run")
+	}).IfNotExists().ToSQL(dialects.DefaultDialect)
+	if err != nil {
+		return err
+	}
+	_, err = db.ExecContext(ctx, sql, bindings...)
+	if err != nil {
+		return err
+	}
+
+	migrations, err := selects.New[*DBMigration]().
+		Select("*").
+		From(m.table).
+		OrderBy("name").
+		WithContext(ctx).
+		Get(db)
+	if err != nil {
+		return err
+	}
+
+	runMigrations := set.New[string]()
+	for _, migration := range migrations {
+		runMigrations.Add(migration.Name)
+	}
+
 	for _, migration := range m.migrations {
+		if runMigrations.Has(migration.Name) {
+			continue
+		}
+
+		m := &DBMigration{
+			Name:  migration.Name,
+			Run:   false,
+			table: m.table,
+		}
+		err = insert.SaveContext(ctx, db, m)
+		if err != nil {
+			return err
+		}
 		sql, bindings, err := migration.Up().ToSQL(dialects.DefaultDialect)
 		if err != nil {
 			return fmt.Errorf("failed to prepare migration %s: %w", migration.Name, err)
 		}
-		_, err = tx.ExecContext(ctx, sql, bindings...)
+		_, err = db.ExecContext(ctx, sql, bindings...)
+		if err != nil {
+			return err
+		}
+
+		m.Run = true
+		err = insert.SaveContext(ctx, db, m)
 		if err != nil {
 			return err
 		}
