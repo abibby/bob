@@ -4,8 +4,8 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/models"
-	"github.com/jmoiron/sqlx"
 )
 
 type BelongsTo[T models.Model] struct {
@@ -33,7 +33,7 @@ func (r *BelongsTo[T]) Initialize(parent any, field reflect.StructField) error {
 	return nil
 }
 
-func (r *BelongsTo[T]) Load(ctx context.Context, tx *sqlx.Tx, relations []Relationship) error {
+func (r *BelongsTo[T]) Load(ctx context.Context, tx builder.QueryExecer, relations []Relationship) error {
 	rm, err := r.relatedMap(ctx, tx, relations)
 	if err != nil {
 		return err

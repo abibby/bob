@@ -9,7 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func (b *Builder[T]) Get(tx *sqlx.Tx) ([]T, error) {
+func (b *Builder[T]) Get(tx builder.QueryExecer) ([]T, error) {
 	v := []T{}
 	err := b.Load(tx, &v)
 	if err != nil {
@@ -26,7 +26,7 @@ func (b *Builder[T]) Get(tx *sqlx.Tx) ([]T, error) {
 	return v, nil
 }
 
-func (b *Builder[T]) First(tx *sqlx.Tx) (T, error) {
+func (b *Builder[T]) First(tx builder.QueryExecer) (T, error) {
 	v, err := b.Clone().
 		Limit(1).
 		Get(tx)
@@ -41,7 +41,7 @@ func (b *Builder[T]) First(tx *sqlx.Tx) (T, error) {
 	return v[0], err
 }
 
-func (b *Builder[T]) Find(tx *sqlx.Tx, primaryKeyValue any) (T, error) {
+func (b *Builder[T]) Find(tx builder.QueryExecer, primaryKeyValue any) (T, error) {
 	var m T
 	pKeys := builder.PrimaryKey(m)
 	if len(pKeys) != 1 {
@@ -52,13 +52,13 @@ func (b *Builder[T]) Find(tx *sqlx.Tx, primaryKeyValue any) (T, error) {
 		First(tx)
 }
 
-func (b *Builder[T]) Load(tx *sqlx.Tx, v any) error {
+func (b *Builder[T]) Load(tx builder.QueryExecer, v any) error {
 	q, bindings, err := b.ToSQL(dialects.DefaultDialect)
 	if err != nil {
 		return err
 	}
 
-	err = tx.SelectContext(b.Context(), v, q, bindings...)
+	err = sqlx.SelectContext(b.Context(), tx, v, q, bindings...)
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func (b *Builder[T]) Load(tx *sqlx.Tx, v any) error {
 	return nil
 }
 
-func (b *Builder[T]) LoadOne(tx *sqlx.Tx, v any) error {
+func (b *Builder[T]) LoadOne(tx builder.QueryExecer, v any) error {
 	q, bindings, err := b.Clone().
 		Limit(1).
 		ToSQL(dialects.DefaultDialect)
@@ -84,7 +84,7 @@ func (b *Builder[T]) LoadOne(tx *sqlx.Tx, v any) error {
 		return err
 	}
 
-	err = tx.GetContext(b.Context(), v, q, bindings...)
+	err = sqlx.GetContext(b.Context(), tx, v, q, bindings...)
 	if err != nil {
 		return err
 	}

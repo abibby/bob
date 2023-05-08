@@ -4,8 +4,8 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/models"
-	"github.com/jmoiron/sqlx"
 )
 
 type HasMany[T models.Model] struct {
@@ -30,7 +30,7 @@ func (r *HasMany[T]) Initialize(parent any, field reflect.StructField) error {
 	r.relatedKey = relatedKey
 	return nil
 }
-func (r *HasMany[T]) Load(ctx context.Context, tx *sqlx.Tx, relations []Relationship) error {
+func (r *HasMany[T]) Load(ctx context.Context, tx builder.QueryExecer, relations []Relationship) error {
 	rm, err := r.relatedMap(ctx, tx, relations)
 	if err != nil {
 		return err

@@ -1,6 +1,7 @@
 package migrate
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/abibby/bob/builder"
@@ -8,15 +9,21 @@ import (
 	"github.com/abibby/bob/models"
 	"github.com/abibby/bob/schema"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/jmoiron/sqlx"
 )
 
+type DBMigration struct {
+	models.BaseModel
+	Name string `db:"name,primary"`
+}
+
 type Migrations struct {
+	table      string
 	migrations []*Migration
 }
 
 func New() *Migrations {
 	return &Migrations{
+		table:      "migrations",
 		migrations: []*Migration{},
 	}
 }
@@ -79,13 +86,23 @@ func (m *Migrations) Blueprint(tableName string) *schema.Blueprint {
 	}
 	return result
 }
-func (m *Migrations) Up(tx sqlx.Execer) error {
+
+func (m *Migrations) Up(ctx context.Context, tx builder.QueryExecer) error {
+	// migrations, err := selects.From[*DBMigration]().
+	// 	From(m.table).
+	// 	OrderBy("name").
+	// 	WithContext(ctx).
+	// 	Get(tx)
+	// if err != nil {
+	// 	return err
+	// }
+	// TODO: dont rerun migrations
 	for _, migration := range m.migrations {
 		sql, bindings, err := migration.Up().ToSQL(dialects.DefaultDialect)
 		if err != nil {
 			return fmt.Errorf("failed to prepare migration %s: %w", migration.Name, err)
 		}
-		_, err = tx.Exec(sql, bindings...)
+		_, err = tx.ExecContext(ctx, sql, bindings...)
 		if err != nil {
 			return err
 		}

@@ -4,8 +4,8 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/models"
-	"github.com/jmoiron/sqlx"
 )
 
 // HasOne
@@ -32,7 +32,7 @@ func (r *HasOne[T]) Initialize(parent any, field reflect.StructField) error {
 	return nil
 }
 
-// func (r *HasOne[T]) Load(ctx context.Context, tx *sqlx.Tx, relations []Relationship) error {
+// func (r *HasOne[T]) Load(ctx context.Context, tx builder.QueryExecer, relations []Relationship) error {
 // 	relatedLists, err := r.getRelated(ctx, tx, relations)
 // 	if err != nil {
 // 		return err
@@ -62,7 +62,7 @@ func (r *HasOne[T]) Initialize(parent any, field reflect.StructField) error {
 
 //		return nil
 //	}
-func (r *HasOne[T]) Load(ctx context.Context, tx *sqlx.Tx, relations []Relationship) error {
+func (r *HasOne[T]) Load(ctx context.Context, tx builder.QueryExecer, relations []Relationship) error {
 	rm, err := r.relatedMap(ctx, tx, relations)
 	if err != nil {
 		return err

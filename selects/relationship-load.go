@@ -6,22 +6,22 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/abibby/bob/builder"
 )
 
-func Load(tx *sqlx.Tx, v any, relation string) error {
+func Load(tx builder.QueryExecer, v any, relation string) error {
 	return LoadContext(context.Background(), tx, v, relation)
 }
-func LoadContext(ctx context.Context, tx *sqlx.Tx, v any, relation string) error {
+func LoadContext(ctx context.Context, tx builder.QueryExecer, v any, relation string) error {
 	return loadContext(ctx, tx, v, relation, false)
 }
-func LoadMissing(tx *sqlx.Tx, v any, relation string) error {
+func LoadMissing(tx builder.QueryExecer, v any, relation string) error {
 	return LoadMissingContext(context.Background(), tx, v, relation)
 }
-func LoadMissingContext(ctx context.Context, tx *sqlx.Tx, v any, relation string) error {
+func LoadMissingContext(ctx context.Context, tx builder.QueryExecer, v any, relation string) error {
 	return loadContext(ctx, tx, v, relation, true)
 }
-func loadContext(ctx context.Context, tx *sqlx.Tx, v any, relation string, onlyMissing bool) error {
+func loadContext(ctx context.Context, tx builder.QueryExecer, v any, relation string, onlyMissing bool) error {
 	relations := strings.Split(relation, ".")
 	for i, rel := range relations {
 		relations := []Relationship{}

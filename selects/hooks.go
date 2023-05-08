@@ -3,16 +3,16 @@ package selects
 import (
 	"context"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/abibby/bob/builder"
 )
 
 type BeforeSaver interface {
-	BeforeSave(ctx context.Context, tx *sqlx.Tx) error
+	BeforeSave(ctx context.Context, tx builder.QueryExecer) error
 }
 type AfterSaver interface {
-	AfterSave(ctx context.Context, tx *sqlx.Tx) error
+	AfterSave(ctx context.Context, tx builder.QueryExecer) error
 }
 
 type AfterLoader interface {
-	AfterLoad(ctx context.Context, tx *sqlx.Tx) error
+	AfterLoad(ctx context.Context, tx builder.QueryExecer) error
 }

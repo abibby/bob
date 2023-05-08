@@ -3,9 +3,9 @@ package bobtesting
 import (
 	"reflect"
 
+	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/insert"
 	"github.com/abibby/bob/models"
-	"github.com/jmoiron/sqlx"
 )
 
 type Factory[T models.Model] func() T
@@ -36,7 +36,7 @@ func (f Factory[T]) State(s func(T) T) Factory[T] {
 	}
 }
 
-func (f Factory[T]) Create(tx *sqlx.Tx) T {
+func (f Factory[T]) Create(tx builder.QueryExecer) T {
 	m := f()
 	err := insert.Save(tx, m)
 	if err != nil {
@@ -45,7 +45,7 @@ func (f Factory[T]) Create(tx *sqlx.Tx) T {
 	return m
 }
 
-func (f *CountFactory[T]) Create(tx *sqlx.Tx) []T {
+func (f *CountFactory[T]) Create(tx builder.QueryExecer) []T {
 	models := make([]T, f.count)
 	for i := 0; i < f.count; i++ {
 		m := f.factory()

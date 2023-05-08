@@ -3,7 +3,7 @@ package models
 import (
 	"context"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/abibby/bob/builder"
 )
 
 type Contexter interface {
@@ -28,12 +28,12 @@ func (m *BaseModel) Context() context.Context {
 	return m.ctx
 }
 
-func (m *BaseModel) AfterLoad(ctx context.Context, tx *sqlx.Tx) error {
+func (m *BaseModel) AfterLoad(ctx context.Context, tx builder.QueryExecer) error {
 	m.inDatabase = true
 	m.ctx = ctx
 	return nil
 }
-func (m *BaseModel) AfterSave(ctx context.Context, tx *sqlx.Tx) error {
+func (m *BaseModel) AfterSave(ctx context.Context, tx builder.QueryExecer) error {
 	m.inDatabase = true
 	m.ctx = ctx
 	return nil

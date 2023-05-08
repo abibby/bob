@@ -10,7 +10,6 @@ import (
 	"github.com/abibby/bob/hooks"
 	"github.com/abibby/bob/models"
 	"github.com/abibby/bob/selects"
-	"github.com/jmoiron/sqlx"
 )
 
 var relationshipInterface = reflect.TypeOf((*selects.Relationship)(nil)).Elem()
@@ -43,7 +42,7 @@ func columnsAndValues(v reflect.Value) ([]string, []any) {
 	return columns, values
 }
 
-func Save(tx *sqlx.Tx, v models.Model) error {
+func Save(tx builder.QueryExecer, v models.Model) error {
 	ctx := context.Background()
 	if v, ok := v.(models.Contexter); ok {
 		modelCtx := v.Context()
@@ -53,7 +52,7 @@ func Save(tx *sqlx.Tx, v models.Model) error {
 	}
 	return SaveContext(ctx, tx, v)
 }
-func SaveContext(ctx context.Context, tx *sqlx.Tx, v models.Model) error {
+func SaveContext(ctx context.Context, tx builder.QueryExecer, v models.Model) error {
 	err := hooks.BeforeSave(ctx, tx, v)
 	if err != nil {
 		return fmt.Errorf("before save hooks: %w", err)
@@ -84,7 +83,7 @@ func SaveContext(ctx context.Context, tx *sqlx.Tx, v models.Model) error {
 	return nil
 }
 
-func insert(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns []string, values []any) error {
+func insert(ctx context.Context, tx builder.QueryExecer, d dialects.Dialect, v any, columns []string, values []any) error {
 	rPKey, pKey, isAuto := isAutoIncrementing(v)
 	if isAuto {
 		newColumns := make([]string, 0, len(columns))
@@ -177,7 +176,7 @@ func isAutoIncrementing(v any) (reflect.Value, string, bool) {
 	return rPKey, pKey, true
 }
 
-func update(ctx context.Context, tx *sqlx.Tx, d dialects.Dialect, v any, columns []string, values []any) error {
+func update(ctx context.Context, tx builder.QueryExecer, d dialects.Dialect, v any, columns []string, values []any) error {
 	pKey := builder.PrimaryKey(v)
 	r := builder.Result().
 		AddString("UPDATE").

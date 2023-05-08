@@ -4,15 +4,15 @@ import (
 	"testing"
 
 	"github.com/abibby/bob/bobtesting"
+	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/insert"
 	"github.com/abibby/bob/selects"
 	"github.com/abibby/bob/test"
-	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHasMany_Load(t *testing.T) {
-	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {
+	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx builder.QueryExecer) {
 		foos := []*test.Foo{
 			{ID: 1},
 			{ID: 2},
@@ -72,7 +72,7 @@ func TestHasMany_Load(t *testing.T) {
 }
 
 func BenchmarkHasManyLoad(b *testing.B) {
-	bobtesting.RunWithDatabase(b, "", func(t *testing.B, tx *sqlx.Tx) {
+	bobtesting.RunWithDatabase(b, "", func(t *testing.B, tx builder.QueryExecer) {
 		foos := make([]*test.Foo, 100)
 		for i := 0; i < 100; i++ {
 			f := &test.Foo{ID: i}

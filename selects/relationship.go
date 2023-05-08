@@ -7,7 +7,6 @@ import (
 	"reflect"
 
 	"github.com/abibby/bob/builder"
-	"github.com/jmoiron/sqlx"
 )
 
 type ForeignKey struct {
@@ -23,7 +22,7 @@ func (f *ForeignKey) Equal(v *ForeignKey) bool {
 type Relationship interface {
 	Subquery() *SubBuilder
 	Initialize(self any, field reflect.StructField) error
-	Load(ctx context.Context, tx *sqlx.Tx, relations []Relationship) error
+	Load(ctx context.Context, tx builder.QueryExecer, relations []Relationship) error
 	Loaded() bool
 	ForeignKeys() []*ForeignKey
 }
