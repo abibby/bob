@@ -145,10 +145,10 @@ func (b *ColumnBuilder) ToGo() string {
 }
 
 func (b *CreateTableBuilder) Columns(columns ...*ColumnBuilder) *CreateTableBuilder {
-	b.columns = columns
+	b.blueprint.columns = columns
 	return b
 }
 func (b *CreateTableBuilder) AddColumns(columns ...*ColumnBuilder) *CreateTableBuilder {
-	b.columns = append(b.columns, columns...)
+	b.blueprint.columns = append(b.blueprint.columns, columns...)
 	return b
 }

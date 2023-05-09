@@ -22,7 +22,7 @@ var makeMigrationCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := util.Name(args)
 
-		root, err := util.PackageRoot()
+		root, err := util.PackageRoot(".")
 		if err != nil {
 			return err
 		}

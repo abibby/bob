@@ -25,6 +25,7 @@ import (
 	"os"
 
 	"github.com/abibby/bob/migrate"
+	%#v
 )
 
 func main() {
@@ -32,7 +33,7 @@ func main() {
 
 	src, err := m.GenerateMigration(%#v, %#v, &%s.%s{})
 	if errors.Is(err, migrate.ErrNoChanges) {
-		return 
+		return
 	} else if err != nil {
 		log.Fatal(err)
 	}
@@ -43,6 +44,7 @@ func main() {
 	}
 }
 `
+
 var srcMigrations = `package %s
 
 import (
@@ -62,13 +64,13 @@ var generateCmd = &cobra.Command{
 	Short: "Run from go generate",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		root, err := util.PackageRoot()
+		info, err := util.PkgInfo(".")
 		if err != nil {
 			return err
 		}
 
 		packageName := "migrations"
-		migrationsDir := path.Join(root, packageName)
+		migrationsDir := path.Join(info.PackageRoot, packageName)
 
 		err = os.MkdirAll(migrationsDir, 0755)
 		if err != nil {
@@ -100,15 +102,16 @@ var generateCmd = &cobra.Command{
 		}
 		name := util.Name([]string{string(matches[1])})
 		migrationFile := path.Join(migrationsDir, name+".go")
-		src := []byte(fmt.Sprintf(srcMain, packageName, name, packageName, modelPackage, matches[1], migrationFile))
+		migrationsImport := path.Join(info.ImportPath, packageName)
+		src := []byte(fmt.Sprintf(srcMain, migrationsImport, packageName, name, packageName, modelPackage, matches[1], migrationFile))
+		// fmt.Printf("%s\n", src)
 
-		outFile := path.Join(root, fmt.Sprintf("main-%s.go", name))
+		tmp := os.TempDir()
+		outFile := path.Join(tmp, fmt.Sprintf("bob-generate-main-%s.go", name))
 		src, err = imports.Process(outFile, src, nil)
 		if err != nil {
 			return err
 		}
-
-		// fmt.Printf("%s\n", src)
 
 		err = os.WriteFile(outFile, src, 0644)
 		if err != nil {

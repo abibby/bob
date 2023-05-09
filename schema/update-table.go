@@ -8,7 +8,7 @@ import (
 )
 
 type UpdateTableBuilder struct {
-	*Blueprint
+	blueprint *Blueprint
 }
 
 var _ builder.ToSQLer = &UpdateTableBuilder{}
@@ -18,8 +18,12 @@ func Table(name string, cb func(table *Blueprint)) *UpdateTableBuilder {
 	table := NewBlueprint(name)
 	cb(table)
 	return &UpdateTableBuilder{
-		Blueprint: table,
+		blueprint: table,
 	}
+}
+
+func (b *UpdateTableBuilder) GetBlueprint() *Blueprint {
+	return b.blueprint
 }
 func (b *UpdateTableBuilder) Type() BlueprintType {
 	return BlueprintTypeUpdate
@@ -27,8 +31,8 @@ func (b *UpdateTableBuilder) Type() BlueprintType {
 
 func (b *UpdateTableBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
 	r := builder.Result()
-	alterTable := builder.Concat(builder.Raw("ALTER TABLE "), builder.Identifier(b.name))
-	for _, column := range b.dropColumns {
+	alterTable := builder.Concat(builder.Raw("ALTER TABLE "), builder.Identifier(b.blueprint.name))
+	for _, column := range b.blueprint.dropColumns {
 		r.Add(builder.Concat(
 			alterTable,
 			builder.Raw(" DROP COLUMN "),
@@ -36,7 +40,7 @@ func (b *UpdateTableBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
 			builder.Raw(";"),
 		))
 	}
-	for _, column := range b.columns {
+	for _, column := range b.blueprint.columns {
 		if column.change {
 			r.Add(builder.Concat(
 				alterTable,
@@ -59,7 +63,7 @@ func (b *UpdateTableBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
 func (b *UpdateTableBuilder) ToGo() string {
 	return fmt.Sprintf(
 		"schema.Table(%#v, %s)",
-		b.name,
-		b.Blueprint.ToGo(),
+		b.blueprint.name,
+		b.blueprint.ToGo(),
 	)
 }

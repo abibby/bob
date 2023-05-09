@@ -119,7 +119,9 @@ func (m *Migrations) Up(ctx context.Context, db builder.QueryExecer) error {
 
 	runMigrations := set.New[string]()
 	for _, migration := range migrations {
-		runMigrations.Add(migration.Name)
+		if migration.Run {
+			runMigrations.Add(migration.Name)
+		}
 	}
 
 	for _, migration := range m.migrations {
