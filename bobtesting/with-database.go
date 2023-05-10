@@ -24,7 +24,7 @@ func RunWithDatabase[T testing.TB](t T, name string, cb func(t T, tx *sqlx.Tx)) 
 	var err error
 	if db == nil {
 		if migrate == nil {
-			panic(fmt.Errorf("No migrate function defined call bobtesting.SetMigrate() first"))
+			panic(fmt.Errorf("no migrate function defined call bobtesting.SetMigrate() first"))
 		}
 		db, err = sqlx.Open("sqlite3", ":memory:")
 		if err != nil {

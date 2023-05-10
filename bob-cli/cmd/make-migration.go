@@ -7,9 +7,9 @@ import (
 	"os"
 	"path"
 
+	"github.com/abibby/bob/bob-cli/pkg"
 	"github.com/abibby/bob/bob-cli/util"
 	"github.com/abibby/bob/migrate"
-	"github.com/abibby/bob/schema"
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +22,7 @@ var makeMigrationCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := util.Name(args)
 
-		root, err := util.PackageRoot()
+		root, _, err := util.PackageRoot(".")
 		if err != nil {
 			return err
 		}
@@ -34,7 +34,10 @@ var makeMigrationCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		src, err := migrate.SrcFile(name, packageName, schema.Table("", func(t *schema.Blueprint) {}), schema.Table("", func(t *schema.Blueprint) {}))
+		run := "schema.Run(func(ctx context.Context, tx builder.QueryExecer) error {\n" +
+			"return nil\n" +
+			"})"
+		src, err := migrate.SrcFile(name, packageName, pkg.Raw(run), pkg.Raw(run))
 		if err != nil {
 			return err
 		}

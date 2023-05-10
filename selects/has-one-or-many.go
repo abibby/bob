@@ -7,7 +7,6 @@ import (
 
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/models"
-	"github.com/jmoiron/sqlx"
 )
 
 type iHasOneOrMany interface {
@@ -25,6 +24,7 @@ type hasOneOrMany[T models.Model] struct {
 
 var _ iHasOneOrMany = hasOneOrMany[models.Model]{}
 
+// Subquery returns a SubBuilder scoped to the relationship.
 func (r hasOneOrMany[T]) Subquery() *SubBuilder {
 	return From[T]().
 		WhereColumn(r.relatedKey, "=", builder.GetTable(r.parent)+"."+r.parentKey).
@@ -46,6 +46,8 @@ func (r hasOneOrMany[T]) getRelatedKey() string {
 	return r.relatedKey
 }
 
+// ForeignKeys returns a list of related tables and what columns they are
+// related on.
 func (r hasOneOrMany[T]) ForeignKeys() []*ForeignKey {
 	var related T
 	return []*ForeignKey{{
@@ -54,7 +56,7 @@ func (r hasOneOrMany[T]) ForeignKeys() []*ForeignKey {
 		RelatedKey:   r.getRelatedKey(),
 	}}
 }
-func (r hasOneOrMany[T]) getRelated(ctx context.Context, tx *sqlx.Tx, relations []Relationship) ([]T, error) {
+func (r hasOneOrMany[T]) getRelated(ctx context.Context, tx builder.QueryExecer, relations []Relationship) ([]T, error) {
 	localKeys := make([]any, 0, len(relations))
 	for _, r := range relations {
 		local, ok := r.(iHasOneOrMany).parentKeyValue()
@@ -127,7 +129,7 @@ func (rm relatedMap[T]) Add(k any, v T) {
 	rm[k] = m
 }
 
-func (r hasOneOrMany[T]) relatedMap(ctx context.Context, tx *sqlx.Tx, relations []Relationship) (relatedMap[T], error) {
+func (r hasOneOrMany[T]) relatedMap(ctx context.Context, tx builder.QueryExecer, relations []Relationship) (relatedMap[T], error) {
 	var related T
 	if !builder.HasField(related, r.getRelatedKey()) {
 		return nil, fmt.Errorf("%s has no field %s: %w", reflect.TypeOf(related).Name(), r.getRelatedKey(), ErrMissingField)

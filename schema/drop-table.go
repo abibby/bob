@@ -1,10 +1,18 @@
 package schema
 
-import "github.com/abibby/bob/builder"
+import (
+	"context"
 
-func Drop(table string) builder.ToSQLer {
-	return builder.Concat(builder.Raw("DROP TABLE "), builder.Identifier(table))
+	"github.com/abibby/bob/builder"
+)
+
+func Drop(table string) Runner {
+	return Run(func(ctx context.Context, tx builder.QueryExecer) error {
+		return runQuery(ctx, tx, builder.Concat(builder.Raw("DROP TABLE "), builder.Identifier(table)))
+	})
 }
-func DropIfExists(table string) builder.ToSQLer {
-	return builder.Concat(builder.Raw("DROP TABLE IF EXISTS "), builder.Identifier(table))
+func DropIfExists(table string) Runner {
+	return Run(func(ctx context.Context, tx builder.QueryExecer) error {
+		return runQuery(ctx, tx, builder.Concat(builder.Raw("DROP TABLE IF EXISTS "), builder.Identifier(table)))
+	})
 }

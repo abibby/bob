@@ -14,9 +14,9 @@ import (
 func TestGet(t *testing.T) {
 	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {
 		const insert = "INSERT INTO foos (id, name) values (?,?)"
-		_, err := tx.Exec(insert, 1, "test1")
+		_, err := tx.ExecContext(context.Background(), insert, 1, "test1")
 		assert.NoError(t, err)
-		_, err = tx.Exec(insert, 2, "test2")
+		_, err = tx.ExecContext(context.Background(), insert, 2, "test2")
 		assert.NoError(t, err)
 
 		foos, err := selects.From[*test.Foo]().Get(tx)
@@ -31,9 +31,9 @@ func TestGet(t *testing.T) {
 func TestFirst(t *testing.T) {
 	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {
 		const insert = "INSERT INTO foos (id, name) values (?,?)"
-		_, err := tx.Exec(insert, 1, "test1")
+		_, err := tx.ExecContext(context.Background(), insert, 1, "test1")
 		assert.NoError(t, err)
-		_, err = tx.Exec(insert, 2, "test2")
+		_, err = tx.ExecContext(context.Background(), insert, 2, "test2")
 		assert.NoError(t, err)
 
 		foo, err := selects.From[*test.Foo]().First(tx)

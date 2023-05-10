@@ -70,19 +70,34 @@ func getFields(m models.Model) ([]*field, error) {
 				switch t.Kind() {
 				case reflect.Bool:
 					f.dataType = dialects.DataTypeBoolean
-				case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-					f.dataType = dialects.DataTypeInteger
-				case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-					f.dataType = dialects.DataTypeUnsignedInteger
-				case reflect.Float32, reflect.Float64:
-					f.dataType = dialects.DataTypeFloat
+				case reflect.Int8:
+					f.dataType = dialects.DataTypeInt8
+				case reflect.Int16:
+					f.dataType = dialects.DataTypeInt16
+				case reflect.Int32:
+					f.dataType = dialects.DataTypeInt32
+				case reflect.Int, reflect.Int64:
+					f.dataType = dialects.DataTypeInt32
+				case reflect.Uint8:
+					f.dataType = dialects.DataTypeUInt8
+				case reflect.Uint16:
+					f.dataType = dialects.DataTypeUInt16
+				case reflect.Uint32:
+					f.dataType = dialects.DataTypeUInt32
+				case reflect.Uint, reflect.Uint64:
+					f.dataType = dialects.DataTypeUInt32
+				case reflect.Float32:
+					f.dataType = dialects.DataTypeFloat32
+				case reflect.Float64:
+					f.dataType = dialects.DataTypeFloat64
 				case reflect.String:
 					f.dataType = dialects.DataTypeString
 				case reflect.Map, reflect.Slice, reflect.Struct:
 					f.dataType = dialects.DataTypeJSON
 				case reflect.Array:
 					f.dataType = dialects.DataTypeBlob
-					// case reflect.Complex64, reflect.Complex128:
+				default:
+					return fmt.Errorf("no datatype for %v", t.Kind())
 				}
 			}
 		}

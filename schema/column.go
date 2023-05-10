@@ -95,22 +95,21 @@ func (b *ColumnBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if b.primary {
 		r.AddString("PRIMARY KEY")
 	}
-	if b.autoIncrement {
-		r.AddString("AUTOINCREMENT")
-	}
-	if !b.nullable {
-		r.AddString("NOT NULL")
-	}
 	if b.defaultValue != nil {
 		r.AddString("DEFAULT").
 			Add(b.defaultValue)
-	}
-	if b.defaultCurrentTime {
+	} else if b.defaultCurrentTime {
 		r.AddString("DEFAULT").
 			AddString(d.CurrentTime())
 	}
 	if b.unique {
 		r.AddString("UNIQUE")
+	}
+	if b.autoIncrement {
+		r.AddString("AUTOINCREMENT")
+	}
+	if !b.nullable {
+		r.AddString("NOT NULL")
 	}
 	return r.ToSQL(d)
 }
@@ -145,10 +144,10 @@ func (b *ColumnBuilder) ToGo() string {
 }
 
 func (b *CreateTableBuilder) Columns(columns ...*ColumnBuilder) *CreateTableBuilder {
-	b.columns = columns
+	b.blueprint.columns = columns
 	return b
 }
 func (b *CreateTableBuilder) AddColumns(columns ...*ColumnBuilder) *CreateTableBuilder {
-	b.columns = append(b.columns, columns...)
+	b.blueprint.columns = append(b.blueprint.columns, columns...)
 	return b
 }

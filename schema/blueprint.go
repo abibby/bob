@@ -68,15 +68,52 @@ func (t *Blueprint) Bool(name string) *ColumnBuilder {
 }
 
 func (t *Blueprint) Int(name string) *ColumnBuilder {
-	return t.OfType(dialects.DataTypeInteger, name)
+	return t.Int32(name)
 }
 
+func (t *Blueprint) Int8(name string) *ColumnBuilder {
+	return t.OfType(dialects.DataTypeInt8, name)
+}
+
+func (t *Blueprint) Int16(name string) *ColumnBuilder {
+	return t.OfType(dialects.DataTypeInt16, name)
+}
+
+func (t *Blueprint) Int32(name string) *ColumnBuilder {
+	return t.OfType(dialects.DataTypeInt32, name)
+}
+
+func (t *Blueprint) Int64(name string) *ColumnBuilder {
+	return t.OfType(dialects.DataTypeInt64, name)
+}
 func (t *Blueprint) UInt(name string) *ColumnBuilder {
-	return t.OfType(dialects.DataTypeUnsignedInteger, name)
+	return t.UInt32(name)
+}
+
+func (t *Blueprint) UInt8(name string) *ColumnBuilder {
+	return t.OfType(dialects.DataTypeUInt8, name)
+}
+
+func (t *Blueprint) UInt16(name string) *ColumnBuilder {
+	return t.OfType(dialects.DataTypeUInt16, name)
+}
+
+func (t *Blueprint) UInt32(name string) *ColumnBuilder {
+	return t.OfType(dialects.DataTypeUInt32, name)
+}
+
+func (t *Blueprint) UInt64(name string) *ColumnBuilder {
+	return t.OfType(dialects.DataTypeUInt64, name)
 }
 
 func (t *Blueprint) Float(name string) *ColumnBuilder {
-	return t.OfType(dialects.DataTypeFloat, name)
+	return t.Float32(name)
+}
+func (t *Blueprint) Float32(name string) *ColumnBuilder {
+	return t.OfType(dialects.DataTypeFloat32, name)
+}
+func (t *Blueprint) Float64(name string) *ColumnBuilder {
+	return t.OfType(dialects.DataTypeFloat64, name)
 }
 
 func (t *Blueprint) JSON(name string) *ColumnBuilder {
@@ -118,15 +155,22 @@ func (b *Blueprint) ToGo() string {
 	src := "func(table *schema.Blueprint) {\n"
 	for _, c := range b.columns {
 		m := map[dialects.DataType]string{
-			dialects.DataTypeBlob:            "Blob",
-			dialects.DataTypeBoolean:         "Bool",
-			dialects.DataTypeDate:            "Date",
-			dialects.DataTypeDateTime:        "DateTime",
-			dialects.DataTypeFloat:           "Float",
-			dialects.DataTypeInteger:         "Int",
-			dialects.DataTypeJSON:            "JSON",
-			dialects.DataTypeString:          "String",
-			dialects.DataTypeUnsignedInteger: "UInt",
+			dialects.DataTypeBlob:     "Blob",
+			dialects.DataTypeBoolean:  "Bool",
+			dialects.DataTypeDate:     "Date",
+			dialects.DataTypeDateTime: "DateTime",
+			dialects.DataTypeFloat32:  "Float",
+			dialects.DataTypeFloat64:  "Float64",
+			dialects.DataTypeInt8:     "Int8",
+			dialects.DataTypeInt16:    "Int16",
+			dialects.DataTypeInt32:    "Int",
+			dialects.DataTypeInt64:    "Int64",
+			dialects.DataTypeJSON:     "JSON",
+			dialects.DataTypeString:   "String",
+			dialects.DataTypeUInt8:    "UInt8",
+			dialects.DataTypeUInt16:   "UInt16",
+			dialects.DataTypeUInt32:   "UInt",
+			dialects.DataTypeUInt64:   "UInt64",
 		}
 		src += fmt.Sprintf("\ttable.%s(%#v)%s\n", m[c.datatype], c.name, c.ToGo())
 	}

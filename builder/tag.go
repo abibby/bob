@@ -43,5 +43,6 @@ func DBTag(f reflect.StructField) *Tag {
 			}
 		}
 	}
+
 	return tag
 }

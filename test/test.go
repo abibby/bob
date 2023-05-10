@@ -1,6 +1,7 @@
 package test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/abibby/bob/bobtesting"
@@ -62,6 +63,6 @@ func (h *Bar) Table() string {
 
 func init() {
 	bobtesting.SetMigrate(func(db *sqlx.DB) error {
-		return migrations.Use().Up(db)
+		return migrations.Use().Up(context.Background(), db)
 	})
 }

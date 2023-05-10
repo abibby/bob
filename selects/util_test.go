@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/insert"
 	"github.com/abibby/bob/models"
 	"github.com/abibby/bob/selects"
 	"github.com/abibby/bob/test"
-	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,7 +16,7 @@ func NewTestBuilder() *selects.Builder[*test.Foo] {
 	return selects.From[*test.Foo]()
 }
 
-func MustSave(tx *sqlx.Tx, v models.Model) {
+func MustSave(tx builder.QueryExecer, v models.Model) {
 	err := insert.Save(tx, v)
 	if err != nil {
 		panic(err)

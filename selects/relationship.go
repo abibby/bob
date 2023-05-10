@@ -7,7 +7,6 @@ import (
 	"reflect"
 
 	"github.com/abibby/bob/builder"
-	"github.com/jmoiron/sqlx"
 )
 
 type ForeignKey struct {
@@ -23,7 +22,7 @@ func (f *ForeignKey) Equal(v *ForeignKey) bool {
 type Relationship interface {
 	Subquery() *SubBuilder
 	Initialize(self any, field reflect.StructField) error
-	Load(ctx context.Context, tx *sqlx.Tx, relations []Relationship) error
+	Load(ctx context.Context, tx builder.QueryExecer, relations []Relationship) error
 	Loaded() bool
 	ForeignKeys() []*ForeignKey
 }
@@ -38,9 +37,13 @@ var (
 	ErrMissingField        = fmt.Errorf("missing related field")
 )
 
+// Value will return the related value and if it has been fetched.
 func (v *relationValue[T]) Value() (T, bool) {
 	return v.value, v.loaded
 }
+
+// Loaded returns true if the relationship has been fetched and false if it has
+// not.
 func (v *relationValue[T]) Loaded() bool {
 	return v.loaded
 }

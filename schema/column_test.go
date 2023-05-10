@@ -12,7 +12,7 @@ func TestColumnBuilder(t *testing.T) {
 	test.QueryTest(t, []test.Case{
 		{
 			Name:             "column",
-			Builder:          schema.NewColumn("foo", dialects.DataTypeInteger),
+			Builder:          schema.NewColumn("foo", dialects.DataTypeInt32),
 			ExpectedSQL:      "\"foo\" INTEGER NOT NULL",
 			ExpectedBindings: []any{},
 		},
@@ -30,13 +30,13 @@ func TestColumnBuilder(t *testing.T) {
 		},
 		{
 			Name:             "Primary",
-			Builder:          schema.NewColumn("foo", dialects.DataTypeInteger).Primary(),
+			Builder:          schema.NewColumn("foo", dialects.DataTypeInt32).Primary(),
 			ExpectedSQL:      "\"foo\" INTEGER PRIMARY KEY NOT NULL",
 			ExpectedBindings: []any{},
 		},
 		{
 			Name:             "AutoIncrement",
-			Builder:          schema.NewColumn("foo", dialects.DataTypeInteger).AutoIncrement(),
+			Builder:          schema.NewColumn("foo", dialects.DataTypeInt32).AutoIncrement(),
 			ExpectedSQL:      "\"foo\" INTEGER AUTOINCREMENT NOT NULL",
 			ExpectedBindings: []any{},
 		},
@@ -48,7 +48,7 @@ func TestColumnBuilder(t *testing.T) {
 		},
 		{
 			Name:             "Type",
-			Builder:          schema.NewColumn("foo", dialects.DataTypeString).Type(dialects.DataTypeInteger),
+			Builder:          schema.NewColumn("foo", dialects.DataTypeString).Type(dialects.DataTypeInt32),
 			ExpectedSQL:      "\"foo\" INTEGER NOT NULL",
 			ExpectedBindings: []any{},
 		},

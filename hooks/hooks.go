@@ -4,21 +4,21 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/abibby/bob/builder"
 )
 
 type BeforeSaver interface {
-	BeforeSave(ctx context.Context, tx *sqlx.Tx) error
+	BeforeSave(ctx context.Context, tx builder.QueryExecer) error
 }
 type AfterSaver interface {
-	AfterSave(ctx context.Context, tx *sqlx.Tx) error
+	AfterSave(ctx context.Context, tx builder.QueryExecer) error
 }
 
 type AfterLoader interface {
-	AfterLoad(ctx context.Context, tx *sqlx.Tx) error
+	AfterLoad(ctx context.Context, tx builder.QueryExecer) error
 }
 
-func BeforeSave(ctx context.Context, tx *sqlx.Tx, model interface{}) error {
+func BeforeSave(ctx context.Context, tx builder.QueryExecer, model interface{}) error {
 	if model, ok := model.(BeforeSaver); ok {
 		err := model.BeforeSave(ctx, tx)
 		if err != nil {
@@ -30,7 +30,7 @@ func BeforeSave(ctx context.Context, tx *sqlx.Tx, model interface{}) error {
 	})
 }
 
-func AfterSave(ctx context.Context, tx *sqlx.Tx, model interface{}) error {
+func AfterSave(ctx context.Context, tx builder.QueryExecer, model interface{}) error {
 	if model, ok := model.(AfterSaver); ok {
 		err := model.AfterSave(ctx, tx)
 		if err != nil {
@@ -42,7 +42,7 @@ func AfterSave(ctx context.Context, tx *sqlx.Tx, model interface{}) error {
 	})
 }
 
-func AfterLoad(ctx context.Context, tx *sqlx.Tx, model interface{}) error {
+func AfterLoad(ctx context.Context, tx builder.QueryExecer, model interface{}) error {
 	if model, ok := model.(AfterLoader); ok {
 		err := model.AfterLoad(ctx, tx)
 		if err != nil {

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/abibby/bob/bobtesting"
+	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/hooks"
 	"github.com/abibby/bob/insert"
 	"github.com/abibby/bob/selects"
@@ -22,7 +23,7 @@ func TestSave_create(t *testing.T) {
 		err := insert.Save(tx, f)
 		assert.NoError(t, err)
 
-		rows, err := tx.Query("select id, name from foos")
+		rows, err := tx.QueryContext(context.Background(), "select id, name from foos")
 		assert.NoError(t, err)
 
 		assert.True(t, rows.Next())
@@ -50,7 +51,7 @@ func TestSave_update(t *testing.T) {
 		err = insert.Save(tx, f)
 		assert.NoError(t, err)
 
-		rows, err := tx.Query("select id, name from foos")
+		rows, err := tx.QueryContext(context.Background(), "select id, name from foos")
 		assert.NoError(t, err)
 
 		assert.True(t, rows.Next())
@@ -107,7 +108,7 @@ type FooSaveHookTestWrapper struct {
 
 var _ hooks.AfterSaver = &FooSaveHookTest{}
 
-func (f *FooSaveHookTest) AfterSave(context.Context, *sqlx.Tx) error {
+func (f *FooSaveHookTest) AfterSave(context.Context, builder.QueryExecer) error {
 	f.saved = true
 	return nil
 }
