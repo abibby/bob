@@ -1,10 +1,16 @@
 package selects_test
 
 import (
+	"context"
+	"fmt"
 	"testing"
 
+	"github.com/abibby/bob"
 	"github.com/abibby/bob/bobtesting"
+	"github.com/abibby/bob/dialects"
+	"github.com/abibby/bob/dialects/sqlite"
 	"github.com/abibby/bob/insert"
+	"github.com/abibby/bob/migrate"
 	"github.com/abibby/bob/models"
 	"github.com/abibby/bob/selects"
 	"github.com/abibby/bob/test"
@@ -12,6 +18,41 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 )
+
+func ExampleBelongsTo() {
+	dialects.DefaultDialect = &sqlite.SQLite{}
+	type Bar struct {
+		bob.BaseModel
+		ID   int    `db:"id,autoincrement,primary"`
+		Name string `db:"name"`
+	}
+
+	type Foo struct {
+		bob.BaseModel
+		ID    int `db:"id,autoincrement,primary"`
+		BarID int `db:"bar_id"`
+		Bar   *selects.BelongsTo[*Bar]
+	}
+
+	db, _ := sqlx.Open("sqlite3", ":memory:")
+
+	createFoo, _ := migrate.CreateFromModel(&Foo{})
+	createFoo.Run(context.Background(), db)
+	createBar, _ := migrate.CreateFromModel(&Bar{})
+	createBar.Run(context.Background(), db)
+
+	foo := &Foo{BarID: 1}
+	bob.Save(db, foo)
+	bar := &Bar{ID: 1, Name: "bar name"}
+	bob.Save(db, bar)
+
+	selects.Load(db, foo, "Bar")
+	relatedBar, _ := foo.Bar.Value()
+
+	fmt.Println(relatedBar.Name)
+
+	// Output: bar name
+}
 
 func TestBelongsToLoad(t *testing.T) {
 	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {

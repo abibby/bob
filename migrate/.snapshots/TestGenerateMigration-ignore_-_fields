@@ -1,7 +1,6 @@
 package packageName
 
 import (
-	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/migrate"
 	"github.com/abibby/bob/schema"
 )
@@ -9,14 +8,10 @@ import (
 func init() {
 	migrations.Add(&migrate.Migration{
 		Name: "2023-01-01T00:00:00Z create test model",
-		Up: func() builder.ToSQLer {
-			return schema.Create("test_models", func(table *schema.Blueprint) {
-				table.Int("id").Primary()
-			})
-		},
-		Down: func() builder.ToSQLer {
-			return schema.DropIfExists("test_models")
-		},
+		Up: schema.Create("test_models", func(table *schema.Blueprint) {
+			table.Int("id").Primary()
+		}),
+		Down: schema.DropIfExists("test_models"),
 	})
 }
 

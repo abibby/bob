@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"go/format"
 
-	"github.com/abibby/bob/builder"
+	"github.com/abibby/bob/schema"
 	"golang.org/x/tools/imports"
 )
 
 type Migration struct {
 	Name string
-	Up   func() builder.ToSQLer
-	Down func() builder.ToSQLer
+	Up   schema.Runner
+	Down schema.Runner
 }
 
 func SrcFile(migrationName, packageName string, up, down ToGoer) (string, error) {
@@ -26,12 +26,8 @@ import (
 func init() {
 	migrations.Add(&migrate.Migration{
 		Name: %#v,
-		Up: func() builder.ToSQLer {
-			return %s
-		},
-		Down: func() builder.ToSQLer {
-			return %s
-		},
+		Up: %s,
+		Down: %s,
 	})
 }`
 

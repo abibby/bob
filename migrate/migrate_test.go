@@ -4,7 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/dialects"
 	"github.com/abibby/bob/migrate"
 	"github.com/abibby/bob/models"
@@ -38,11 +37,9 @@ func TestGenerateMigration(t *testing.T) {
 		m := migrate.New()
 		m.Add(&migrate.Migration{
 			Name: "2023-01-01T00:00:00Z create test model",
-			Up: func() builder.ToSQLer {
-				return schema.Create("test_models", func(table *schema.Blueprint) {
-					table.Int("id").Primary()
-				})
-			},
+			Up: schema.Create("test_models", func(table *schema.Blueprint) {
+				table.Int("id").Primary()
+			}),
 			Down: nil,
 		})
 
@@ -60,12 +57,10 @@ func TestGenerateMigration(t *testing.T) {
 		m := migrate.New()
 		m.Add(&migrate.Migration{
 			Name: "2023-01-01T00:00:00Z create test model",
-			Up: func() builder.ToSQLer {
-				return schema.Create("test_models", func(table *schema.Blueprint) {
-					table.Int("id").Primary()
-					table.String("to_drop")
-				})
-			},
+			Up: schema.Create("test_models", func(table *schema.Blueprint) {
+				table.Int("id").Primary()
+				table.String("to_drop")
+			}),
 			Down: nil,
 		})
 
@@ -82,11 +77,9 @@ func TestGenerateMigration(t *testing.T) {
 		m := migrate.New()
 		m.Add(&migrate.Migration{
 			Name: "2023-01-01T00:00:00Z create test model",
-			Up: func() builder.ToSQLer {
-				return schema.Create("test_models", func(table *schema.Blueprint) {
-					table.Int("id").Primary()
-				})
-			},
+			Up: schema.Create("test_models", func(table *schema.Blueprint) {
+				table.Int("id").Primary()
+			}),
 			Down: nil,
 		})
 
@@ -103,11 +96,9 @@ func TestGenerateMigration(t *testing.T) {
 		m := migrate.New()
 		m.Add(&migrate.Migration{
 			Name: "2023-01-01T00:00:00Z create test model",
-			Up: func() builder.ToSQLer {
-				return schema.Create("test_models", func(table *schema.Blueprint) {
-					table.Int("id").Primary()
-				})
-			},
+			Up: schema.Create("test_models", func(table *schema.Blueprint) {
+				table.Int("id").Primary()
+			}),
 			Down: nil,
 		})
 
@@ -123,20 +114,16 @@ func TestGenerateMigration(t *testing.T) {
 		m := migrate.New()
 		m.Add(&migrate.Migration{
 			Name: "2023-01-01T00:00:00Z create test model",
-			Up: func() builder.ToSQLer {
-				return schema.Create("test_models", func(table *schema.Blueprint) {
-					table.Int("id").Primary()
-				})
-			},
+			Up: schema.Create("test_models", func(table *schema.Blueprint) {
+				table.Int("id").Primary()
+			}),
 			Down: nil,
 		})
 		m.Add(&migrate.Migration{
 			Name: "2023-01-01T00:00:01Z change",
-			Up: func() builder.ToSQLer {
-				return schema.Table("test_models", func(table *schema.Blueprint) {
-					table.String("id").Primary().Change()
-				})
-			},
+			Up: schema.Table("test_models", func(table *schema.Blueprint) {
+				table.String("id").Primary().Change()
+			}),
 			Down: nil,
 		})
 

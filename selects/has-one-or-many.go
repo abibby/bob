@@ -24,6 +24,7 @@ type hasOneOrMany[T models.Model] struct {
 
 var _ iHasOneOrMany = hasOneOrMany[models.Model]{}
 
+// Subquery returns a SubBuilder scoped to the relationship.
 func (r hasOneOrMany[T]) Subquery() *SubBuilder {
 	return From[T]().
 		WhereColumn(r.relatedKey, "=", builder.GetTable(r.parent)+"."+r.parentKey).
@@ -45,6 +46,8 @@ func (r hasOneOrMany[T]) getRelatedKey() string {
 	return r.relatedKey
 }
 
+// ForeignKeys returns a list of related tables and what columns they are
+// related on.
 func (r hasOneOrMany[T]) ForeignKeys() []*ForeignKey {
 	var related T
 	return []*ForeignKey{{

@@ -14,7 +14,6 @@ import (
 
 	"github.com/abibby/bob/bob-cli/util"
 	"github.com/spf13/cobra"
-	"golang.org/x/tools/imports"
 )
 
 var srcMain = `package main
@@ -25,6 +24,7 @@ import (
 	"os"
 
 	"github.com/abibby/bob/migrate"
+	%#v
 	%#v
 )
 
@@ -102,16 +102,12 @@ var generateCmd = &cobra.Command{
 		}
 		name := util.Name([]string{string(matches[1])})
 		migrationFile := path.Join(migrationsDir, name+".go")
-		migrationsImport := path.Join(info.ImportPath, packageName)
-		src := []byte(fmt.Sprintf(srcMain, migrationsImport, packageName, name, packageName, modelPackage, matches[1], migrationFile))
+		migrationsImport := path.Join(info.RootPackage, packageName)
+		src := []byte(fmt.Sprintf(srcMain, migrationsImport, info.CurrentPackage, packageName, name, packageName, modelPackage, matches[1], migrationFile))
 		// fmt.Printf("%s\n", src)
 
 		tmp := os.TempDir()
 		outFile := path.Join(tmp, fmt.Sprintf("bob-generate-main-%s.go", name))
-		src, err = imports.Process(outFile, src, nil)
-		if err != nil {
-			return err
-		}
 
 		err = os.WriteFile(outFile, src, 0644)
 		if err != nil {

@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/abibby/bob/builder"
@@ -66,4 +67,8 @@ func (b *UpdateTableBuilder) ToGo() string {
 		b.blueprint.name,
 		b.blueprint.ToGo(),
 	)
+}
+
+func (b *UpdateTableBuilder) Run(ctx context.Context, tx builder.QueryExecer) error {
+	return runQuery(ctx, tx, b)
 }

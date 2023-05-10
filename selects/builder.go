@@ -8,6 +8,7 @@ import (
 	"github.com/abibby/bob/set"
 )
 
+// QueryBuilder is implemented by *Builder and *SubBuilder
 type QueryBuilder interface {
 	builder.ToSQLer
 	imALittleQueryBuilderShortAndStout()
@@ -27,6 +28,8 @@ type SubBuilder struct {
 	ctx      context.Context
 }
 
+// Builder represents an sql query and any bindings needed to run it.
+//
 //go:generate go run ../build/build.go
 type Builder[T models.Model] struct {
 	subBuilder    *SubBuilder
@@ -34,15 +37,19 @@ type Builder[T models.Model] struct {
 	withoutScopes set.Set[string]
 }
 
+// New creates a new Builder with * selected
 func New[T models.Model]() *Builder[T] {
 	return NewEmpty[T]().Select("*")
 }
 
+// From creates a new query from the models table and with table.* selected
 func From[T models.Model]() *Builder[T] {
 	var m T
-	return NewEmpty[T]().Select(builder.GetTable(m) + ".*").From(builder.GetTable(m))
+	table := builder.GetTable(m)
+	return NewEmpty[T]().Select(table + ".*").From(table)
 }
 
+// NewEmpty creates a new builder without anything selected
 func NewEmpty[T models.Model]() *Builder[T] {
 	var m T
 	sb := NewSubBuilder()
@@ -55,6 +62,8 @@ func NewEmpty[T models.Model]() *Builder[T] {
 		withoutScopes: set.New[string](),
 	}
 }
+
+// NewSubBuilder creates a new SubBuilder without anything selected
 func NewSubBuilder() *SubBuilder {
 	return &SubBuilder{
 		selects:  NewSelects(),

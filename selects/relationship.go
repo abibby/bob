@@ -37,9 +37,13 @@ var (
 	ErrMissingField        = fmt.Errorf("missing related field")
 )
 
+// Value will return the related value and if it has been fetched.
 func (v *relationValue[T]) Value() (T, bool) {
 	return v.value, v.loaded
 }
+
+// Loaded returns true if the relationship has been fetched and false if it has
+// not.
 func (v *relationValue[T]) Loaded() bool {
 	return v.loaded
 }

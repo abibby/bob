@@ -42,7 +42,7 @@ func (m *Migrations) Add(migration *Migration) {
 
 func (m *Migrations) isTableCreated(table string) bool {
 	for _, m := range m.migrations {
-		blueprinter, ok := m.Up().(schema.Blueprinter)
+		blueprinter, ok := m.Up.(schema.Blueprinter)
 		if !ok {
 			continue
 		}
@@ -58,7 +58,7 @@ func (m *Migrations) isTableCreated(table string) bool {
 
 func (m *Migrations) GenerateMigration(migrationName, packageName string, model models.Model) (string, error) {
 	if !m.isTableCreated(builder.GetTable(model)) {
-		up, err := create(model)
+		up, err := CreateFromModel(model)
 		if err != nil {
 			return "", err
 		}
@@ -76,7 +76,7 @@ func (m *Migrations) Blueprint(tableName string) *schema.Blueprint {
 	result := &schema.Blueprint{}
 
 	for _, migration := range m.migrations {
-		blueprinter, ok := migration.Up().(schema.Blueprinter)
+		blueprinter, ok := migration.Up.(schema.Blueprinter)
 		if !ok {
 			continue
 		}
@@ -138,13 +138,9 @@ func (m *Migrations) Up(ctx context.Context, db builder.QueryExecer) error {
 		if err != nil {
 			return err
 		}
-		sql, bindings, err := migration.Up().ToSQL(dialects.DefaultDialect)
+		err := migration.Up.Run(ctx, db)
 		if err != nil {
 			return fmt.Errorf("failed to prepare migration %s: %w", migration.Name, err)
-		}
-		_, err = db.ExecContext(ctx, sql, bindings...)
-		if err != nil {
-			return err
 		}
 
 		m.Run = true

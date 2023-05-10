@@ -8,7 +8,7 @@ import (
 	"github.com/abibby/bob/slices"
 )
 
-func create(m models.Model) (*schema.CreateTableBuilder, error) {
+func CreateFromModel(m models.Model) (*schema.CreateTableBuilder, error) {
 	err := selects.InitializeRelationships(m)
 	if err != nil {
 		panic(err)

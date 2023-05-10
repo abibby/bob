@@ -22,9 +22,9 @@ func (*SQLite) DataType(t dialects.DataType) string {
 		return "TEXT"
 	case dialects.DataTypeDate, dialects.DataTypeDateTime:
 		return "TIMESTAMP"
-	case dialects.DataTypeInteger, dialects.DataTypeUnsignedInteger, dialects.DataTypeBoolean:
+	case dialects.DataTypeInt32, dialects.DataTypeUInt32, dialects.DataTypeBoolean:
 		return "INTEGER"
-	case dialects.DataTypeFloat:
+	case dialects.DataTypeFloat32:
 		return "FLOAT"
 	}
 	return string(t)
@@ -32,10 +32,6 @@ func (*SQLite) DataType(t dialects.DataType) string {
 
 func (*SQLite) CurrentTime() string {
 	return "CURRENT_TIMESTAMP"
-}
-
-func (*SQLite) TableQuery() string {
-	return ""
 }
 
 func init() {

@@ -7,27 +7,55 @@ import (
 type DataType string
 
 const (
-	DataTypeBlob            = DataType("blob")
-	DataTypeBoolean         = DataType("bool")
-	DataTypeDate            = DataType("date")
-	DataTypeDateTime        = DataType("date-time")
-	DataTypeFloat           = DataType("float")
-	DataTypeInteger         = DataType("int")
-	DataTypeJSON            = DataType("json")
-	DataTypeString          = DataType("string")
-	DataTypeUnsignedInteger = DataType("uint")
+	DataTypeBlob   = DataType("blob")
+	DataTypeString = DataType("string")
+	DataTypeEnum   = DataType("enum")
+
+	DataTypeBoolean = DataType("bool")
+
+	DataTypeDate     = DataType("date")
+	DataTypeDateTime = DataType("date-time")
+
+	DataTypeFloat32 = DataType("float32")
+	DataTypeFloat64 = DataType("float64")
+
+	DataTypeInt8  = DataType("int8")
+	DataTypeInt16 = DataType("int16")
+	DataTypeInt32 = DataType("int32")
+	DataTypeInt64 = DataType("int64")
+
+	DataTypeUInt8  = DataType("uint8")
+	DataTypeUInt16 = DataType("uint16")
+	DataTypeUInt32 = DataType("uint32")
+	DataTypeUInt64 = DataType("uint64")
+
+	DataTypeJSON = DataType("json")
 )
 
 var dataTypes = set.Set[DataType]{
-	DataTypeBlob:            struct{}{},
-	DataTypeBoolean:         struct{}{},
-	DataTypeDate:            struct{}{},
-	DataTypeDateTime:        struct{}{},
-	DataTypeFloat:           struct{}{},
-	DataTypeInteger:         struct{}{},
-	DataTypeJSON:            struct{}{},
-	DataTypeString:          struct{}{},
-	DataTypeUnsignedInteger: struct{}{},
+	DataTypeBlob:   struct{}{},
+	DataTypeString: struct{}{},
+	DataTypeEnum:   struct{}{},
+
+	DataTypeBoolean: struct{}{},
+
+	DataTypeDate:     struct{}{},
+	DataTypeDateTime: struct{}{},
+
+	DataTypeFloat32: struct{}{},
+	DataTypeFloat64: struct{}{},
+
+	DataTypeInt8:  struct{}{},
+	DataTypeInt16: struct{}{},
+	DataTypeInt32: struct{}{},
+	DataTypeInt64: struct{}{},
+
+	DataTypeUInt8:  struct{}{},
+	DataTypeUInt16: struct{}{},
+	DataTypeUInt32: struct{}{},
+	DataTypeUInt64: struct{}{},
+
+	DataTypeJSON: struct{}{},
 }
 
 func (d DataType) IsValid() bool {
@@ -43,7 +71,6 @@ type Dialect interface {
 	Identifier(string) string
 	DataType(DataType) string
 	CurrentTime() string
-	TableQuery() string
 }
 
 type unsetDialect struct{}
@@ -58,10 +85,6 @@ func (*unsetDialect) DataType(t DataType) string {
 
 func (*unsetDialect) CurrentTime() string {
 	return "CURRENT_TIMESTAMP"
-}
-
-func (*unsetDialect) TableQuery() string {
-	return ""
 }
 
 var DefaultDialect Dialect = &unsetDialect{}

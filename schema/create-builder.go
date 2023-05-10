@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/abibby/bob/builder"
@@ -59,6 +60,9 @@ func (b *CreateTableBuilder) ToGo() string {
 		b.blueprint.name,
 		b.blueprint.ToGo(),
 	)
+}
+func (b *CreateTableBuilder) Run(ctx context.Context, tx builder.QueryExecer) error {
+	return runQuery(ctx, tx, b)
 }
 func (b *CreateTableBuilder) IfNotExists() *CreateTableBuilder {
 	b.ifNotExists = true

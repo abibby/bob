@@ -20,9 +20,11 @@ func (*MySQL) DataType(t dialects.DataType) string {
 	switch t {
 	case dialects.DataTypeString, dialects.DataTypeJSON, dialects.DataTypeDate, dialects.DataTypeDateTime:
 		return "VARCHAR(255)"
-	case dialects.DataTypeInteger, dialects.DataTypeUnsignedInteger, dialects.DataTypeBoolean:
+	case dialects.DataTypeInt32, dialects.DataTypeBoolean:
 		return "INTEGER"
-	case dialects.DataTypeFloat:
+	case dialects.DataTypeUInt32:
+		return "INTEGER UNSIGNED"
+	case dialects.DataTypeFloat32:
 		return "FLOAT"
 	}
 
@@ -31,10 +33,6 @@ func (*MySQL) DataType(t dialects.DataType) string {
 
 func (*MySQL) CurrentTime() string {
 	return "CURRENT_TIMESTAMP"
-}
-
-func (*MySQL) TableQuery() string {
-	return ""
 }
 
 func init() {
