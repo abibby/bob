@@ -16,14 +16,7 @@ type Tag struct {
 	Type          dialects.DataType
 }
 
-// var relationshipInterface = reflect.TypeOf((*selects.Relationship)(nil)).Elem()
-
 func DBTag(f reflect.StructField) *Tag {
-	if f.Type.Kind() == reflect.Struct {
-		return &Tag{
-			Name: "-",
-		}
-	}
 	dbTag, ok := f.Tag.Lookup("db")
 	if !ok {
 		return &Tag{
