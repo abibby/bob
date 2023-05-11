@@ -31,7 +31,7 @@ func TestColumnBuilder(t *testing.T) {
 		{
 			Name:             "Primary",
 			Builder:          schema.NewColumn("foo", dialects.DataTypeInt32).Primary(),
-			ExpectedSQL:      "\"foo\" INTEGER PRIMARY KEY NOT NULL",
+			ExpectedSQL:      "\"foo\" INTEGER NOT NULL",
 			ExpectedBindings: []any{},
 		},
 		{

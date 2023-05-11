@@ -37,11 +37,31 @@ func (b *CreateTableBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
 		r.AddString("IF NOT EXISTS")
 	}
 	r.Add(builder.Identifier(b.blueprint.name))
+
+	primaryKeys := []string{}
 	columns := make([]builder.ToSQLer, len(b.blueprint.columns))
 	for i, c := range b.blueprint.columns {
 		columns[i] = c
+		if c.primary {
+			primaryKeys = append(primaryKeys, c.name)
+		}
 	}
-	r.Add(builder.Concat(builder.Group(builder.Join(columns, ", ")), builder.Raw(";")))
+	if len(primaryKeys) > 0 {
+		columns = append(columns, builder.Concat(
+			builder.Raw("PRIMARY KEY "),
+			builder.Group(
+				builder.Join(builder.IdentifierList(primaryKeys), ", "),
+			),
+		))
+	}
+	r.Add(builder.Concat(
+		builder.Group(
+			builder.Concat(
+				builder.Join(columns, ", "),
+			),
+		),
+		builder.Raw(";"),
+	))
 
 	for _, index := range b.blueprint.indexes {
 		r.Add(builder.Concat(index, builder.Raw(";")))

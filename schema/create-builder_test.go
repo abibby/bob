@@ -32,5 +32,22 @@ func TestBuilder(t *testing.T) {
 			ExpectedSQL:      "CREATE TABLE \"foo\" (\"id\" INTEGER NOT NULL, \"bar\" TEXT NOT NULL);",
 			ExpectedBindings: []any{},
 		},
+		{
+			Name: "primary key",
+			Builder: schema.Create("foo", func(table *schema.Blueprint) {
+				table.Int("id").Primary()
+			}),
+			ExpectedSQL:      "CREATE TABLE \"foo\" (\"id\" INTEGER NOT NULL, PRIMARY KEY (\"id\"));",
+			ExpectedBindings: []any{},
+		},
+		{
+			Name: "composite primary key",
+			Builder: schema.Create("foo", func(table *schema.Blueprint) {
+				table.Int("id1").Primary()
+				table.Int("id2").Primary()
+			}),
+			ExpectedSQL:      "CREATE TABLE \"foo\" (\"id1\" INTEGER NOT NULL, \"id2\" INTEGER NOT NULL, PRIMARY KEY (\"id1\", \"id2\"));",
+			ExpectedBindings: []any{},
+		},
 	})
 }
