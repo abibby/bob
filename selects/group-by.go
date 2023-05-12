@@ -20,10 +20,12 @@ func (g groupBys) ToSQL(d dialects.Dialect) (string, []any, error) {
 	return r.ToSQL(d)
 }
 
+// GroupBy sets the "group by" clause to the query.
 func (b groupBys) GroupBy(columns ...string) groupBys {
 	return builder.IdentifierList(columns)
 }
 
+// GroupBy adds a "group by" clause to the query.
 func (b groupBys) AddGroupBy(columns ...string) groupBys {
 	return append(b, builder.IdentifierList(columns)...)
 }

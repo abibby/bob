@@ -30,10 +30,13 @@ func (l *limit) ToSQL(d dialects.Dialect) (string, []any, error) {
 	return r.ToSQL(d)
 }
 
+// Limit set the maximum number of rows to return.
 func (l *limit) Limit(limit int) *limit {
 	l.limit = limit
 	return l
 }
+
+// Offset sets the number of rows to skip before returning the result.
 func (l *limit) Offset(offset int) *limit {
 	l.offset = offset
 	return l

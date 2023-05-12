@@ -20,9 +20,12 @@ func (o orderBys) ToSQL(d dialects.Dialect) (string, []any, error) {
 	return r.ToSQL(d)
 }
 
+// OrderBy adds an order by clause to the query.
 func (o orderBys) OrderBy(column string) orderBys {
 	return append(o, builder.Identifier(column))
 }
+
+// OrderByDesc adds a descending order by clause to the query.
 func (o orderBys) OrderByDesc(column string) orderBys {
 	return append(o, builder.Join([]builder.ToSQLer{builder.Identifier(column), builder.Raw("DESC")}, " "))
 }

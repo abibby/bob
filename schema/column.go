@@ -93,6 +93,10 @@ func (b *ColumnBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
 	r.Add(builder.Identifier(b.name))
 	r.AddString(d.DataType(b.datatype))
 
+	// if b.primary {
+	// 	r.AddString("PRIMARY KEY")
+	// }
+
 	if b.defaultValue != nil {
 		r.AddString("DEFAULT").
 			Add(b.defaultValue)

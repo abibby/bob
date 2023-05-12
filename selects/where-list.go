@@ -99,36 +99,50 @@ func (c *Conditions) ToSQL(d dialects.Dialect) (string, []any, error) {
 	return r.ToSQL(d)
 }
 
+// Where adds a basic where clause to the query.
 func (c *Conditions) Where(column, operator string, value any) *Conditions {
 	return c.where(column, operator, value, false)
 }
+
+// OrWhere adds an or where clause to the query
 func (c *Conditions) OrWhere(column, operator string, value any) *Conditions {
 	return c.where(column, operator, value, true)
 }
 
+// WhereColumn adds a where clause to the query comparing two columns.
 func (c *Conditions) WhereColumn(column, operator string, valueColumn string) *Conditions {
 	return c.where(column, operator, builder.Identifier(valueColumn), false)
 }
+
+// OrWhereColumn adds an or where clause to the query comparing two columns.
 func (c *Conditions) OrWhereColumn(column, operator string, valueColumn string) *Conditions {
 	return c.where(column, operator, builder.Identifier(valueColumn), true)
 }
 
+// WhereIn adds a where in clause to the query.
 func (c *Conditions) WhereIn(column string, values []any) *Conditions {
 	return c.whereIn(column, values, false)
 }
+
+// OrWhereIn adds an or where in clause to the query.
 func (c *Conditions) OrWhereIn(column string, values []any) *Conditions {
 	return c.whereIn(column, values, true)
 }
+
 func (c *Conditions) whereIn(column string, values []any, or bool) *Conditions {
 	return c.where(column, "in", builder.Group(builder.Join(builder.LiteralList(values), ", ")), or)
 }
 
+// WhereExists add an exists clause to the query.
 func (c *Conditions) WhereExists(query QueryBuilder) *Conditions {
 	return c.whereExists(query, false)
 }
+
+// WhereExists add an exists clause to the query.
 func (c *Conditions) OrWhereExists(query QueryBuilder) *Conditions {
 	return c.whereExists(query, true)
 }
+
 func (c *Conditions) whereExists(query QueryBuilder, or bool) *Conditions {
 	return c.addWhere(&where{
 		Value: builder.Join([]builder.ToSQLer{
@@ -138,12 +152,17 @@ func (c *Conditions) whereExists(query QueryBuilder, or bool) *Conditions {
 		Or: or,
 	})
 }
+
+// WhereSubquery adds a where clause to the query comparing a column and a subquery.
 func (c *Conditions) WhereSubquery(subquery QueryBuilder, operator string, value any) *Conditions {
 	return c.whereSubquery(subquery, operator, value, false)
 }
+
+// OrWhereSubquery adds an or where clause to the query comparing a column and a subquery.
 func (c *Conditions) OrWhereSubquery(subquery QueryBuilder, operator string, value any) *Conditions {
 	return c.whereSubquery(subquery, operator, value, true)
 }
+
 func (c *Conditions) whereSubquery(subquery QueryBuilder, operator string, value any, or bool) *Conditions {
 	return c.addWhere(&where{
 		Column:   builder.Group(subquery),
@@ -162,9 +181,12 @@ func (c *Conditions) where(column, operator string, value any, or bool) *Conditi
 	})
 }
 
+// WhereHas adds a relationship exists condition to the query with where clauses.
 func (c *Conditions) WhereHas(relation string, cb func(q *SubBuilder) *SubBuilder) *Conditions {
 	return c.whereHas(relation, cb, false)
 }
+
+// OrWhereHas adds a relationship exists condition to the query with where clauses and an or.
 func (c *Conditions) OrWhereHas(relation string, cb func(q *SubBuilder) *SubBuilder) *Conditions {
 	return c.whereHas(relation, cb, true)
 }
@@ -177,9 +199,12 @@ func (c *Conditions) whereHas(relation string, cb func(q *SubBuilder) *SubBuilde
 	return c.whereExists(cb(r.Subquery().WithContext(c.ctx)), or)
 }
 
+// WhereRaw adds a raw where clause to the query.
 func (c *Conditions) WhereRaw(rawSql string, bindings ...any) *Conditions {
 	return c.whereRaw(rawSql, bindings, false)
 }
+
+// OrWhereRaw adds a raw or where clause to the query.
 func (c *Conditions) OrWhereRaw(rawSql string, bindings ...any) *Conditions {
 	return c.whereRaw(rawSql, bindings, true)
 }
@@ -190,9 +215,12 @@ func (c *Conditions) whereRaw(rawSql string, bindings []any, or bool) *Condition
 	})
 }
 
+// And adds a group of conditions to the query
 func (c *Conditions) And(cb func(q *Conditions)) *Conditions {
 	return c.group(cb, false)
 }
+
+// Or adds a group of conditions to the query with an or
 func (c *Conditions) Or(cb func(q *Conditions)) *Conditions {
 	return c.group(cb, true)
 }

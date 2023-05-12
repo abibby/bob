@@ -8,6 +8,7 @@ type Scoper interface {
 	Scopes() []*Scope
 }
 
+// Scope is a modifier for a query that can be easily applied.
 type Scope struct {
 	Name  string
 	Apply ScopeFunc
@@ -38,11 +39,14 @@ func (s *scopes) Clone() *scopes {
 		withoutGlobalScopes: s.withoutGlobalScopes.Clone(),
 	}
 }
+
+// WithScope adds a local scope to a query.
 func (s *scopes) WithScope(scope *Scope) *scopes {
 	s.scopes = append(s.scopes, scope)
 	return s
 }
 
+// WithoutScope removes the given scope from the local scopes.
 func (s *scopes) WithoutScope(scope *Scope) *scopes {
 	newScopes := make([]*Scope, 0, len(s.scopes))
 	for _, sc := range s.scopes {
@@ -70,6 +74,7 @@ func (s *scopes) allScopes() []*Scope {
 	return s.scopes
 }
 
+// WithoutGlobalScope removes a global scope from the query.
 func (b *scopes) WithoutGlobalScope(scope *Scope) *scopes {
 	b.withoutGlobalScopes.Add(scope.Name)
 	return b

@@ -9,6 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// Get executes the query as a select statement and returns the result.
 func (b *Builder[T]) Get(tx builder.QueryExecer) ([]T, error) {
 	v := []T{}
 	err := b.Load(tx, &v)
@@ -26,6 +27,7 @@ func (b *Builder[T]) Get(tx builder.QueryExecer) ([]T, error) {
 	return v, nil
 }
 
+// Get executes the query as a select statement and returns the first record.
 func (b *Builder[T]) First(tx builder.QueryExecer) (T, error) {
 	v, err := b.Clone().
 		Limit(1).
@@ -41,6 +43,7 @@ func (b *Builder[T]) First(tx builder.QueryExecer) (T, error) {
 	return v[0], err
 }
 
+// Find returns the record with a matching primary key. It will fail on tables with multiple primary keys.
 func (b *Builder[T]) Find(tx builder.QueryExecer, primaryKeyValue any) (T, error) {
 	var m T
 	pKeys := builder.PrimaryKey(m)
@@ -52,6 +55,7 @@ func (b *Builder[T]) Find(tx builder.QueryExecer, primaryKeyValue any) (T, error
 		First(tx)
 }
 
+// Load executes the query as a select statement and sets v to the result.
 func (b *Builder[T]) Load(tx builder.QueryExecer, v any) error {
 	q, bindings, err := b.ToSQL(dialects.DefaultDialect)
 	if err != nil {
@@ -75,6 +79,7 @@ func (b *Builder[T]) Load(tx builder.QueryExecer, v any) error {
 	return nil
 }
 
+// Load executes the query as a select statement and sets v to the first record.
 func (b *Builder[T]) LoadOne(tx builder.QueryExecer, v any) error {
 	q, bindings, err := b.Clone().
 		Limit(1).

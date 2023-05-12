@@ -28,14 +28,16 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	matches := regexp.MustCompile(fmt.Sprintf(`\nfunc \((\w+ +)?([^)]+)\) ([\w)]+)\((.*)\) (\*?\w+(?:\[.+\])?) {`)).FindAllStringSubmatch(goSrc, -1)
+	// matches := regexp.MustCompile(`\nfunc \((\w+ +)?([^)]+)\) ([\w)]+)\((.*)\) (\*?\w+(?:\[.+\])?) {`).FindAllStringSubmatch(goSrc, -1)
+	matches := regexp.MustCompile(`((?:\/\/[^\n]+\n)*)func \((\w+ +)?([^)]+)\) ([\w)]+)\((.*)\) (\*?\w+(?:\[.+\])?) {`).FindAllStringSubmatch(goSrc, -1)
 
 	src := "package selects\n\n"
 	for _, match := range matches {
-		fieldType := match[2]
-		methodName := match[3]
-		params := match[4]
-		returnType := match[5]
+		comment := match[1]
+		fieldType := match[3]
+		methodName := match[4]
+		params := match[5]
+		returnType := match[6]
 
 		if methodName == "Clone" || methodName == "ToSQL" || !IsUppercase(methodName[0]) || returnType != fieldType {
 			continue
@@ -45,6 +47,7 @@ func main() {
 			for _, fieldName := range fieldNames {
 				originalMethodName := methodName
 				if fieldName == "havings" {
+					originalMethodName := methodName
 					switch methodName {
 					case "And":
 						methodName = "HavingAnd"
@@ -52,7 +55,9 @@ func main() {
 						methodName = "HavingOr"
 					default:
 						methodName = strings.ReplaceAll(methodName, "Where", "Having")
+						comment = strings.ReplaceAll(comment, "where", "having")
 					}
+					comment = strings.ReplaceAll(comment, originalMethodName, methodName)
 				}
 				args := ""
 				for i, p := range strings.Split(params, ",") {
@@ -66,11 +71,12 @@ func main() {
 					}
 				}
 				src += fmt.Sprintf(
-					"func (b *%s) %s(%s) *%s {\n"+
+					"%sfunc (b *%s) %s(%s) *%s {\n"+
 						"\tb = b.Clone()\n"+
 						"\tb.%s = b.%s.%s(%s)\n"+
 						"\treturn b\n"+
 						"}\n",
+					comment,
 					structName+structParams,
 					methodName,
 					params,

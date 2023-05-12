@@ -38,6 +38,7 @@ func (s *selects) ToSQL(d dialects.Dialect) (string, []any, error) {
 	return r.ToSQL(d)
 }
 
+// Select sets the columns to be selected.
 func (s *selects) Select(columns ...string) *selects {
 	identifiers := make([]builder.ToSQLer, len(columns))
 	for i, c := range columns {
@@ -53,15 +54,18 @@ func (s *selects) Select(columns ...string) *selects {
 	return s
 }
 
+// AddSelect adds new columns to be selected.
 func (s *selects) AddSelect(columns ...string) *selects {
 	s.list = append(s.list, builder.IdentifierList(columns)...)
 	return s
 }
 
+// SelectSubquery sets a subquery to be selected.
 func (s *selects) SelectSubquery(sb QueryBuilder, as string) *selects {
-	s.list = make([]builder.ToSQLer, 0, 1)
-	return s.AddSelectSubquery(sb, as)
+	return s.Select().AddSelectSubquery(sb, as)
 }
+
+// AddSelectSubquery adds a subquery to be selected.
 func (s *selects) AddSelectSubquery(sb QueryBuilder, as string) *selects {
 	s.list = append(s.list, builder.Concat(
 		builder.Group(sb),
@@ -71,9 +75,13 @@ func (s *selects) AddSelectSubquery(sb QueryBuilder, as string) *selects {
 
 	return s
 }
+
+// SelectFunction sets a column to be selected with a function applied.
 func (s *selects) SelectFunction(function, column string) *selects {
 	return s.Select().AddSelectFunction(function, column)
 }
+
+// SelectFunction adds a column to be selected with a function applied.
 func (s *selects) AddSelectFunction(function, column string) *selects {
 	s.list = append(s.list, builder.ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
 		var c builder.ToSQLer
@@ -92,6 +100,7 @@ func (s *selects) AddSelectFunction(function, column string) *selects {
 	return s
 }
 
+// Distinct forces the query to only return distinct results.
 func (s *selects) Distinct() *selects {
 	s.distinct = true
 	return s
