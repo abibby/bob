@@ -2,6 +2,7 @@ package schema
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/abibby/bob/dialects"
 	"github.com/abibby/bob/set"
@@ -26,6 +27,7 @@ type Blueprint struct {
 	dropColumns []string
 	indexes     []*IndexBuilder
 	foreignKeys []*ForeignKeyBuilder
+	primaryKeys []string
 }
 
 func NewBlueprint(name string) *Blueprint {
@@ -56,8 +58,9 @@ func (t *Blueprint) OfType(datatype dialects.DataType, name string) *ColumnBuild
 	t.AddColumn(c)
 	return c
 }
-func (t *Blueprint) AddColumn(c *ColumnBuilder) {
+func (t *Blueprint) AddColumn(c *ColumnBuilder) *Blueprint {
 	t.columns = append(t.columns, c)
+	return t
 }
 func (t *Blueprint) String(name string) *ColumnBuilder {
 	return t.OfType(dialects.DataTypeString, name)
@@ -130,10 +133,8 @@ func (t *Blueprint) Blob(name string) *ColumnBuilder {
 }
 
 func (t *Blueprint) Index(name string) *IndexBuilder {
-	c := &IndexBuilder{
-		table: t.name,
-		name:  name,
-	}
+	c := newIndexBuilder(t.TableName())
+	c.name = name
 	t.indexes = append(t.indexes, c)
 	return c
 }
@@ -145,6 +146,10 @@ func (t *Blueprint) ForeignKey(localKey, relatedTable, relatedKey string) {
 		relatedKey:   relatedKey,
 	}
 	t.foreignKeys = append(t.foreignKeys, f)
+}
+
+func (t *Blueprint) PrimaryKey(columns ...string) {
+	t.primaryKeys = columns
 }
 
 func (t *Blueprint) DropColumn(column string) {
@@ -175,8 +180,26 @@ func (b *Blueprint) ToGo() string {
 		src += fmt.Sprintf("\ttable.%s(%#v)%s\n", m[c.datatype], c.name, c.ToGo())
 	}
 
+	for _, index := range b.indexes {
+		src += fmt.Sprintf("\ttable.Index(%#v)%s\n", index.name, index.ToGo())
+	}
+
 	for _, c := range b.dropColumns {
 		src += fmt.Sprintf("\ttable.DropColumn(%#v)\n", c)
+	}
+
+	for _, foreignKey := range b.foreignKeys {
+		src += fmt.Sprintf("\ttable.ForeignKey(%#v, %#v, %#v)\n", foreignKey.localKey, foreignKey.relatedTable, foreignKey.relatedKey)
+	}
+
+	if len(b.primaryKeys) > 1 {
+		args := strings.Join(
+			slices.Map(b.primaryKeys, func(pKey string) string {
+				return fmt.Sprintf("%#v", pKey)
+			}),
+			", ",
+		)
+		src += fmt.Sprintf("\ttable.PrimaryKey(%s)\n", args)
 	}
 
 	return src + "}"
@@ -203,6 +226,12 @@ func (t *Blueprint) Merge(newBlueprint *Blueprint) {
 	t.columns = slices.Filter(t.columns, func(c *ColumnBuilder) bool {
 		return !slices.Has(newBlueprint.dropColumns, c.name)
 	})
+
+	t.foreignKeys = append(t.foreignKeys, newBlueprint.foreignKeys...)
+	t.indexes = append(t.indexes, newBlueprint.indexes...)
+	if newBlueprint.primaryKeys != nil {
+		t.primaryKeys = newBlueprint.primaryKeys
+	}
 }
 
 func (t *Blueprint) Update(oldBlueprint, newBlueprint *Blueprint) bool {
@@ -228,5 +257,27 @@ func (t *Blueprint) Update(oldBlueprint, newBlueprint *Blueprint) bool {
 		}
 	}
 
+	for _, newKey := range newBlueprint.foreignKeys {
+		_, ok := slices.Find(oldBlueprint.foreignKeys, func(oldKey *ForeignKeyBuilder) bool {
+			return newKey.localKey == oldKey.localKey &&
+				newKey.relatedKey == oldKey.relatedKey &&
+				newKey.relatedTable == oldKey.relatedTable
+		})
+		if !ok {
+			t.foreignKeys = append(t.foreignKeys, newKey)
+			hasChanges = true
+		}
+	}
+	for _, newIndex := range newBlueprint.indexes {
+		_, ok := slices.Find(oldBlueprint.indexes, func(oldIndex *IndexBuilder) bool {
+			return newIndex.name == oldIndex.name
+		})
+		if !ok {
+			t.indexes = append(t.indexes, newIndex)
+			hasChanges = true
+		}
+	}
+
+	// TODO: add support for primary keys
 	return hasChanges
 }

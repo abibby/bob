@@ -36,6 +36,9 @@ func primaryKey(t reflect.Type) ([]string, string) {
 			primary = append(primary, p...)
 			continue
 		}
+		if !f.IsExported() {
+			continue
+		}
 		tag := DBTag(f)
 		if fallback == "" {
 			fallback = tag.Name

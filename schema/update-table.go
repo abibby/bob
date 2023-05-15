@@ -58,6 +58,18 @@ func (b *UpdateTableBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
 			))
 		}
 	}
+	for _, foreignKey := range b.blueprint.foreignKeys {
+		r.Add(builder.Concat(
+			builder.Raw("CONSTRAINT "),
+			builder.Identifier(b.blueprint.TableName()),
+			builder.Group(foreignKey),
+			builder.Raw(";"),
+		))
+	}
+	for _, index := range b.blueprint.indexes {
+		r.Add(builder.Concat(index, builder.Raw(";")))
+	}
+
 	return r.ToSQL(d)
 }
 

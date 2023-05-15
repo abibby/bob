@@ -93,9 +93,17 @@ func (b *ColumnBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
 	r.Add(builder.Identifier(b.name))
 	r.AddString(d.DataType(b.datatype))
 
-	// if b.primary {
-	// 	r.AddString("PRIMARY KEY")
-	// }
+	if b.autoIncrement {
+		r.AddString("PRIMARY KEY AUTOINCREMENT")
+	} else if b.primary {
+		r.AddString("PRIMARY KEY")
+	}
+	if !b.nullable {
+		r.AddString("NOT NULL")
+	}
+	if b.unique {
+		r.AddString("UNIQUE")
+	}
 
 	if b.defaultValue != nil {
 		r.AddString("DEFAULT").
@@ -103,15 +111,6 @@ func (b *ColumnBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
 	} else if b.defaultCurrentTime {
 		r.AddString("DEFAULT").
 			AddString(d.CurrentTime())
-	}
-	if b.unique {
-		r.AddString("UNIQUE")
-	}
-	if b.autoIncrement {
-		r.AddString("AUTOINCREMENT")
-	}
-	if !b.nullable {
-		r.AddString("NOT NULL")
 	}
 	return r.ToSQL(d)
 }

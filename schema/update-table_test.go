@@ -31,5 +31,37 @@ func TestUpdateTable(t *testing.T) {
 			ExpectedSQL:      "ALTER TABLE \"foo\" MODIFY COLUMN \"id\" INTEGER NOT NULL;",
 			ExpectedBindings: []any{},
 		},
+		{
+			Name: "add foreign key",
+			Builder: schema.Table("foo", func(table *schema.Blueprint) {
+				table.ForeignKey("id", "bar", "foo_id")
+			}),
+			ExpectedSQL:      "CONSTRAINT \"foo\"(FOREIGN KEY (\"id\") REFERENCES \"bar\"(\"foo_id\"));",
+			ExpectedBindings: []any{},
+		},
+		// {
+		// 	Name: "drop foreign key",
+		// 	Builder: schema.Table("foo", func(table *schema.Blueprint) {
+		// 		table.ForeignKey("id", "bar", "foo_id")
+		// 	}),
+		// 	ExpectedSQL:      "",
+		// 	ExpectedBindings: []any{},
+		// },
+		{
+			Name: "add index",
+			Builder: schema.Table("foo", func(table *schema.Blueprint) {
+				table.Index("index-name").AddColumn("foo").AddColumn("bar")
+			}),
+			ExpectedSQL:      "CREATE INDEX IF NOT EXIST \"index-name\" ON \"foo\" (\"foo\", \"bar\");",
+			ExpectedBindings: []any{},
+		},
+		// {
+		// 	Name: "drop index",
+		// 	Builder: schema.Table("foo", func(table *schema.Blueprint) {
+		// 		table.Index("index-name").AddColumn("foo").AddColumn("bar")
+		// 	}),
+		// 	ExpectedSQL:      "",
+		// 	ExpectedBindings: []any{},
+		// },
 	})
 }

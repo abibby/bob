@@ -8,6 +8,7 @@ import (
 	"github.com/abibby/bob/migrate"
 	"github.com/abibby/bob/models"
 	"github.com/abibby/bob/schema"
+	"github.com/abibby/bob/selects"
 	"github.com/abibby/nulls"
 	"github.com/bradleyjkemp/cupaloy"
 	"github.com/google/uuid"
@@ -193,6 +194,52 @@ func TestGenerateMigration(t *testing.T) {
 		type TestModel struct {
 			models.BaseModel
 			ID Date `db:"id,primary"`
+		}
+		src, err := migrate.New().GenerateMigration("2023-01-01T00:00:00Z create test model", "packageName", &TestModel{})
+		assert.NoError(t, err)
+		cupaloy.SnapshotT(t, src)
+	})
+
+	t.Run("relationships", func(t *testing.T) {
+		type RelatedModel struct {
+			models.BaseModel
+			ID int
+		}
+		type TestModel struct {
+			models.BaseModel
+			Related *selects.BelongsTo[*RelatedModel]
+		}
+		src, err := migrate.New().GenerateMigration("2023-01-01T00:00:00Z create test model", "packageName", &TestModel{})
+		assert.NoError(t, err)
+		cupaloy.SnapshotT(t, src)
+	})
+
+	t.Run("add relationship", func(t *testing.T) {
+		type RelatedModel struct {
+			models.BaseModel
+			ID int
+		}
+		type TestModel struct {
+			models.BaseModel
+			Related *selects.BelongsTo[*RelatedModel]
+		}
+		m := migrate.New()
+		m.Add(&migrate.Migration{
+			Name: "2023-01-01T00:00:00Z create test model",
+			Up: schema.Create("test_models", func(table *schema.Blueprint) {
+			}),
+			Down: schema.DropIfExists("test_models"),
+		})
+		src, err := m.GenerateMigration("2023-01-01T00:00:00Z create test model", "packageName", &TestModel{})
+		assert.NoError(t, err)
+		cupaloy.SnapshotT(t, src)
+	})
+
+	t.Run("composite primary key", func(t *testing.T) {
+		type TestModel struct {
+			models.BaseModel
+			ID1 int `db:"id1,primary"`
+			ID2 int `db:"id2,primary"`
 		}
 		src, err := migrate.New().GenerateMigration("2023-01-01T00:00:00Z create test model", "packageName", &TestModel{})
 		assert.NoError(t, err)

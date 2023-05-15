@@ -29,6 +29,7 @@ func blueprintFromFields(tableName string, fields []*field) *schema.Blueprint {
 	table := schema.NewBlueprint(tableName)
 
 	addedForeignKeys := []*selects.ForeignKey{}
+	primaryColumns := []*schema.ColumnBuilder{}
 	for _, f := range fields {
 		if f.relation != nil {
 			foreignKeys := f.relation.ForeignKeys()
@@ -53,8 +54,18 @@ func blueprintFromFields(tableName string, fields []*field) *schema.Blueprint {
 				b.AutoIncrement()
 			}
 			if f.tag.Primary {
-				b.Primary()
+				primaryColumns = append(primaryColumns, b)
 			}
+		}
+	}
+
+	if len(primaryColumns) > 1 {
+		table.PrimaryKey(slices.Map(primaryColumns, func(c *schema.ColumnBuilder) string {
+			return c.Name()
+		})...)
+	} else {
+		for _, b := range primaryColumns {
+			b.Primary()
 		}
 	}
 	return table

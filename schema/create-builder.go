@@ -38,21 +38,27 @@ func (b *CreateTableBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
 	}
 	r.Add(builder.Identifier(b.blueprint.name))
 
-	primaryKeys := []string{}
+	// primaryKeyColumns := slices.Filter(b.blueprint.columns, func(column *ColumnBuilder) bool {
+	// 	return column.primary
+	// })
+	// primaryKeys := slices.Map(primaryKeyColumns, func(column *ColumnBuilder) string {
+	// 	return column.name
+	// })
 	columns := make([]builder.ToSQLer, len(b.blueprint.columns))
 	for i, c := range b.blueprint.columns {
 		columns[i] = c
-		if c.primary {
-			primaryKeys = append(primaryKeys, c.name)
-		}
 	}
-	if len(primaryKeys) > 0 {
+	if len(b.blueprint.primaryKeys) > 0 {
 		columns = append(columns, builder.Concat(
 			builder.Raw("PRIMARY KEY "),
 			builder.Group(
-				builder.Join(builder.IdentifierList(primaryKeys), ", "),
+				builder.Join(builder.IdentifierList(b.blueprint.primaryKeys), ", "),
 			),
 		))
+	}
+	for _, foreignKey := range b.blueprint.foreignKeys {
+		columns = append(columns, foreignKey)
+		// r.Add(builder.Concat(foreignKey, builder.Raw(";")))
 	}
 	r.Add(builder.Concat(
 		builder.Group(
@@ -66,11 +72,6 @@ func (b *CreateTableBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
 	for _, index := range b.blueprint.indexes {
 		r.Add(builder.Concat(index, builder.Raw(";")))
 	}
-
-	for _, foreignKey := range b.blueprint.foreignKeys {
-		r.Add(builder.Concat(foreignKey, builder.Raw(";")))
-	}
-
 	return r.ToSQL(d)
 }
 

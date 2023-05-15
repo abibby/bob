@@ -31,13 +31,13 @@ func TestColumnBuilder(t *testing.T) {
 		{
 			Name:             "Primary",
 			Builder:          schema.NewColumn("foo", dialects.DataTypeInt32).Primary(),
-			ExpectedSQL:      "\"foo\" INTEGER NOT NULL",
+			ExpectedSQL:      "\"foo\" INTEGER PRIMARY KEY NOT NULL",
 			ExpectedBindings: []any{},
 		},
 		{
 			Name:             "AutoIncrement",
 			Builder:          schema.NewColumn("foo", dialects.DataTypeInt32).AutoIncrement(),
-			ExpectedSQL:      "\"foo\" INTEGER AUTOINCREMENT NOT NULL",
+			ExpectedSQL:      "\"foo\" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL",
 			ExpectedBindings: []any{},
 		},
 		{
