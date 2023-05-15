@@ -52,7 +52,7 @@ func TestUpdateTable(t *testing.T) {
 			Builder: schema.Table("foo", func(table *schema.Blueprint) {
 				table.Index("index-name").AddColumn("foo").AddColumn("bar")
 			}),
-			ExpectedSQL:      "CREATE INDEX IF NOT EXIST \"index-name\" ON \"foo\" (\"foo\", \"bar\");",
+			ExpectedSQL:      "CREATE INDEX IF NOT EXISTS \"index-name\" ON \"foo\" (\"foo\", \"bar\");",
 			ExpectedBindings: []any{},
 		},
 		// {

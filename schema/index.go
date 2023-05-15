@@ -35,7 +35,7 @@ func (b *IndexBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
 	if b.unique {
 		r.AddString("UNIQUE")
 	}
-	r.AddString("INDEX IF NOT EXIST").
+	r.AddString("INDEX IF NOT EXISTS").
 		Add(builder.Identifier(b.name)).
 		AddString("ON").
 		Add(builder.Identifier(b.table)).

@@ -57,7 +57,7 @@ func TestBuilder(t *testing.T) {
 				table.String("name")
 				table.Index("name_index").AddColumn("name")
 			}),
-			ExpectedSQL:      "CREATE TABLE \"foo\" (\"id\" INTEGER NOT NULL, \"name\" TEXT NOT NULL); CREATE INDEX IF NOT EXIST \"name_index\" ON \"foo\" (\"name\");",
+			ExpectedSQL:      "CREATE TABLE \"foo\" (\"id\" INTEGER NOT NULL, \"name\" TEXT NOT NULL); CREATE INDEX IF NOT EXISTS \"name_index\" ON \"foo\" (\"name\");",
 			ExpectedBindings: []any{},
 		},
 		{
