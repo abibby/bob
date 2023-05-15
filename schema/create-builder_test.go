@@ -66,7 +66,7 @@ func TestBuilder(t *testing.T) {
 				table.Int("id")
 				table.ForeignKey("id", "bar", "foo_id")
 			}),
-			ExpectedSQL:      "CREATE TABLE \"foo\" (\"id\" INTEGER NOT NULL, FOREIGN KEY (\"id\") REFERENCES \"bar\"(\"foo_id\"));",
+			ExpectedSQL:      "CREATE TABLE \"foo\" (\"id\" INTEGER NOT NULL, CONSTRAINT \"id-bar-foo_id\" FOREIGN KEY (\"id\") REFERENCES \"bar\"(\"foo_id\"));",
 			ExpectedBindings: []any{},
 		},
 	})

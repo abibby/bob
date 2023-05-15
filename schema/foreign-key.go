@@ -11,9 +11,16 @@ type ForeignKeyBuilder struct {
 	relatedKey   string
 }
 
+func (b *ForeignKeyBuilder) id() string {
+	return b.localKey + "-" + b.relatedTable + "-" + b.relatedKey
+}
+
 func (b *ForeignKeyBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
 	r := builder.Result()
-	r.AddString("FOREIGN KEY").
+
+	r.AddString("CONSTRAINT").
+		Add(builder.Identifier(b.id())).
+		AddString("FOREIGN KEY").
 		Add(builder.Group(builder.Identifier(b.localKey))).
 		AddString("REFERENCES").
 		Add(builder.Concat(
