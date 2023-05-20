@@ -8,8 +8,9 @@ import (
 	"github.com/abibby/bob/models"
 )
 
-// HasOne
-// tags `local` `foreign`
+// # Tags:
+//   - local: parent model
+//   - foreign: related model
 type HasOne[T models.Model] struct {
 	hasOneOrMany[T]
 	relationValue[T]
@@ -32,36 +33,6 @@ func (r *HasOne[T]) Initialize(parent any, field reflect.StructField) error {
 	return nil
 }
 
-// func (r *HasOne[T]) Load(ctx context.Context, tx builder.QueryExecer, relations []Relationship) error {
-// 	relatedLists, err := r.getRelated(ctx, tx, relations)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	if len(relatedLists) == 0 {
-// 		return nil
-// 	}
-
-// 	// TODO: replace with something more efficient
-// 	for _, relation := range ofType[*HasOne[T]](relations) {
-// 		local, ok := relation.parentKeyValue()
-// 		if !ok {
-// 			continue
-// 		}
-// 		for _, related := range relatedLists {
-// 			foreign, ok := builder.GetValue(related, r.getRelatedKey())
-// 			if !ok {
-// 				continue
-// 			}
-// 			if local == foreign {
-// 				relation.value = related
-// 			}
-
-// 		}
-// 		relation.loaded = true
-// 	}
-
-//		return nil
-//	}
 func (r *HasOne[T]) Load(ctx context.Context, tx builder.QueryExecer, relations []Relationship) error {
 	rm, err := r.relatedMap(ctx, tx, relations)
 	if err != nil {

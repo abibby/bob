@@ -1,9 +1,9 @@
-package bobtesting_test
+package bobtest_test
 
 import (
 	"testing"
 
-	"github.com/abibby/bob/bobtesting"
+	"github.com/abibby/bob/bobtest"
 	"github.com/abibby/bob/selects"
 	"github.com/abibby/bob/test"
 	"github.com/jmoiron/sqlx"
@@ -11,12 +11,12 @@ import (
 )
 
 func TestFactory(t *testing.T) {
-	fooFactory := bobtesting.NewFactory(func() *test.Foo {
+	fooFactory := bobtest.NewFactory(func() *test.Foo {
 		return &test.Foo{
 			Name: "foo",
 		}
 	})
-	bobtesting.RunWithDatabase(t, "create", func(t *testing.T, tx *sqlx.Tx) {
+	test.Run(t, "create", func(t *testing.T, tx *sqlx.Tx) {
 		f := fooFactory.Create(tx)
 		assert.Equal(t, "foo", f.Name)
 
@@ -24,14 +24,14 @@ func TestFactory(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, f, dbF)
 	})
-	bobtesting.RunWithDatabase(t, "count", func(t *testing.T, tx *sqlx.Tx) {
+	test.Run(t, "count", func(t *testing.T, tx *sqlx.Tx) {
 		foos := fooFactory.Count(4).Create(tx)
 		assert.Len(t, foos, 4)
 		for _, f := range foos {
 			assert.Equal(t, "foo", f.Name)
 		}
 	})
-	bobtesting.RunWithDatabase(t, "state", func(t *testing.T, tx *sqlx.Tx) {
+	test.Run(t, "state", func(t *testing.T, tx *sqlx.Tx) {
 		f := fooFactory.
 			State(func(f *test.Foo) *test.Foo {
 				f.Name = "bar"

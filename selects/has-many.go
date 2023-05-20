@@ -8,6 +8,9 @@ import (
 	"github.com/abibby/bob/models"
 )
 
+// # Tags:
+//   - local: parent model
+//   - foreign: related model
 type HasMany[T models.Model] struct {
 	hasOneOrMany[T]
 	relationValue[[]T]

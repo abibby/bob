@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/abibby/bob/bobtesting"
+	"github.com/abibby/bob/bobtest"
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/dialects"
 	_ "github.com/abibby/bob/dialects/sqlite"
@@ -36,6 +36,21 @@ func QueryTest(t *testing.T, testCases []Case) {
 	}
 }
 
+var runner = bobtest.NewRunner(func() (*sqlx.DB, error) {
+	db, err := sqlx.Open("sqlite3", ":memory:")
+	if err != nil {
+		return nil, err
+	}
+	err = migrations.Use().Up(context.Background(), db)
+	if err != nil {
+		return nil, err
+	}
+	return db, nil
+})
+
+var Run = runner.Run
+var RunBenchmark = runner.RunBenchmark
+
 //go:generate go run ../bob-cli/main.go generate
 type Foo struct {
 	models.BaseModel
@@ -59,10 +74,4 @@ type Bar struct {
 
 func (h *Bar) Table() string {
 	return "bars"
-}
-
-func init() {
-	bobtesting.SetMigrate(func(db *sqlx.DB) error {
-		return migrations.Use().Up(context.Background(), db)
-	})
 }

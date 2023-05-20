@@ -19,8 +19,6 @@ type field struct {
 	relation selects.Relationship
 }
 
-var dataTyperInterface = reflect.TypeOf((*dialects.DataTyper)(nil)).Elem()
-
 func getFields(m models.Model) ([]*field, error) {
 	fields := []*field{}
 	relationshipInterface := reflect.TypeOf((*selects.Relationship)(nil)).Elem()

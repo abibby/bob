@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/abibby/bob/bobtesting"
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/migrate"
 	"github.com/abibby/bob/schema"
+	"github.com/abibby/bob/test"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 
@@ -16,7 +16,7 @@ import (
 )
 
 func TestMigrations(t *testing.T) {
-	bobtesting.RunWithDatabase(t, "dont rerun migraitons", func(t *testing.T, tx *sqlx.Tx) {
+	test.Run(t, "dont rerun migraitons", func(t *testing.T, tx *sqlx.Tx) {
 		m := migrate.New()
 		m.Add(&migrate.Migration{
 			Name: "1",
@@ -37,7 +37,7 @@ func TestMigrations(t *testing.T) {
 		err = m.Up(context.Background(), tx)
 		assert.NoError(t, err)
 	})
-	bobtesting.RunWithDatabase(t, "failed migrations", func(t *testing.T, tx *sqlx.Tx) {
+	test.Run(t, "failed migrations", func(t *testing.T, tx *sqlx.Tx) {
 		m := migrate.New()
 		m1 := &migrate.Migration{
 			Name: "1",

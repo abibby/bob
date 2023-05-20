@@ -3,7 +3,6 @@ package selects_test
 import (
 	"testing"
 
-	"github.com/abibby/bob/bobtesting"
 	"github.com/abibby/bob/insert"
 	"github.com/abibby/bob/selects"
 	"github.com/abibby/bob/test"
@@ -12,7 +11,7 @@ import (
 )
 
 func TestHasMany_Load(t *testing.T) {
-	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {
+	test.Run(t, "", func(t *testing.T, tx *sqlx.Tx) {
 		foos := []*test.Foo{
 			{ID: 1},
 			{ID: 2},
@@ -72,7 +71,7 @@ func TestHasMany_Load(t *testing.T) {
 }
 
 func BenchmarkHasManyLoad(b *testing.B) {
-	bobtesting.RunWithDatabase(b, "", func(t *testing.B, tx *sqlx.Tx) {
+	test.RunBenchmark(b, "", func(t *testing.B, tx *sqlx.Tx) {
 		foos := make([]*test.Foo, 100)
 		for i := 0; i < 100; i++ {
 			f := &test.Foo{ID: i}

@@ -15,6 +15,10 @@ import (
 // tags can be used to change the column names if they don't follow the default
 // naming convention. The column on the parent model can be set with a foreign
 // tag and the column on the related model can be set with an owner tag.
+//
+// # Tags:
+//   - owner: parent model
+//   - foreign: related model
 type BelongsTo[T models.Model] struct {
 	hasOneOrMany[T]
 	relationValue[T]

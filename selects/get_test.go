@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/abibby/bob/bobtesting"
 	"github.com/abibby/bob/selects"
 	"github.com/abibby/bob/test"
 	"github.com/jmoiron/sqlx"
@@ -12,7 +11,7 @@ import (
 )
 
 func TestGet(t *testing.T) {
-	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {
+	test.Run(t, "", func(t *testing.T, tx *sqlx.Tx) {
 		const insert = "INSERT INTO foos (id, name) values (?,?)"
 		_, err := tx.ExecContext(context.Background(), insert, 1, "test1")
 		assert.NoError(t, err)
@@ -29,7 +28,7 @@ func TestGet(t *testing.T) {
 }
 
 func TestFirst(t *testing.T) {
-	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {
+	test.Run(t, "", func(t *testing.T, tx *sqlx.Tx) {
 		const insert = "INSERT INTO foos (id, name) values (?,?)"
 		_, err := tx.ExecContext(context.Background(), insert, 1, "test1")
 		assert.NoError(t, err)
@@ -54,7 +53,7 @@ func TestGet_with_scope_and_context(t *testing.T) {
 			return b.Where("id", "=", b.Context().Value("foo"))
 		},
 	}
-	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {
+	test.Run(t, "", func(t *testing.T, tx *sqlx.Tx) {
 		ctx := context.WithValue(context.Background(), "foo", 2)
 
 		MustSave(tx, &test.Foo{ID: 1, Name: "foo1"})
@@ -77,7 +76,7 @@ func TestGet_with_scope_and_context(t *testing.T) {
 }
 
 func TestGet_returns_empty_array_with_no_results(t *testing.T) {
-	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {
+	test.Run(t, "", func(t *testing.T, tx *sqlx.Tx) {
 		foos, err := NewTestBuilder().Get(tx)
 		assert.NoError(t, err)
 		assertJsonEqual(t, `[]`, foos)
@@ -85,7 +84,7 @@ func TestGet_returns_empty_array_with_no_results(t *testing.T) {
 }
 
 func TestFirst_returns_nil_with_no_results(t *testing.T) {
-	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {
+	test.Run(t, "", func(t *testing.T, tx *sqlx.Tx) {
 		foo, err := NewTestBuilder().First(tx)
 		assert.NoError(t, err)
 		assert.Nil(t, foo)

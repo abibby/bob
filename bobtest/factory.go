@@ -1,4 +1,4 @@
-package bobtesting
+package bobtest
 
 import (
 	"reflect"

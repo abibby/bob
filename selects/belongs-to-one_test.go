@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/abibby/bob"
-	"github.com/abibby/bob/bobtesting"
 	"github.com/abibby/bob/dialects"
 	"github.com/abibby/bob/dialects/sqlite"
 	"github.com/abibby/bob/insert"
@@ -55,7 +54,7 @@ func ExampleBelongsTo() {
 }
 
 func TestBelongsToLoad(t *testing.T) {
-	bobtesting.RunWithDatabase(t, "", func(t *testing.T, tx *sqlx.Tx) {
+	test.Run(t, "", func(t *testing.T, tx *sqlx.Tx) {
 		foos := []*test.Foo{
 			{ID: 1},
 			{ID: 2},
@@ -86,7 +85,7 @@ func TestBelongsToLoad(t *testing.T) {
 		}
 	})
 
-	bobtesting.RunWithDatabase(t, "uuids", func(t *testing.T, tx *sqlx.Tx) {
+	test.Run(t, "uuids", func(t *testing.T, tx *sqlx.Tx) {
 		type Foo struct {
 			models.BaseModel
 			ID   int       `json:"id" db:"id,primary,autoincrement"`
