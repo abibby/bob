@@ -45,3 +45,9 @@ func (r *HasMany[T]) Load(ctx context.Context, tx builder.QueryExecer, relations
 	}
 	return nil
 }
+
+// ForeignKeys returns a list of related tables and what columns they are
+// related on.
+func (r *HasMany[T]) ForeignKeys() []*ForeignKey {
+	return []*ForeignKey{}
+}

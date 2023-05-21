@@ -46,16 +46,6 @@ func (r hasOneOrMany[T]) getRelatedKey() string {
 	return r.relatedKey
 }
 
-// ForeignKeys returns a list of related tables and what columns they are
-// related on.
-func (r hasOneOrMany[T]) ForeignKeys() []*ForeignKey {
-	var related T
-	return []*ForeignKey{{
-		LocalKey:     r.getParentKey(),
-		RelatedTable: builder.GetTable(related),
-		RelatedKey:   r.getRelatedKey(),
-	}}
-}
 func (r hasOneOrMany[T]) getRelated(ctx context.Context, tx builder.QueryExecer, relations []Relationship) ([]T, error) {
 	localKeys := make([]any, 0, len(relations))
 	for _, r := range relations {

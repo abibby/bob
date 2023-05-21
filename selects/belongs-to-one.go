@@ -56,3 +56,14 @@ func (r *BelongsTo[T]) Load(ctx context.Context, tx builder.QueryExecer, relatio
 	}
 	return nil
 }
+
+// ForeignKeys returns a list of related tables and what columns they are
+// related on.
+func (r *BelongsTo[T]) ForeignKeys() []*ForeignKey {
+	var related T
+	return []*ForeignKey{{
+		LocalKey:     r.getParentKey(),
+		RelatedTable: builder.GetTable(related),
+		RelatedKey:   r.getRelatedKey(),
+	}}
+}
