@@ -29,3 +29,8 @@ func (o orderBys) OrderBy(column string) orderBys {
 func (o orderBys) OrderByDesc(column string) orderBys {
 	return append(o, builder.Join([]builder.ToSQLer{builder.Identifier(column), builder.Raw("DESC")}, " "))
 }
+
+// Unordered removes all order by clauses from the query.
+func (o orderBys) Unordered() orderBys {
+	return orderBys{}
+}
