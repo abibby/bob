@@ -34,6 +34,15 @@ func (*SQLite) CurrentTime() string {
 	return "CURRENT_TIMESTAMP"
 }
 
+func (*SQLite) Binding() string {
+	return "?"
+}
+
+func UseSQLite() {
+	dialects.SetDefaultDialect(func() dialects.Dialect {
+		return &SQLite{}
+	})
+}
 func init() {
-	dialects.DefaultDialect = &SQLite{}
+	UseSQLite()
 }

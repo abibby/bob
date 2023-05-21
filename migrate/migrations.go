@@ -98,7 +98,7 @@ func (m *Migrations) Up(ctx context.Context, db builder.QueryExecer) error {
 	sql, bindings, err := schema.Create(m.table, func(b *schema.Blueprint) {
 		b.String("name")
 		b.Bool("run")
-	}).IfNotExists().ToSQL(dialects.DefaultDialect)
+	}).IfNotExists().ToSQL(dialects.New())
 	if err != nil {
 		return err
 	}

@@ -58,7 +58,7 @@ func SaveContext(ctx context.Context, tx builder.QueryExecer, v models.Model) er
 		return fmt.Errorf("before save hooks: %w", err)
 	}
 
-	d := dialects.DefaultDialect
+	d := dialects.New()
 	columns, values := columnsAndValues(reflect.ValueOf(v).Elem())
 	if v.InDatabase() {
 		err = update(ctx, tx, d, v, columns, values)

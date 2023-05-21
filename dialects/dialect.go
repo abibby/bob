@@ -71,6 +71,7 @@ type Dialect interface {
 	Identifier(string) string
 	DataType(DataType) string
 	CurrentTime() string
+	Binding() string
 }
 
 type unsetDialect struct{}
@@ -87,4 +88,16 @@ func (*unsetDialect) CurrentTime() string {
 	return "CURRENT_TIMESTAMP"
 }
 
-var DefaultDialect Dialect = &unsetDialect{}
+func (*unsetDialect) Binding() string {
+	return "?"
+}
+
+func SetDefaultDialect(dialectFactory func() Dialect) {
+	defaultDialect = dialectFactory
+}
+
+func New() Dialect {
+	return defaultDialect()
+}
+
+var defaultDialect func() Dialect = func() Dialect { return &unsetDialect{} }

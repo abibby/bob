@@ -57,7 +57,7 @@ func (b *Builder[T]) Find(tx builder.QueryExecer, primaryKeyValue any) (T, error
 
 // Load executes the query as a select statement and sets v to the result.
 func (b *Builder[T]) Load(tx builder.QueryExecer, v any) error {
-	q, bindings, err := b.ToSQL(dialects.DefaultDialect)
+	q, bindings, err := b.ToSQL(dialects.New())
 	if err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ func (b *Builder[T]) Load(tx builder.QueryExecer, v any) error {
 func (b *Builder[T]) LoadOne(tx builder.QueryExecer, v any) error {
 	q, bindings, err := b.Clone().
 		Limit(1).
-		ToSQL(dialects.DefaultDialect)
+		ToSQL(dialects.New())
 
 	if err != nil {
 		return err

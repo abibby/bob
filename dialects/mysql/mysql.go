@@ -35,6 +35,14 @@ func (*MySQL) CurrentTime() string {
 	return "CURRENT_TIMESTAMP"
 }
 
+func (*MySQL) Binding() string {
+	return "?"
+}
+func UseMySql() {
+	dialects.SetDefaultDialect(func() dialects.Dialect {
+		return &MySQL{}
+	})
+}
 func init() {
-	dialects.DefaultDialect = &MySQL{}
+	UseMySql()
 }

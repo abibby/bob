@@ -68,7 +68,7 @@ func Concat(sqlers ...ToSQLer) ToSQLer {
 
 func Literal(v any) ToSQLer {
 	return ToSQLFunc(func(d dialects.Dialect) (string, []any, error) {
-		return "?", []any{v}, nil
+		return d.Binding(), []any{v}, nil
 	})
 }
 

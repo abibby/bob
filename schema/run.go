@@ -22,7 +22,7 @@ func Run(f RunnerFunc) Runner {
 }
 
 func runQuery(ctx context.Context, tx builder.QueryExecer, sqler builder.ToSQLer) error {
-	sql, bindings, err := sqler.ToSQL(dialects.DefaultDialect)
+	sql, bindings, err := sqler.ToSQL(dialects.New())
 	if err != nil {
 		return err
 	}

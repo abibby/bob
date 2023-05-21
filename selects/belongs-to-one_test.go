@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/abibby/bob"
-	"github.com/abibby/bob/dialects"
 	"github.com/abibby/bob/dialects/sqlite"
 	"github.com/abibby/bob/insert"
 	"github.com/abibby/bob/migrate"
@@ -19,7 +18,7 @@ import (
 )
 
 func ExampleBelongsTo() {
-	dialects.DefaultDialect = &sqlite.SQLite{}
+	sqlite.UseSQLite()
 	type Bar struct {
 		bob.BaseModel
 		ID   int    `db:"id,autoincrement,primary"`

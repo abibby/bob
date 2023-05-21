@@ -6,6 +6,6 @@ import (
 )
 
 func (b *SubBuilder) Dump() *SubBuilder {
-	spew.Dump(b.ToSQL(dialects.DefaultDialect))
+	spew.Dump(b.ToSQL(dialects.New()))
 	return b
 }
