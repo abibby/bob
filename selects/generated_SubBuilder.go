@@ -119,6 +119,13 @@ func (b *SubBuilder) OrderByDesc(column string) *SubBuilder {
 	return b
 }
 
+// Unordered removes all order by clauses from the query.
+func (b *SubBuilder) Unordered() *SubBuilder {
+	b = b.Clone()
+	b.orderBys = b.orderBys.Unordered()
+	return b
+}
+
 // WithScope adds a local scope to a query.
 func (b *SubBuilder) WithScope(scope *Scope) *SubBuilder {
 	b = b.Clone()
