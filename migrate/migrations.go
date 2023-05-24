@@ -62,14 +62,14 @@ func (m *Migrations) GenerateMigration(migrationName, packageName string, model 
 		if err != nil {
 			return "", err
 		}
-		return SrcFile(migrationName, packageName, up, drop(model))
+		return srcFile(migrationName, packageName, up, drop(model))
 	}
 
 	up, down, err := m.update(model)
 	if err != nil {
 		return "", err
 	}
-	return SrcFile(migrationName, packageName, up, down)
+	return srcFile(migrationName, packageName, up, down)
 }
 
 func (m *Migrations) Blueprint(tableName string) *schema.Blueprint {

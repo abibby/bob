@@ -7,8 +7,8 @@ import (
 	"github.com/abibby/bob/bobtest"
 	"github.com/abibby/bob/builder"
 	"github.com/abibby/bob/dialects"
-	_ "github.com/abibby/bob/dialects/sqlite"
-	"github.com/abibby/bob/migrations"
+	"github.com/abibby/bob/dialects/sqlite"
+	"github.com/abibby/bob/migrate"
 	"github.com/abibby/bob/models"
 	"github.com/abibby/bob/selects"
 	"github.com/jmoiron/sqlx"
@@ -37,11 +37,13 @@ func QueryTest(t *testing.T, testCases []Case) {
 }
 
 var runner = bobtest.NewRunner(func() (*sqlx.DB, error) {
+	sqlite.UseSQLite()
 	db, err := sqlx.Open("sqlite3", ":memory:")
 	if err != nil {
 		return nil, err
 	}
-	err = migrations.Use().Up(context.Background(), db)
+	ctx := context.Background()
+	err = migrate.RunModelCreate(ctx, db, &Foo{}, &Bar{})
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +53,6 @@ var runner = bobtest.NewRunner(func() (*sqlx.DB, error) {
 var Run = runner.Run
 var RunBenchmark = runner.RunBenchmark
 
-//go:generate go run ../bob-cli/main.go generate
 type Foo struct {
 	models.BaseModel
 	ID   int                    `json:"id"   db:"id,primary,autoincrement"`
@@ -64,7 +65,6 @@ func (h *Foo) Table() string {
 	return "foos"
 }
 
-//go:generate go run ../bob-cli/main.go generate
 type Bar struct {
 	models.BaseModel
 	ID    int                      `json:"id"     db:"id,primary,autoincrement"`

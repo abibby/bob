@@ -2,6 +2,7 @@ package insert_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/abibby/bob/builder"
@@ -166,6 +167,22 @@ func TestSave_readonly(t *testing.T) {
 		newFoo, err := selects.From[*SaveFooReadonly]().First(tx)
 		assert.NoError(t, err)
 		assert.Equal(t, "", newFoo.Readonly)
+	})
+
+}
+
+func TestInsertManyContext(t *testing.T) {
+	test.Run(t, "insert", func(t *testing.T, tx *sqlx.Tx) {
+		err := insert.InsertManyContext(context.TODO(), tx, []*test.Foo{{Name: "1"}, {Name: "2"}, {Name: "3"}})
+		assert.NoError(t, err)
+
+		foos, err := selects.From[*SaveFooReadonly]().Get(tx)
+		assert.NoError(t, err)
+		assert.Len(t, foos, 3)
+		for i, foo := range foos {
+			assert.True(t, foo.InDatabase())
+			assert.Equal(t, fmt.Sprint(i+1), foo.Name)
+		}
 	})
 
 }

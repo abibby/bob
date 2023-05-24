@@ -10,6 +10,7 @@ import (
 	"github.com/abibby/bob/hooks"
 	"github.com/abibby/bob/models"
 	"github.com/abibby/bob/selects"
+	"github.com/abibby/bob/slices"
 )
 
 var relationshipInterface = reflect.TypeOf((*selects.Relationship)(nil)).Elem()
@@ -218,5 +219,100 @@ func update(ctx context.Context, tx builder.QueryExecer, d dialects.Dialect, v a
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func InsertManyContext[T models.Model](ctx context.Context, tx builder.QueryExecer, models []T) error {
+	for _, v := range models {
+		err := hooks.BeforeSave(ctx, tx, v)
+		if err != nil {
+			return fmt.Errorf("before save hooks: %w", err)
+		}
+	}
+
+	d := dialects.New()
+	var columns []string
+	values := make([][]any, len(models))
+	for i, v := range models {
+
+		c, v := columnsAndValues(reflect.ValueOf(v).Elem())
+		if columns == nil {
+			columns = c
+		}
+		values[i] = v
+	}
+	err := insertMany(ctx, tx, d, models[0], columns, values)
+	if err != nil {
+		return fmt.Errorf("insert: %w", err)
+	}
+	for _, v := range models {
+		err = selects.InitializeRelationships(v)
+		if err != nil {
+			return fmt.Errorf("initialize relationships: %w", err)
+		}
+		err := hooks.AfterSave(ctx, tx, v)
+		if err != nil {
+			return fmt.Errorf("before save hooks: %w", err)
+		}
+	}
+	return nil
+}
+
+func insertMany(ctx context.Context, tx builder.QueryExecer, d dialects.Dialect, v any, columns []string, values [][]any) error {
+	_, pKey, isAuto := isAutoIncrementing(v)
+	pKeyIndex := -1
+	if isAuto {
+		newColumns := make([]string, 0, len(columns))
+		for i, column := range columns {
+			if column != pKey {
+				newColumns = append(newColumns, column)
+			} else {
+				pKeyIndex = i
+			}
+		}
+		columns = newColumns
+	}
+	r := builder.Result().
+		AddString("INSERT INTO").
+		Add(builder.Identifier(builder.GetTable(v))).
+		Add(
+			builder.Group(
+				builder.Join(
+					builder.IdentifierList(columns),
+					", ",
+				),
+			),
+		).
+		AddString("VALUES").
+		Add(
+			builder.Join(
+				slices.Map(values, func(v []any) builder.ToSQLer {
+					newValues := make([]any, 0, len(columns))
+					for i, val := range v {
+						if i != pKeyIndex {
+							newValues = append(newValues, val)
+						}
+					}
+					return builder.Group(
+						builder.Join(
+							builder.LiteralList(newValues),
+							", ",
+						),
+					)
+				}),
+				", ",
+			),
+		)
+
+	q, bindings, err := r.ToSQL(d)
+	if err != nil {
+		return fmt.Errorf("failed to generate sql: %w", err)
+	}
+
+	_, err = tx.ExecContext(ctx, q, bindings...)
+	if err != nil {
+		return fmt.Errorf("failed to insert model: %w", err)
+	}
+
 	return nil
 }
