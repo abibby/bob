@@ -222,6 +222,9 @@ func update(ctx context.Context, tx builder.QueryExecer, d dialects.Dialect, v a
 	return nil
 }
 
+func InsertMany[T models.Model](tx builder.QueryExecer, models []T) error {
+	return InsertManyContext(context.Background(), tx, models)
+}
 func InsertManyContext[T models.Model](ctx context.Context, tx builder.QueryExecer, models []T) error {
 	for _, v := range models {
 		err := hooks.BeforeSave(ctx, tx, v)

@@ -14,3 +14,11 @@ func SaveContext(ctx context.Context, tx builder.QueryExecer, v models.Model) er
 func Save(tx builder.QueryExecer, v models.Model) error {
 	return insert.Save(tx, v)
 }
+
+func InsertManyContext[T models.Model](ctx context.Context, tx builder.QueryExecer, models []T) error {
+	return insert.InsertManyContext(ctx, tx, models)
+}
+
+func InsertMany[T models.Model](tx builder.QueryExecer, models []T) error {
+	return insert.InsertMany(ctx, tx, models)
+}
