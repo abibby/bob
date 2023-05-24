@@ -20,5 +20,5 @@ func InsertManyContext[T models.Model](ctx context.Context, tx builder.QueryExec
 }
 
 func InsertMany[T models.Model](tx builder.QueryExecer, models []T) error {
-	return insert.InsertMany(ctx, tx, models)
+	return insert.InsertMany(tx, models)
 }
