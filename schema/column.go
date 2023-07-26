@@ -15,7 +15,7 @@ type ColumnBuilder struct {
 	primary            bool
 	autoIncrement      bool
 	change             bool
-	defaultValue       builder.ToSQLer
+	defaultValue       any
 	afterColumn        string
 	unique             bool
 	defaultCurrentTime bool
@@ -69,7 +69,7 @@ func (b *ColumnBuilder) Change() *ColumnBuilder {
 	return b
 }
 func (b *ColumnBuilder) Default(v any) *ColumnBuilder {
-	b.defaultValue = builder.Literal(v)
+	b.defaultValue = v
 	return b
 }
 func (b *ColumnBuilder) Type(datatype dialects.DataType) *ColumnBuilder {
@@ -107,7 +107,7 @@ func (b *ColumnBuilder) ToSQL(d dialects.Dialect) (string, []any, error) {
 
 	if b.defaultValue != nil {
 		r.AddString("DEFAULT").
-			Add(b.defaultValue)
+			AddString(d.Escape(b.defaultValue))
 	} else if b.defaultCurrentTime {
 		r.AddString("DEFAULT").
 			AddString(d.CurrentTime())

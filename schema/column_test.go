@@ -43,8 +43,14 @@ func TestColumnBuilder(t *testing.T) {
 		{
 			Name:             "Default",
 			Builder:          schema.NewColumn("foo", dialects.DataTypeString).Default("bar"),
-			ExpectedSQL:      "\"foo\" TEXT NOT NULL DEFAULT ?",
-			ExpectedBindings: []any{"bar"},
+			ExpectedSQL:      "\"foo\" TEXT NOT NULL DEFAULT 'bar'",
+			ExpectedBindings: []any{},
+		},
+		{
+			Name:             "Default Escape",
+			Builder:          schema.NewColumn("foo", dialects.DataTypeString).Default("bar's"),
+			ExpectedSQL:      "\"foo\" TEXT NOT NULL DEFAULT 'bar''s'",
+			ExpectedBindings: []any{},
 		},
 		{
 			Name:             "Type",

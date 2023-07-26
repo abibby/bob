@@ -1,10 +1,13 @@
 package schema_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/abibby/bob/schema"
 	"github.com/abibby/bob/test"
+	"github.com/jmoiron/sqlx"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBuilder(t *testing.T) {
@@ -69,5 +72,16 @@ func TestBuilder(t *testing.T) {
 			ExpectedSQL:      "CREATE TABLE \"foo\" (\"id\" INTEGER NOT NULL, CONSTRAINT \"id-bar-foo_id\" FOREIGN KEY (\"id\") REFERENCES \"bar\"(\"foo_id\"));",
 			ExpectedBindings: []any{},
 		},
+	})
+}
+
+func TestDefaultSQLite(t *testing.T) {
+	test.Run(t, "", func(t *testing.T, tx *sqlx.Tx) {
+		c := schema.Create("foo", func(table *schema.Blueprint) {
+			table.Int("id").Default(1)
+			table.Bool("bool").Default(false)
+		})
+		err := c.Run(context.Background(), tx)
+		assert.NoError(t, err)
 	})
 }

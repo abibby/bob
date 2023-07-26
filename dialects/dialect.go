@@ -71,6 +71,7 @@ type Dialect interface {
 	Identifier(string) string
 	DataType(DataType) string
 	CurrentTime() string
+	Escape(v any) string
 	Binding() string
 }
 
@@ -86,6 +87,10 @@ func (*unsetDialect) DataType(t DataType) string {
 
 func (*unsetDialect) CurrentTime() string {
 	return "CURRENT_TIMESTAMP"
+}
+
+func (*unsetDialect) Escape(v any) string {
+	return ""
 }
 
 func (*unsetDialect) Binding() string {

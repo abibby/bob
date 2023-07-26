@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -54,6 +55,29 @@ func (*Posgtgres) DataType(t dialects.DataType) string {
 
 func (*Posgtgres) CurrentTime() string {
 	return "CURRENT_TIMESTAMP()"
+}
+
+func (s *Posgtgres) Escape(v any) string {
+	switch v := v.(type) {
+	case string:
+		return "'" + strings.ReplaceAll(v, "'", "''") + "'"
+	case int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64,
+		float32, float64:
+		return fmt.Sprint(v)
+	case bool:
+		if v {
+			return "TRUE"
+		} else {
+			return "FALSE"
+		}
+	default:
+		b, err := json.Marshal(v)
+		if err != nil {
+			panic(fmt.Errorf("failed to escape value: %w", err))
+		}
+		return s.Escape(string(b))
+	}
 }
 
 func (p *Posgtgres) Binding() string {
