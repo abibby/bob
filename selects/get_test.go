@@ -90,3 +90,19 @@ func TestFirst_returns_nil_with_no_results(t *testing.T) {
 		assert.Nil(t, foo)
 	})
 }
+
+func TestEach(t *testing.T) {
+	test.Run(t, "runs for every row", func(t *testing.T, tx *sqlx.Tx) {
+		MustSave(tx, &test.Foo{ID: 1, Name: "foo1"})
+		MustSave(tx, &test.Foo{ID: 2, Name: "foo2"})
+
+		i := 0
+		err := NewTestBuilder().Each(tx, func(v *test.Foo) error {
+			i++
+			assert.Equal(t, i, v.ID)
+			return nil
+		})
+		assert.NoError(t, err)
+		assert.Equal(t, 2, i)
+	})
+}

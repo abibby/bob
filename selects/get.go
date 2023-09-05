@@ -104,3 +104,24 @@ func (b *Builder[T]) LoadOne(tx builder.QueryExecer, v any) error {
 	}
 	return nil
 }
+
+func (b *Builder[T]) Each(tx builder.QueryExecer, cb func(v T) error) error {
+	limit := 1000
+	offset := 0
+	for {
+		models, err := b.Limit(limit).Offset(offset).Get(tx)
+		if err != nil {
+			return err
+		}
+		offset += limit
+		if len(models) == 0 {
+			return nil
+		}
+		for _, model := range models {
+			err = cb(model)
+			if err != nil {
+				return err
+			}
+		}
+	}
+}
